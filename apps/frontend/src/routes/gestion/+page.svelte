@@ -8,6 +8,7 @@
 	import GradeModal from '$lib/components/modals/GradeModal.svelte';
 	import GradeCategoryModal from '$lib/components/modals/GradeCategoryModal.svelte';
 	import GradeConfigModal from '$lib/components/modals/GradeConfigModal.svelte';
+	import GradeEquationDisplay from '$lib/components/GradeEquationDisplay.svelte';
 	import type { Subject, Schedule, User, Grade, GradeCategory, SubjectGradeConfig } from '@ramo-libre/shared';
 
 	let user: User | null = null;
@@ -515,6 +516,13 @@
 									</div>
 								</div>
 							{/if}
+
+							<!-- Ecuación de cálculo de notas -->
+							<GradeEquationDisplay 
+								grades={subjectGradeData.grades}
+								categories={subjectGradeData.categories}
+								config={subjectGradeData.config}
+							/>
 
 							<!-- Notas -->
 							<div>

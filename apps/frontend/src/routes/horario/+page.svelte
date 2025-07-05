@@ -87,7 +87,6 @@
 			href="/configuracion" 
 			class="flex items-center space-x-1 px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
 		>
-			<span class="text-xs">⚙️</span>
 			<span>Cambiar</span>
 		</a>
 	</div>

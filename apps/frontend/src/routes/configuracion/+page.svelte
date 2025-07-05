@@ -9,6 +9,7 @@
 	let editingAccount = false;
 	let tempUserData: Partial<User> = {};
 	let showDeleteConfirm = false;
+	let showDeleteDataConfirm = false;
 	let showDeleteEventsConfirm = false;
 
 	// Suscribirse a los stores
@@ -69,6 +70,15 @@
 		window.location.href = '/';
 	};
 
+	// Función para eliminar todos los datos del localStorage
+	const deleteAllData = () => {
+		// Limpiar todo el localStorage
+		localStorage.clear();
+		showDeleteDataConfirm = false;
+		// Recargar la página para reiniciar el estado de la aplicación
+		window.location.reload();
+	};
+
 	// Función para eliminar todos los eventos
 	const deleteAllEvents = () => {
 		eventsStore.clearAllEvents();
@@ -111,7 +121,7 @@
 								on:click={() => editingAccount = true}
 								class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
 							>
-								✏️ Editar
+								Editar
 							</button>
 						{/if}
 					</div>
@@ -311,10 +321,90 @@
 						<span>📊</span>
 						<span>Notas</span>
 					</h2>
-					<div class="bg-gray-100 border border-gray-300 rounded-lg p-4 text-center">
-						<span class="text-2xl">🚧</span>
-						<p class="text-gray-700 mt-2">Configuraciones de notas próximamente...</p>
-						<p class="text-sm text-gray-500 mt-1">Esta sección estará disponible en futuras actualizaciones.</p>
+					
+					<div class="space-y-6">
+						<!-- Método de cálculo de notas -->
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-3">Método de cálculo de predicciones</label>
+							<div class="space-y-3">
+								<!-- LP Smooth Solution (Seleccionado) -->
+								<label class="relative cursor-not-allowed opacity-75">
+									<input 
+										type="radio" 
+										name="calculationMethod"
+										value="lp-smooth"
+										checked={true}
+										disabled
+										class="sr-only peer"
+									/>
+									<div class="border-2 border-blue-500 bg-blue-50 rounded-lg p-4 transition-colors">
+										<div class="flex items-center justify-between mb-2">
+											<div class="flex items-center space-x-3">
+												<span class="text-2xl">🧮</span>
+												<h3 class="font-semibold text-gray-800">LP Smooth Solution</h3>
+											</div>
+											<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+												Activo
+											</span>
+										</div>
+										<p class="text-sm text-gray-600">Optimización matemática con soluciones suaves y balanceadas. Evita notas extremas y proporciona predicciones realistas.</p>
+									</div>
+								</label>
+
+								<!-- Método Simple (Deshabilitado) -->
+								<label class="relative cursor-not-allowed opacity-50">
+									<input 
+										type="radio" 
+										name="calculationMethod"
+										value="simple"
+										disabled
+										class="sr-only peer"
+									/>
+									<div class="border-2 border-gray-200 rounded-lg p-4 transition-colors">
+										<div class="flex items-center justify-between mb-2">
+											<div class="flex items-center space-x-3">
+												<span class="text-2xl">📝</span>
+												<h3 class="font-semibold text-gray-400">Método Simple</h3>
+											</div>
+											<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+												Disponible próximamente
+											</span>
+										</div>
+										<p class="text-sm text-gray-400">Cálculo básico de promedios sin optimización. Más directo pero menos preciso.</p>
+									</div>
+								</label>
+
+								<!-- Método Avanzado (Deshabilitado) -->
+								<label class="relative cursor-not-allowed opacity-50">
+									<input 
+										type="radio" 
+										name="calculationMethod"
+										value="advanced"
+										disabled
+										class="sr-only peer"
+									/>
+									<div class="border-2 border-gray-200 rounded-lg p-4 transition-colors">
+										<div class="flex items-center justify-between mb-2">
+											<div class="flex items-center space-x-3">
+												<span class="text-2xl">🎯</span>
+												<h3 class="font-semibold text-gray-400">Método Avanzado</h3>
+											</div>
+											<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+												Disponible próximamente
+											</span>
+										</div>
+										<p class="text-sm text-gray-400">Algoritmos de machine learning para predicciones personalizadas basadas en tu historial.</p>
+									</div>
+								</label>
+							</div>
+						</div>
+
+						<!-- Información adicional -->
+						<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+							<p class="text-sm text-blue-700">
+								💡 <strong>Información:</strong> El método LP Smooth Solution utiliza programación lineal para encontrar las notas mínimas requeridas de manera óptima, evitando soluciones extremas como 0.0 y 7.0 simultáneamente.
+							</p>
+						</div>
 					</div>
 				</section>
 
@@ -421,7 +511,7 @@
 								on:click={() => showDeleteEventsConfirm = true}
 								class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 text-sm"
 							>
-								<span>🗑️</span> Eliminar todos los eventos
+								Eliminar todos los eventos
 							</button>
 						</div>
 
@@ -449,14 +539,14 @@
 									on:click={handleLogout}
 									class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
 								>
-									<span>🚪</span> Cerrar sesión
+									<span><span class="text-xl"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span></span> Cerrar sesión
 								</button>
 								
 								<button 
-									on:click={() => showDeleteConfirm = true}
+									on:click={() => showDeleteDataConfirm = true}
 									class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
 								>
-									<span>⚠️</span> Eliminar cuenta
+									<span>🗑️</span> Eliminar datos
 								</button>
 							</div>
 						</div>
@@ -473,7 +563,7 @@
 									</div>
 								</div>
 								<p class="text-gray-600 text-sm">
-									Desarrollado con ❤️ para estudiantes universitarios que buscan organizar mejor su vida académica.
+									Aplicación diseñada para ayudar a estudiantes universitarios a gestionar su información académica de manera eficiente.
 								</p>
 							</div>
 						</div>
@@ -485,26 +575,36 @@
 	</div>
 </div>
 
-<!-- Modal de confirmación para eliminar cuenta -->
-{#if showDeleteConfirm}
+<!-- Modal de confirmación para eliminar todos los datos -->
+{#if showDeleteDataConfirm}
 	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
 		<div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
 			<div class="text-center mb-4">
-				<span class="text-4xl">⚠️</span>
-				<h3 class="text-xl font-bold text-red-600 mt-2">Eliminar cuenta</h3>
+				<span class="text-4xl">🗑️</span>
+				<h3 class="text-xl font-bold text-red-600 mt-2">Eliminar todos los datos</h3>
 			</div>
 			<p class="text-gray-700 mb-6 text-center">
-				¿Estás seguro de que quieres eliminar tu cuenta? Esta acción eliminará todos tus datos de forma permanente y <strong>no se puede deshacer</strong>.
+				¿Estás seguro de que quieres eliminar todos tus datos? Esta acción eliminará:
+			</p>
+			<ul class="text-sm text-gray-600 mb-6 space-y-1">
+				<li>• Todas las materias y horarios</li>
+				<li>• Todas las notas y configuraciones</li>
+				<li>• Todos los eventos guardados</li>
+				<li>• Configuraciones de usuario</li>
+				<li>• Datos de sesión</li>
+			</ul>
+			<p class="text-sm text-red-600 mb-6 text-center font-medium">
+				Esta acción <strong>no se puede deshacer</strong>.
 			</p>
 			<div class="flex space-x-3">
 				<button 
-					on:click={deleteAccount}
+					on:click={deleteAllData}
 					class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1 flex items-center justify-center gap-2"
 				>
-					<span>🗑️</span> Sí, eliminar
+					<span>🗑️</span> Sí, eliminar todo
 				</button>
 				<button 
-					on:click={() => showDeleteConfirm = false}
+					on:click={() => showDeleteDataConfirm = false}
 					class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex-1"
 				>
 					Cancelar
