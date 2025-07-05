@@ -1,0 +1,25 @@
+{
+  "name": "ramo-libre",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Aplicación web ligera para estudiantes universitarios",
+  "scripts": {
+    "dev": "concurrently \"bun run dev:frontend\" \"bun run dev:backend\"",
+    "dev:frontend": "bun --cwd apps/frontend run dev",
+    "dev:backend": "bun --cwd apps/backend run dev",
+    "build": "bun run build:frontend && bun run build:backend",
+    "build:frontend": "bun --cwd apps/frontend run build",
+    "build:backend": "bun --cwd apps/backend run build",
+    "install:all": "bun install && bun --cwd apps/frontend install && bun --cwd apps/backend install"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}

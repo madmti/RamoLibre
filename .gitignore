@@ -1,3 +1,51 @@
 # DevDocs
 context.md
 
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+.output/
+.vercel/
+.netlify/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SvelteKit
+apps/frontend/.svelte-kit/
+apps/frontend/build/
+
+# Bun
+.bun/
+bun.lockb
+
