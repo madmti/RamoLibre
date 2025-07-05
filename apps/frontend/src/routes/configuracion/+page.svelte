@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { currentUser, userPreferences, userService, isLoggedIn } from '$lib/stores/user';
+	import { eventsStore } from '$lib/stores/events';
 	import type { User, UserPreferences } from '@ramo-libre/shared';
 	
 	let user: User | null = null;
@@ -8,6 +9,7 @@
 	let editingAccount = false;
 	let tempUserData: Partial<User> = {};
 	let showDeleteConfirm = false;
+	let showDeleteEventsConfirm = false;
 
 	// Suscribirse a los stores
 	onMount(() => {
@@ -57,7 +59,6 @@
 	// Función para cerrar sesión
 	const handleLogout = () => {
 		userService.logout();
-		// Redirigir a la página principal
 		window.location.href = '/';
 	};
 
@@ -65,8 +66,13 @@
 	const deleteAccount = () => {
 		userService.logout();
 		showDeleteConfirm = false;
-		// Redirigir a la página principal
 		window.location.href = '/';
+	};
+
+	// Función para eliminar todos los eventos
+	const deleteAllEvents = () => {
+		eventsStore.clearAllEvents();
+		showDeleteEventsConfirm = false;
 	};
 </script>
 
@@ -105,7 +111,7 @@
 								on:click={() => editingAccount = true}
 								class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
 							>
-								Editar
+								✏️ Editar
 							</button>
 						{/if}
 					</div>
@@ -206,15 +212,15 @@
 							<div class="flex space-x-3 mt-6 pt-4 border-t border-gray-200">
 								<button 
 									on:click={saveAccountChanges}
-									class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors"
+									class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
 								>
-									Guardar cambios
+									✅ Guardar cambios
 								</button>
 								<button 
 									on:click={cancelEdit}
 									class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors"
 								>
-									Cancelar
+									❌ Cancelar
 								</button>
 							</div>
 						{/if}
@@ -233,7 +239,7 @@
 							<label class="block text-sm font-medium text-gray-700 mb-3">Vista preferida del horario</label>
 							<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 								<!-- Vista Lista -->
-								<label class="relative">
+								<label class="relative cursor-pointer">
 									<input 
 										type="radio" 
 										name="scheduleView"
@@ -242,7 +248,7 @@
 										on:change={() => updatePreference('scheduleView', 'list')}
 										class="sr-only peer"
 									/>
-									<div class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
 										<div class="flex items-center space-x-3 mb-2">
 											<span class="text-2xl">📋</span>
 											<h3 class="font-semibold text-gray-800">Lista</h3>
@@ -252,7 +258,7 @@
 								</label>
 
 								<!-- Vista Tabla/Grid -->
-								<label class="relative">
+								<label class="relative cursor-pointer">
 									<input 
 										type="radio" 
 										name="scheduleView"
@@ -261,7 +267,7 @@
 										on:change={() => updatePreference('scheduleView', 'grid')}
 										class="sr-only peer"
 									/>
-									<div class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
 										<div class="flex items-center space-x-3 mb-2">
 											<span class="text-2xl">📊</span>
 											<h3 class="font-semibold text-gray-800">Tabla</h3>
@@ -271,7 +277,7 @@
 								</label>
 
 								<!-- Vista Tarjetas -->
-								<label class="relative">
+								<label class="relative cursor-pointer">
 									<input 
 										type="radio" 
 										name="scheduleView"
@@ -280,7 +286,7 @@
 										on:change={() => updatePreference('scheduleView', 'cards')}
 										class="sr-only peer"
 									/>
-									<div class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
 										<div class="flex items-center space-x-3 mb-2">
 											<span class="text-2xl">🗃️</span>
 											<h3 class="font-semibold text-gray-800">Tarjetas</h3>
@@ -305,19 +311,125 @@
 						<span>📊</span>
 						<span>Notas</span>
 					</h2>
-					<div class="bg-gray-100 border border-gray-300 rounded-lg p-4">
-						<p class="text-gray-700">🚧 Configuraciones de notas próximamente...</p>
+					<div class="bg-gray-100 border border-gray-300 rounded-lg p-4 text-center">
+						<span class="text-2xl">🚧</span>
+						<p class="text-gray-700 mt-2">Configuraciones de notas próximamente...</p>
+						<p class="text-sm text-gray-500 mt-1">Esta sección estará disponible en futuras actualizaciones.</p>
 					</div>
 				</section>
 
 				<!-- === EVENTOS === -->
 				<section class="bg-gray-50 rounded-xl p-6">
 					<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
-						<span>�</span>
+						<span>🎯</span>
 						<span>Eventos</span>
 					</h2>
-					<div class="bg-gray-100 border border-gray-300 rounded-lg p-4">
-						<p class="text-gray-700">�🚧 Configuraciones de eventos próximamente...</p>
+
+					<div class="space-y-6">
+						<!-- Selección de vista -->
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-3">Vista preferida de eventos</label>
+							<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+								<!-- Vista Calendario -->
+								<label class="relative cursor-pointer">
+									<input 
+										type="radio" 
+										name="eventsView"
+										value="calendar"
+										checked={preferences?.eventsView === 'calendar'}
+										on:change={() => updatePreference('eventsView', 'calendar')}
+										class="sr-only peer"
+									/>
+									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+										<div class="flex items-center space-x-3 mb-2">
+											<span class="text-2xl">📅</span>
+											<h3 class="font-semibold text-gray-800">Calendario</h3>
+										</div>
+										<p class="text-sm text-gray-600">Vista mensual tipo calendario con eventos en cuadrícula.</p>
+									</div>
+								</label>
+
+								<!-- Vista Lista -->
+								<label class="relative cursor-pointer">
+									<input 
+										type="radio" 
+										name="eventsView"
+										value="list"
+										checked={preferences?.eventsView === 'list'}
+										on:change={() => updatePreference('eventsView', 'list')}
+										class="sr-only peer"
+									/>
+									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+										<div class="flex items-center space-x-3 mb-2">
+											<span class="text-2xl">📋</span>
+											<h3 class="font-semibold text-gray-800">Lista</h3>
+										</div>
+										<p class="text-sm text-gray-600">Vista lista ordenada por fecha con información detallada.</p>
+									</div>
+								</label>
+
+								<!-- Vista Kanban -->
+								<label class="relative cursor-pointer">
+									<input 
+										type="radio" 
+										name="eventsView"
+										value="kanban"
+										checked={preferences?.eventsView === 'kanban'}
+										on:change={() => updatePreference('eventsView', 'kanban')}
+										class="sr-only peer"
+									/>
+									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+										<div class="flex items-center space-x-3 mb-2">
+											<span class="text-2xl">🗂️</span>
+											<h3 class="font-semibold text-gray-800">Kanban</h3>
+										</div>
+										<p class="text-sm text-gray-600">Vista tablero con eventos organizados por columnas.</p>
+									</div>
+								</label>
+
+								<!-- Vista Timeline -->
+								<label class="relative cursor-pointer">
+									<input 
+										type="radio" 
+										name="eventsView"
+										value="timeline"
+										checked={preferences?.eventsView === 'timeline'}
+										on:change={() => updatePreference('eventsView', 'timeline')}
+										class="sr-only peer"
+									/>
+									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+										<div class="flex items-center space-x-3 mb-2">
+											<span class="text-2xl">📈</span>
+											<h3 class="font-semibold text-gray-800">Timeline</h3>
+										</div>
+										<p class="text-sm text-gray-600">Vista cronológica tipo línea de tiempo con eventos.</p>
+									</div>
+								</label>
+							</div>
+						</div>
+
+						<!-- Gestión de eventos -->
+						<div class="bg-red-50 border border-red-200 rounded-lg p-4">
+							<h3 class="text-lg font-semibold text-red-800 mb-3 flex items-center gap-2">
+								<span>🗑️</span>
+								Gestión de eventos
+							</h3>
+							<p class="text-red-700 mb-3 text-sm">
+								Elimina todos tus eventos guardados. Esta acción no se puede deshacer.
+							</p>
+							<button 
+								on:click={() => showDeleteEventsConfirm = true}
+								class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 text-sm"
+							>
+								<span>🗑️</span> Eliminar todos los eventos
+							</button>
+						</div>
+
+						<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+							<p class="text-sm text-blue-700">
+								💡 <strong>Tip:</strong> La vista seleccionada se aplicará automáticamente al abrir la sección de eventos.
+							</p>
+						</div>
 					</div>
 				</section>
 
@@ -337,24 +449,32 @@
 									on:click={handleLogout}
 									class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
 								>
-									<span class="text-xl"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span> Cerrar sesión
+									<span>🚪</span> Cerrar sesión
 								</button>
 								
 								<button 
 									on:click={() => showDeleteConfirm = true}
-									class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+									class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
 								>
-									🗑️ Eliminar cuenta
+									<span>⚠️</span> Eliminar cuenta
 								</button>
 							</div>
 						</div>
 
 						<!-- Información de la app -->
 						<div>
-							<h3 class="text-lg font-semibold text-gray-800 mb-4">Acerca de</h3>
+							<h3 class="text-lg font-semibold text-gray-800 mb-4">Acerca de la aplicación</h3>
 							<div class="bg-white rounded-lg p-4 border border-gray-200">
-								<p class="text-gray-700 mb-2"><strong>Ramo Libre</strong> v1.0.0</p>
-								<p class="text-gray-600 text-sm">Gestor académico universitario desarrollado con ❤️</p>
+								<div class="flex items-center gap-3 mb-3">
+									<span class="text-3xl">🎓</span>
+									<div>
+										<p class="text-gray-700 font-semibold"><strong>Ramo Libre</strong> v1.0.0</p>
+										<p class="text-gray-600 text-sm">Gestor académico universitario</p>
+									</div>
+								</div>
+								<p class="text-gray-600 text-sm">
+									Desarrollado con ❤️ para estudiantes universitarios que buscan organizar mejor su vida académica.
+								</p>
 							</div>
 						</div>
 					</div>
@@ -368,20 +488,52 @@
 <!-- Modal de confirmación para eliminar cuenta -->
 {#if showDeleteConfirm}
 	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-		<div class="bg-white rounded-xl p-6 max-w-md w-full">
-			<h3 class="text-xl font-bold text-red-600 mb-4">⚠️ Eliminar cuenta</h3>
-			<p class="text-gray-700 mb-6">
-				¿Estás seguro de que quieres eliminar tu cuenta? Esta acción eliminará todos tus datos de forma permanente y no se puede deshacer.
+		<div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
+			<div class="text-center mb-4">
+				<span class="text-4xl">⚠️</span>
+				<h3 class="text-xl font-bold text-red-600 mt-2">Eliminar cuenta</h3>
+			</div>
+			<p class="text-gray-700 mb-6 text-center">
+				¿Estás seguro de que quieres eliminar tu cuenta? Esta acción eliminará todos tus datos de forma permanente y <strong>no se puede deshacer</strong>.
 			</p>
 			<div class="flex space-x-3">
 				<button 
 					on:click={deleteAccount}
-					class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1"
+					class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1 flex items-center justify-center gap-2"
 				>
-					Sí, eliminar
+					<span>🗑️</span> Sí, eliminar
 				</button>
 				<button 
 					on:click={() => showDeleteConfirm = false}
+					class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex-1"
+				>
+					Cancelar
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- Modal de confirmación para eliminar todos los eventos -->
+{#if showDeleteEventsConfirm}
+	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+		<div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
+			<div class="text-center mb-4">
+				<span class="text-4xl">🗑️</span>
+				<h3 class="text-xl font-bold text-red-600 mt-2">Eliminar todos los eventos</h3>
+			</div>
+			<p class="text-gray-700 mb-6 text-center">
+				¿Estás seguro de que quieres eliminar todos tus eventos? Esta acción eliminará todos los eventos guardados de forma permanente y <strong>no se puede deshacer</strong>.
+			</p>
+			<div class="flex space-x-3">
+				<button 
+					on:click={deleteAllEvents}
+					class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1 flex items-center justify-center gap-2"
+				>
+					<span>🗑️</span> Sí, eliminar todos
+				</button>
+				<button 
+					on:click={() => showDeleteEventsConfirm = false}
 					class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex-1"
 				>
 					Cancelar

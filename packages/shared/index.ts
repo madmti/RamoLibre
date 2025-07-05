@@ -39,6 +39,7 @@ export interface UserPreferences {
   syncEnabled: boolean;
   privateMode: boolean;
   scheduleView: 'list' | 'grid' | 'cards';
+  eventsView: 'calendar' | 'list' | 'kanban' | 'timeline';
 }
 
 export interface UserStats {
@@ -78,13 +79,18 @@ export interface Event {
   id: string;
   title: string;
   description?: string;
-  date: string;
-  time?: string;
-  type: 'exam' | 'assignment' | 'class' | 'meeting' | 'other';
+  date: string; // YYYY-MM-DD format
+  time?: string; // HH:MM format
+  endTime?: string; // HH:MM format for duration
+  type: 'exam' | 'assignment' | 'class' | 'meeting' | 'project' | 'deadline' | 'other';
   subjectId?: string;
   priority: 'low' | 'medium' | 'high';
   completed: boolean;
+  location?: string;
+  reminder?: number; // minutes before event
+  isAllDay?: boolean;
   userId: string;
+  createdAt: string;
 }
 
 export interface Schedule {

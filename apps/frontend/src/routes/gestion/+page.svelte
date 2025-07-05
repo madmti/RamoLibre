@@ -173,7 +173,7 @@
 <div class="container mx-auto px-4 py-8">
 	<!-- Encabezado -->
 	<div class="mb-8">
-		<h1 class="text-3xl font-bold text-gray-800 mb-2">📚 Gestión de Horarios</h1>
+		<h1 class="text-3xl font-bold text-gray-800 mb-2">📚 Gestión de Materias</h1>
 		<p class="text-gray-600">Administra tus materias y horarios académicos</p>
 	</div>
 

@@ -10,7 +10,8 @@ const defaultPreferences: UserPreferences = {
   notifications: true,
   syncEnabled: false,
   privateMode: false,
-  scheduleView: 'cards'
+  scheduleView: 'cards',
+  eventsView: 'calendar'
 };
 
 // Store para el usuario actual
