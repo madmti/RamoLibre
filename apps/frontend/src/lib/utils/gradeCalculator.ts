@@ -25,6 +25,8 @@ export class GradeCalculator {
 
   /**
    * Calcula la nota actual de una materia basada en las notas existentes y categorías
+   * Usa la fórmula: ∑ c_i · w_i · s_i
+   * donde c_i = nota normalizada, w_i = peso de la nota, s_i = peso de la sección (1.0 si no tiene categoría)
    */
   calculateCurrentGrade(
     grades: Grade[], 
@@ -38,47 +40,35 @@ export class GradeCalculator {
     if (gradesWithValue.length === 0) return 0;
 
     let totalWeightedGrade = 0;
-    let totalCategoryWeight = 0;
 
-    if (categories.length > 0) {
-      // Cálculo basado en categorías
-      for (const category of categories) {
-        const categoryGrades = gradesWithValue.filter(g => g.categoryId === category.id);
-        
-        if (categoryGrades.length > 0) {
-          // Calcular el promedio ponderado dentro de la categoría
-          let categoryWeightedSum = 0;
-          let categoryTotalWeight = 0;
-          
-          for (const grade of categoryGrades) {
-            // Normalizar la nota a la escala del config
-            const normalizedGrade = (grade.value! / grade.maxValue) * config.maxGrade;
-            categoryWeightedSum += normalizedGrade * grade.weight;
-            categoryTotalWeight += grade.weight;
-          }
-          
-          const categoryAverage = categoryTotalWeight > 0 ? categoryWeightedSum / categoryTotalWeight : 0;
-          
-          // Aplicar el peso de la categoría al promedio de la categoría
-          totalWeightedGrade += categoryAverage * (category.weight / 100);
-          totalCategoryWeight += category.weight / 100;
+    // Procesar cada nota individualmente usando la fórmula: ∑ c_i · w_i · s_i
+    for (const grade of gradesWithValue) {
+      // c_i: Normalizar la nota a la escala del config
+      const normalizedGrade = (grade.value! / grade.maxValue) * config.maxGrade;
+      
+      // w_i: Peso de la nota individual
+      const gradeWeight = grade.weight / 100;
+      
+      // s_i: Peso de la sección/categoría (1.0 si no tiene categoría)
+      let sectionWeight = 1.0; // Default para notas sin categoría
+      
+      if (grade.categoryId) {
+        // Buscar la categoría correspondiente
+        const category = categories.find(c => c.id === grade.categoryId);
+        if (category) {
+          sectionWeight = category.weight / 100;
         }
       }
       
-      // El resultado final es la suma ponderada de las categorías
-      return totalCategoryWeight > 0 ? totalWeightedGrade : 0;
-    } else {
-      // Cálculo basado en pesos individuales (sin categorías)
-      let totalIndividualWeight = 0;
+      // Aplicar la fórmula: c_i · w_i · s_i
+      const contribution = normalizedGrade * gradeWeight * sectionWeight;
+      totalWeightedGrade += contribution;
       
-      for (const grade of gradesWithValue) {
-        const normalizedGrade = (grade.value! / grade.maxValue) * config.maxGrade;
-        totalWeightedGrade += normalizedGrade * (grade.weight / 100);
-        totalIndividualWeight += grade.weight / 100;
-      }
-      
-      return totalIndividualWeight > 0 ? totalWeightedGrade / totalIndividualWeight : 0;
+      console.log(`Grade ${grade.description}: ${grade.value} -> normalized=${normalizedGrade}, gradeWeight=${gradeWeight}, sectionWeight=${sectionWeight}, contribution=${contribution}`);
     }
+
+    console.log(`Total current grade: ${totalWeightedGrade}`);
+    return totalWeightedGrade;
   }
 
   /**
@@ -248,9 +238,14 @@ export class GradeCalculator {
       }
 
       if (solution.result.status === this.glpk.GLP_OPT) {
-        // Solución óptima encontrada
-        const requiredGrades = this.extractRequiredGrades(solution, variableCategories, variables, variableMapping, config);
-        const projectedGrade = this.calculateProjectedGrade(currentGrades, categories, config, requiredGrades);
+        // Solución óptima encontrada - balancear las notas para evitar extremos
+        const minRequiredGrades = this.extractRequiredGrades(solution, variableCategories, variables, variableMapping, config);
+        
+        // Calcular la contribución objetivo necesaria
+        const targetContribution = this.calculateTargetContribution(currentGrades, categories, config, targetGrade);
+        
+        const balancedGrades = this.balanceGrades(minRequiredGrades, variableMapping, variableCategories, config, targetContribution);
+        const projectedGrade = this.calculateProjectedGrade(currentGrades, categories, config, balancedGrades);
         
         return {
           possibleGrades: {
@@ -259,8 +254,8 @@ export class GradeCalculator {
             target: targetGrade
           },
           canPass: projectedGrade >= targetGrade,
-          requiredGrades,
-          recommendations: this.generateRecommendations(requiredGrades, projectedGrade, targetGrade, config)
+          requiredGrades: balancedGrades,
+          recommendations: this.generateRecommendations(balancedGrades, projectedGrade, targetGrade, config)
         };
       } else {
         // No se encontró solución factible
@@ -605,6 +600,149 @@ export class GradeCalculator {
     if (name.includes('participacion') || name.includes('participation')) return 'participation';
     return 'other';
   }
+
+  /**
+   * Balancea las notas requeridas para evitar soluciones extremas
+   */
+  private balanceGrades(
+    requiredGrades: RequiredGrade[],
+    variableMapping: { name: string; grade: Grade; categoryIndex: number; gradeIndex: number }[],
+    variableCategories: { category: GradeCategory | null; variableGrades: Grade[] }[],
+    config: SubjectGradeConfig,
+    targetContribution: number
+  ): RequiredGrade[] {
+    if (requiredGrades.length <= 1) {
+      return requiredGrades; // No hay nada que balancear
+    }
+
+    // Calcular pesos relativos para distribución proporcional
+    let totalWeight = 0;
+    const weights: number[] = [];
+    
+    for (let i = 0; i < variableMapping.length; i++) {
+      const mapping = variableMapping[i];
+      const categoryItem = variableCategories[mapping.categoryIndex];
+      const gradeWeight = mapping.grade.weight / 100;
+      const categoryWeight = categoryItem.category ? (categoryItem.category.weight / 100) : 1.0;
+      const effectiveWeight = gradeWeight * categoryWeight;
+      
+      weights.push(effectiveWeight);
+      totalWeight += effectiveWeight;
+    }
+
+    // Distribución inicial proporcional al peso
+    const balancedGrades: RequiredGrade[] = [];
+    let distributedContribution = 0;
+    
+    for (let i = 0; i < requiredGrades.length; i++) {
+      const originalGrade = requiredGrades[i];
+      const mapping = variableMapping[i];
+      const categoryItem = variableCategories[mapping.categoryIndex];
+      
+      // Calcular una nota basada en distribución proporcional
+      const weightRatio = weights[i] / totalWeight;
+      const contributionNeeded = targetContribution * weightRatio;
+      const gradeNeeded = contributionNeeded / weights[i];
+      
+      // Suavizar mezclando con el promedio
+      const averageGrade = targetContribution / totalWeight; // Promedio simple
+      const smoothedGrade = (gradeNeeded * 0.6) + (averageGrade * 0.4);
+      
+      // Asegurar que esté dentro de los límites
+      const clampedValue = Math.max(config.minGrade, Math.min(config.maxGrade, smoothedGrade));
+      
+      const categoryName = categoryItem.category ? categoryItem.category.name : 'Sin categoría';
+      
+      balancedGrades.push({
+        ...originalGrade,
+        requiredValue: Math.round(clampedValue * 10) / 10,
+        description: `Se necesita una nota de ${(Math.round(clampedValue * 10) / 10).toFixed(1)} en "${mapping.grade.description}" ${categoryItem.category ? `(${categoryName})` : '(Sin categoría)'}`
+      });
+      
+      distributedContribution += clampedValue * weights[i];
+    }
+    
+    // Ajuste final si la distribución no alcanza el objetivo
+    if (distributedContribution < targetContribution) {
+      const deficit = targetContribution - distributedContribution;
+      const adjustmentPerGrade = deficit / requiredGrades.length;
+      
+      for (let i = 0; i < balancedGrades.length; i++) {
+        const grade = balancedGrades[i];
+        const mapping = variableMapping[i];
+        const adjustedValue = grade.requiredValue + adjustmentPerGrade;
+        const clampedValue = Math.max(config.minGrade, Math.min(config.maxGrade, adjustedValue));
+        
+        grade.requiredValue = Math.round(clampedValue * 10) / 10;
+        grade.description = `Se necesita una nota de ${grade.requiredValue.toFixed(1)} en "${mapping.grade.description}" ${grade.categoryName.includes('Sin categoría') ? '(Sin categoría)' : `(${grade.categoryName.split(' - ')[0]})`}`;
+      }
+    }
+    
+    return balancedGrades;
+  }
+
+  /**
+   * Calcula la contribución total de las notas balanceadas
+   */
+  private calculateTotalContributionForBalance(
+    grades: RequiredGrade[],
+    variableMapping: { name: string; grade: Grade; categoryIndex: number; gradeIndex: number }[],
+    variableCategories: { category: GradeCategory | null; variableGrades: Grade[] }[]
+  ): number {
+    let totalContribution = 0;
+    
+    for (let i = 0; i < grades.length; i++) {
+      const grade = grades[i];
+      const mapping = variableMapping[i];
+      const gradeWeight = mapping.grade.weight / 100;
+      
+      // Determinar el peso de la categoría
+      const categoryItem = variableCategories[mapping.categoryIndex];
+      const categoryWeight = categoryItem.category ? (categoryItem.category.weight / 100) : 1.0;
+      
+      totalContribution += grade.requiredValue * gradeWeight * categoryWeight;
+    }
+    
+    return totalContribution;
+  }
+
+  /**
+   * Calcula la contribución objetivo necesaria de las notas variables
+   */
+  private calculateTargetContribution(
+    currentGrades: Grade[],
+    categories: GradeCategory[],
+    config: SubjectGradeConfig,
+    targetGrade: number
+  ): number {
+    // Calcular la contribución actual de las notas existentes
+    let currentContribution = 0;
+    
+    // Contribución de notas en categorías
+    for (const category of categories) {
+      const categoryGrades = currentGrades.filter(g => g.categoryId === category.id && g.value !== undefined);
+      const categoryWeight = category.weight / 100; // s_i (peso de la sección)
+      
+      for (const grade of categoryGrades) {
+        const gradeWeight = grade.weight / 100; // w_i (peso de la nota)
+        const normalizedGrade = (grade.value! / grade.maxValue) * config.maxGrade; // c_i normalizada
+        currentContribution += normalizedGrade * gradeWeight * categoryWeight;
+      }
+    }
+
+    // Contribución de notas sin categoría (peso de sección = 1.0)
+    const noCategoryGrades = currentGrades.filter(g => !g.categoryId && g.value !== undefined);
+    
+    for (const grade of noCategoryGrades) {
+      const gradeWeight = grade.weight / 100; // w_i (peso de la nota)
+      const normalizedGrade = (grade.value! / grade.maxValue) * config.maxGrade; // c_i normalizada
+      currentContribution += normalizedGrade * gradeWeight; // Sin peso de categoría (s_i = 1.0)
+    }
+
+    // La contribución objetivo de las notas variables es: targetGrade - currentContribution
+    return targetGrade - currentContribution;
+  }
+
 }
 
 // Instancia singleton del calculador

@@ -4,7 +4,7 @@
 	import { scheduleService, subjects } from '$lib/stores/schedule';
 	import { currentUser } from '$lib/stores/user';
 	import { gradeCalculator } from '$lib/utils/gradeCalculator';
-	import type { Subject, User, GradeCalculationResult } from '@ramo-libre/shared';
+	import type { Subject, User, GradeCalculationResult, Grade } from '@ramo-libre/shared';
 
 	let user: User | null = null;
 	let subjectList: Subject[] = [];
@@ -13,6 +13,7 @@
 	let isCalculating = false;
 	let subjectsInitialized = false;
 	let gradesInitialized = false;
+	let stats = { totalSubjects: 0, averageGrade: 0, passingSubjects: 0, failingSubjects: 0 };
 
 	onMount(() => {
 		// Inicializar servicios
@@ -81,6 +82,9 @@
 		
 		calculationResults = newResults;
 		isCalculating = false;
+		
+		// Forzar recálculo de estadísticas después de obtener los resultados
+		stats = getOverallStats();
 	}
 
 	function getSubjectData(subjectId: string) {
@@ -94,7 +98,7 @@
 
 		const subjectsWithGrades = subjectList.filter(s => {
 			const data = getSubjectData(s.id);
-			return data.grades.length > 0;
+			return data.grades.length > 0 && data.config;
 		});
 		
 		const totalSubjects = subjectsWithGrades.length;
@@ -103,22 +107,57 @@
 			return { totalSubjects: 0, averageGrade: 0, passingSubjects: 0, failingSubjects: 0 };
 		}
 
-		const averageGrade = subjectsWithGrades.reduce((sum, s) => {
-			return sum + getSubjectData(s.id).currentAverage;
-		}, 0) / totalSubjects;
+		// Calcular promedio general y estados correctos
+		let totalWeightedGrade = 0;
+		let approvedCount = 0;
+		let inProgressCount = 0;
+		let failedCount = 0;
 
-		const passingSubjects = subjectsWithGrades.filter(s => {
-			const data = getSubjectData(s.id);
-			const passingGrade = data.config?.passingGrade || 4.0;
-			return data.currentAverage >= passingGrade;
-		}).length;
+		for (const subject of subjectsWithGrades) {
+			const data = getSubjectData(subject.id);
+			
+			// Usar la nota actual ya calculada en el store
+			const currentGrade = data.currentAverage;
+			totalWeightedGrade += currentGrade;
+			
+			// Determinar estado de la materia
+			const calculation = calculationResults[subject.id];
+			// Solo puede aprobar si hay cálculo y canPass es true, o si no hay notas variables
+			const hasVariableGrades = data.grades.some((g: Grade) => g.value === undefined);
+			const canPass = hasVariableGrades 
+				? (calculation ? calculation.canPass : false) 
+				: true;
+			
+			const status = gradeCalculator.getSubjectStatus(currentGrade, data.config.passingGrade, canPass);
+			
+			if (status === 'Aprobado') {
+				approvedCount++;
+			} else if (status === 'En curso') {
+				inProgressCount++;
+			} else {
+				failedCount++;
+			}
+		}
 
-		const failingSubjects = totalSubjects - passingSubjects;
+		const averageGrade = totalSubjects > 0 ? totalWeightedGrade / totalSubjects : 0;
 
-		return { totalSubjects, averageGrade, passingSubjects, failingSubjects };
+		// Para las métricas de la UI:
+		// "Aprobando" = Aprobados + En curso (materias que aún pueden aprobar)
+		// "En Riesgo" = Reprobados (materias que ya no pueden aprobar)
+		return { 
+			totalSubjects, 
+			averageGrade, 
+			passingSubjects: approvedCount, // Aprobando = Aprobados + En curso
+			failingSubjects: failedCount // En riesgo = Reprobados
+		};
 	}
 
-	$: stats = getOverallStats();
+	$: {
+		// Solo recalcular estadísticas cuando cambien los datos base
+		if (subjectsInitialized && gradesInitialized && !isCalculating) {
+			stats = getOverallStats();
+		}
+	}
 </script>
 
 <svelte:head>
@@ -170,24 +209,6 @@
 				<div class="text-2xl">⚠️</div>
 			</div>
 		</div>
-	</div>
-
-	<!-- Controles -->
-	<div class="flex justify-between items-center mb-6">
-		<a 
-			href="/gestion"
-			class="text-blue-600 hover:text-blue-700 flex items-center space-x-2"
-		>
-			<span>←</span>
-			<span>Volver a Gestión</span>
-		</a>
-		<button 
-			on:click={calculateAllResults}
-			disabled={isCalculating}
-			class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors"
-		>
-			{isCalculating ? 'Calculando...' : 'Recalcular'}
-		</button>
 	</div>
 
 	{#if !subjectsInitialized || !gradesInitialized}
