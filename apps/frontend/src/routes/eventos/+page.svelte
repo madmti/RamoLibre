@@ -15,7 +15,13 @@
 	let eventList: Event[] = [];
 	let subjectList: Subject[] = [];
 	let currentView: 'calendar' | 'list' | 'kanban' | 'timeline' = 'calendar';
-	let selectedDate: string = new Date().toISOString().split('T')[0];
+	let selectedDate: string = (() => {
+		const today = new Date();
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, '0');
+		const day = String(today.getDate()).padStart(2, '0');
+		return `${year}-${month}-${day}`;
+	})();
 	let filterType: 'all' | 'upcoming' | 'overdue' | 'completed' = 'all';
 	let filterSubject: string = 'all';
 
@@ -26,16 +32,15 @@
 
 	// Estadísticas calculadas
 	$: upcomingEvents = eventList.filter(e => {
-		const eventDate = new Date(e.date);
 		const today = new Date();
-		return eventDate >= today && !e.completed;
+		const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+		return e.date >= todayString && !e.completed;
 	});
 
 	$: overdueEvents = eventList.filter(e => {
-		const eventDate = new Date(e.date);
 		const today = new Date();
-		today.setHours(0, 0, 0, 0);
-		return eventDate < today && !e.completed;
+		const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+		return e.date < todayString && !e.completed;
 	});
 
 	$: completedEvents = eventList.filter(e => e.completed);
@@ -245,9 +250,10 @@
 				<div class="flex justify-center">
 					<button 
 						on:click={handleAddEvent}
-						class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+						class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
 					>
-						➕ Crear Primer Evento
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+						Crear Primer Evento
 					</button>
 				</div>
 			</div>
@@ -261,9 +267,10 @@
 				<div class="flex justify-center">
 					<button 
 						on:click={handleAddEvent}
-						class="px-3 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+						class="px-3 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
 					>
-						➕ Agregar Evento
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+						Agregar Evento
 					</button>
 				</div>
 			</div>

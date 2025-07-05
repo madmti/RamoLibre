@@ -14,6 +14,19 @@
 	let timelineView: 'week' | 'month' = 'week';
 	let selectedDate = new Date();
 
+	// Funciones auxiliares para fechas locales
+	function createLocalDate(dateString: string): Date {
+		const [year, month, day] = dateString.split('-').map(Number);
+		return new Date(year, month - 1, day);
+	}
+
+	function getLocalDateString(date: Date): string {
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+		return `${year}-${month}-${day}`;
+	}
+
 	// Obtener eventos para el período seleccionado (reactivo)
 	$: timelineEvents = getEventsForPeriod(selectedDate, timelineView, events);
 
@@ -33,11 +46,13 @@
 			endDate.setMonth(endDate.getMonth() + 1, 0);
 		}
 
+		const startDateString = getLocalDateString(startDate);
+		const endDateString = getLocalDateString(endDate);
+
 		return eventList.filter(event => {
-			const eventDate = new Date(event.date);
-			return eventDate >= startDate && eventDate <= endDate;
+			return event.date >= startDateString && event.date <= endDateString;
 		}).sort((a, b) => {
-			const dateCompare = new Date(a.date).getTime() - new Date(b.date).getTime();
+			const dateCompare = a.date.localeCompare(b.date);
 			if (dateCompare === 0 && a.time && b.time) {
 				return a.time.localeCompare(b.time);
 			}
@@ -84,18 +99,23 @@
 	}
 
 	function formatEventDate(dateString: string): string {
-		const date = new Date(dateString);
+		// Crear fecha local sin interpretación UTC
+		const [year, month, day] = dateString.split('-').map(Number);
+		const date = new Date(year, month - 1, day);
 		const today = new Date();
+		const todayString = getLocalDateString(today);
 		const tomorrow = new Date(today);
 		tomorrow.setDate(today.getDate() + 1);
+		const tomorrowString = getLocalDateString(tomorrow);
 		const yesterday = new Date(today);
 		yesterday.setDate(today.getDate() - 1);
+		const yesterdayString = getLocalDateString(yesterday);
 
-		if (date.toDateString() === today.toDateString()) {
+		if (dateString === todayString) {
 			return 'Hoy';
-		} else if (date.toDateString() === tomorrow.toDateString()) {
+		} else if (dateString === tomorrowString) {
 			return 'Mañana';
-		} else if (date.toDateString() === yesterday.toDateString()) {
+		} else if (dateString === yesterdayString) {
 			return 'Ayer';
 		} else {
 			return date.toLocaleDateString('es-ES', {
@@ -188,7 +208,7 @@
 						<div class="flex items-center space-x-4 mb-4">
 							<div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center relative z-10">
 								<span class="text-white text-xs font-bold">
-									{new Date(date).getDate()}
+									{createLocalDate(date).getDate()}
 								</span>
 							</div>
 							<h3 class="text-lg font-semibold text-gray-800 capitalize">
@@ -263,10 +283,10 @@
 													<span class="text-xs text-green-600 font-medium">Completado</span>
 												</div>
 											{:else}
-												{@const eventDate = new Date(event.date)}
 												{@const today = new Date()}
-												{@const isOverdue = eventDate < today}
-												{@const isToday = eventDate.toDateString() === today.toDateString()}
+												{@const todayString = getLocalDateString(today)}
+												{@const isOverdue = event.date < todayString}
+												{@const isToday = event.date === todayString}
 												
 												{#if isOverdue}
 													<div class="flex items-center space-x-1">

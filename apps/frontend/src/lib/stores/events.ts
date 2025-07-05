@@ -1,6 +1,20 @@
 import { writable, get } from 'svelte/store';
 import type { Event, Subject } from '@ramo-libre/shared';
 
+// Función auxiliar para crear fecha local sin interpretación UTC
+function createLocalDate(dateString: string): Date {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+// Función auxiliar para obtener fecha local en formato YYYY-MM-DD
+function getLocalDateString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // Estados de los stores
 export const events = writable<Event[]>([]);
 export const isLoading = writable(false);
@@ -86,8 +100,15 @@ class EventService {
 
   // Agregar nuevo evento
   addEvent(eventData: Omit<Event, 'id' | 'createdAt' | 'userId'>, userId: string): Event {
+    // Normalizar fecha a formato local YYYY-MM-DD
+    let localDate = eventData.date;
+    if (Object.prototype.toString.call(eventData.date) === '[object Date]') {
+      const d = eventData.date as unknown as Date;
+      localDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
     const newEvent: Event = {
       ...eventData,
+      date: localDate,
       id: this.generateId(),
       userId,
       createdAt: new Date().toISOString()
@@ -141,25 +162,25 @@ class EventService {
   getUpcomingEvents(days: number = 7): Event[] {
     const currentEvents = get(events);
     const today = new Date();
+    const todayString = getLocalDateString(today);
     const futureDate = new Date();
     futureDate.setDate(today.getDate() + days);
+    const futureDateString = getLocalDateString(futureDate);
 
     return currentEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      return eventDate >= today && eventDate <= futureDate && !event.completed;
-    }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      return event.date >= todayString && event.date <= futureDateString && !event.completed;
+    }).sort((a, b) => a.date.localeCompare(b.date));
   }
 
   // Obtener eventos vencidos
   getOverdueEvents(): Event[] {
     const currentEvents = get(events);
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayString = getLocalDateString(today);
 
     return currentEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      return eventDate < today && !event.completed;
-    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      return event.date < todayString && !event.completed;
+    }).sort((a, b) => b.date.localeCompare(a.date));
   }
 
   // Generar ID único

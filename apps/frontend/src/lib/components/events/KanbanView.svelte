@@ -13,28 +13,31 @@
 	// Clasificar eventos por estado
 	$: eventsByStatus = {
 		pending: events.filter(e => {
-			const eventDate = new Date(e.date);
 			const today = new Date();
-			return eventDate >= today && !e.completed;
+			const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+			return e.date >= todayString && !e.completed;
 		}),
 		overdue: events.filter(e => {
-			const eventDate = new Date(e.date);
 			const today = new Date();
-			today.setHours(0, 0, 0, 0);
-			return eventDate < today && !e.completed;
+			const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+			return e.date < todayString && !e.completed;
 		}),
 		completed: events.filter(e => e.completed)
 	};
 
 	function formatDate(dateString: string): string {
-		const date = new Date(dateString);
+		// Crear fecha local sin interpretación UTC
+		const [year, month, day] = dateString.split('-').map(Number);
+		const date = new Date(year, month - 1, day);
 		const today = new Date();
+		const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 		const tomorrow = new Date(today);
 		tomorrow.setDate(today.getDate() + 1);
+		const tomorrowString = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
 		
-		if (date.toDateString() === today.toDateString()) {
+		if (dateString === todayString) {
 			return 'Hoy';
-		} else if (date.toDateString() === tomorrow.toDateString()) {
+		} else if (dateString === tomorrowString) {
 			return 'Mañana';
 		} else {
 			return date.toLocaleDateString('es-ES', {
@@ -45,8 +48,11 @@
 	}
 
 	function getDaysUntil(dateString: string): number {
-		const eventDate = new Date(dateString);
+		const [year, month, day] = dateString.split('-').map(Number);
+		const eventDate = new Date(year, month - 1, day);
 		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+		eventDate.setHours(0, 0, 0, 0);
 		const diffTime = eventDate.getTime() - today.getTime();
 		return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 	}

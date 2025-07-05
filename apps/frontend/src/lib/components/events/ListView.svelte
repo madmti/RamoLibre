@@ -21,7 +21,7 @@
 		
 		switch (sortBy) {
 			case 'date':
-				comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+				comparison = a.date.localeCompare(b.date);
 				if (comparison === 0 && a.time && b.time) {
 					comparison = a.time.localeCompare(b.time);
 				}
@@ -53,7 +53,9 @@
 	}
 
 	function formatDate(dateString: string): string {
-		const date = new Date(dateString);
+		// Crear fecha local sin interpretación UTC
+		const [year, month, day] = dateString.split('-').map(Number);
+		const date = new Date(year, month - 1, day);
 		return date.toLocaleDateString('es-ES', {
 			weekday: 'short',
 			year: 'numeric',
@@ -63,13 +65,11 @@
 	}
 
 	function getDateStatus(dateString: string): 'today' | 'upcoming' | 'overdue' {
-		const eventDate = new Date(dateString);
 		const today = new Date();
-		today.setHours(0, 0, 0, 0);
-		eventDate.setHours(0, 0, 0, 0);
+		const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-		if (eventDate.getTime() === today.getTime()) return 'today';
-		if (eventDate > today) return 'upcoming';
+		if (dateString === todayString) return 'today';
+		if (dateString > todayString) return 'upcoming';
 		return 'overdue';
 	}
 

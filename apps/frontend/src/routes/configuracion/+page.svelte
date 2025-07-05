@@ -224,13 +224,13 @@
 									on:click={saveAccountChanges}
 									class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
 								>
-									✅ Guardar cambios
+									Guardar cambios
 								</button>
 								<button 
 									on:click={cancelEdit}
 									class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors"
 								>
-									❌ Cancelar
+									Cancelar
 								</button>
 							</div>
 						{/if}

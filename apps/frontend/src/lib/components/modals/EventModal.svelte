@@ -47,10 +47,14 @@
 				isAllDay: event.isAllDay || false
 			};
 		} else {
+			// Usar fecha local para evitar desfases por zona horaria
+			const today = new Date();
+			const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+			
 			formData = {
 				title: '',
 				description: '',
-				date: new Date().toISOString().split('T')[0],
+				date: localDate,
 				time: '',
 				endTime: '',
 				type: 'other',
@@ -163,8 +167,13 @@
 		<div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
 			<!-- Header -->
 			<div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-				<h2 class="text-xl font-bold text-gray-800">
-					{mode === 'edit' ? '✏️ Editar Evento' : '➕ Nuevo Evento'}
+				<h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+					{#if mode === 'edit'}
+						✏️ Editar Evento
+					{:else}
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+						Nuevo Evento
+					{/if}
 				</h2>
 				<button 
 					on:click={closeModal}
