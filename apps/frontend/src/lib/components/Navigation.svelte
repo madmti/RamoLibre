@@ -32,28 +32,31 @@
   });
 
   const navItems = [
-    { href: "/", label: "Inicio", icon: "🏠" },
-    { href: "/horario", label: "Horario", icon: "📅" },
-    { href: "/notas", label: "Notas", icon: "📊" },
-    { href: "/eventos", label: "Eventos", icon: "🎯" },
-    { href: "/gestion", label: "Gestión", icon: "📚" },
-    { href: "/configuracion", label: "Configuración", icon: "⚙️" },
+    { href: "/", label: "Inicio", icon: "🏠", description: "Página principal de Ramo Libre" },
+    { href: "/horario", label: "Horario", icon: "📅", description: "Gestión de horarios académicos" },
+    { href: "/notas", label: "Notas", icon: "📊", description: "Seguimiento de calificaciones" },
+    { href: "/eventos", label: "Eventos", icon: "🎯", description: "Eventos y fechas académicas" },
+    { href: "/gestion", label: "Gestión", icon: "📚", description: "Gestión académica avanzada" },
+    { href: "/configuracion", label: "Configuración", icon: "⚙️", description: "Configuración de la aplicación" },
   ];
 </script>
 
 <nav
   class="bg-white/95 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-50"
+  aria-label="Navegación principal"
 >
   <div class="container mx-auto px-4">
     <div class="flex items-center justify-between h-16">
       <!-- Logo y título -->
       <div class="flex items-center space-x-3">
-        <span class="text-2xl">🎓</span>
-        <h1 class="text-xl font-bold text-gray-800">Ramo Libre</h1>
+        <span class="text-2xl" role="img" aria-label="Graduación">🎓</span>
+        <h1 class="text-xl font-bold text-gray-800">
+          <a href="/" class="hover:text-blue-600 transition-colors">Ramo Libre</a>
+        </h1>
       </div>
 
       <!-- Navegación principal -->
-      <div class="hidden md:flex items-center space-x-1">
+      <div class="hidden md:flex items-center space-x-1" role="menubar">
         {#each navItems as item}
           <a
             href={item.href}
@@ -61,23 +64,28 @@
               .url.pathname === item.href
               ? 'bg-blue-50 text-blue-700 border border-blue-200'
               : 'text-gray-600 hover:text-gray-900'}"
+            role="menuitem"
+            aria-label={item.description}
+            aria-current={$page.url.pathname === item.href ? 'page' : undefined}
           >
-            <span class="text-lg">{item.icon}</span>
+            <span class="text-lg" role="img" aria-hidden="true">{item.icon}</span>
             <span>{item.label}</span>
           </a>
         {/each}
       </div>
 
       <!-- Hora y fecha -->
-      <div class="text-right">
-        <div class="text-sm font-medium text-gray-800">{formattedTime}</div>
+      <div class="text-right" aria-live="polite">
+        <time class="text-sm font-medium text-gray-800" datetime={currentTime.toISOString()}>
+          {formattedTime}
+        </time>
         <div class="text-xs text-gray-500 capitalize">{formattedDate}</div>
       </div>
     </div>
 
     <!-- Navegación móvil -->
     <div class="md:hidden pb-3">
-      <div class="flex space-x-1 overflow-x-auto">
+      <div class="flex space-x-1 overflow-x-auto" role="tablist" aria-label="Navegación móvil">
         {#each navItems as item}
           <a
             href={item.href}
@@ -85,8 +93,11 @@
               .url.pathname === item.href
               ? 'bg-blue-50 text-blue-700 border border-blue-200'
               : 'text-gray-600'}"
+            role="tab"
+            aria-label={item.description}
+            aria-selected={$page.url.pathname === item.href}
           >
-            <span class="text-lg mb-1">{item.icon}</span>
+            <span class="text-lg mb-1" role="img" aria-hidden="true">{item.icon}</span>
             <span>{item.label}</span>
           </a>
         {/each}

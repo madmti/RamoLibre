@@ -3,6 +3,7 @@
 	import { writable } from 'svelte/store';
 	import '../app.css';
 	import Navigation from '$lib/components/Navigation.svelte';
+	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 	import { userService } from '$lib/stores/user';
 
 	// Store para indicar si la app está inicializada
@@ -19,6 +20,7 @@
 </script>
 
 <Navigation />
+<Breadcrumbs />
 
 <main class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
 	{#if $isInitialized}

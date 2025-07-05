@@ -95,45 +95,52 @@
 		<h1 class="text-3xl font-bold text-gray-800 mb-2">⚙️ Configuración</h1>
 		<p class="text-gray-600 mb-8">Personaliza tu experiencia con Ramo Libre.</p>
 		
-		{#if !$isLoggedIn}
-			<!-- Usuario no logueado -->
-			<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-				<span class="text-4xl">👤</span>
-				<h2 class="text-xl font-semibold text-yellow-800 mt-2 mb-2">Inicia sesión para configurar tu cuenta</h2>
-				<p class="text-yellow-700 mb-4">Necesitas estar logueado para acceder a las configuraciones.</p>
-				<a href="/" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors">
-					Ir al inicio
-				</a>
-			</div>
-		{:else}
-			<!-- Configuraciones -->
-			<div class="space-y-8">
-				
-				<!-- === CUENTA === -->
-				<section class="bg-gray-50 rounded-xl p-6">
-					<div class="flex items-center justify-between mb-6">
-						<h2 class="text-2xl font-bold text-gray-800 flex items-center space-x-2">
-							<span>👤</span>
-							<span>Cuenta</span>
-						</h2>
-						{#if !editingAccount}
-							<button 
-								on:click={() => editingAccount = true}
-								class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
-							>
-								Editar
-							</button>
-						{/if}
-					</div>
+			<!-- === CUENTA === -->
+			<section class="bg-gray-50 rounded-xl p-6">
+				<div class="flex items-center justify-between mb-6">
+					<h2 class="text-2xl font-bold text-gray-800 flex items-center space-x-2">
+						<span>👤</span>
+						<span>Cuenta</span>
+					</h2>
+					{#if $isLoggedIn && !editingAccount}
+						<button 
+							on:click={() => editingAccount = true}
+							class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+						>
+							Editar
+						</button>
+					{/if}
+				</div>
 
+				{#if !$isLoggedIn}
+					<!-- Usuario no logueado - Solo para la sección de cuenta -->
+					<div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+						<span class="text-4xl mb-4 block">👤</span>
+						<h3 class="text-xl font-semibold text-blue-800 mb-2">Gestiona tu cuenta</h3>
+						<p class="text-blue-700 mb-4">Inicia sesión para personalizar tu perfil académico y sincronizar tus datos.</p>
+						<div class="flex flex-col sm:flex-row gap-3 justify-center">
+							<a href="/" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+								Crear cuenta
+							</a>
+							<a href="/" class="bg-white text-blue-600 border border-blue-300 px-6 py-2 rounded-lg hover:bg-blue-50 transition-colors">
+								Iniciar sesión
+							</a>
+						</div>
+						<p class="text-sm text-blue-600 mt-4">
+							💡 <strong>Tip:</strong> Puedes usar la aplicación sin cuenta, pero registrarte te permitirá sincronizar tus datos.
+						</p>
+					</div>
+				{:else}
+					<!-- Usuario logueado - Mostrar información de cuenta -->
 					{#if user}
 						<div class="grid md:grid-cols-2 gap-6">
 							<!-- Información básica -->
 							<div class="space-y-4">
 								<div>
-									<label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+									<label for="user-name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
 									{#if editingAccount}
 										<input 
+											id="user-name"
 											type="text" 
 											bind:value={tempUserData.name}
 											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -145,9 +152,10 @@
 								</div>
 
 								<div>
-									<label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+									<label for="user-email" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
 									{#if editingAccount}
 										<input 
+											id="user-email"
 											type="email" 
 											bind:value={tempUserData.email}
 											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -159,9 +167,10 @@
 								</div>
 
 								<div>
-									<label class="block text-sm font-medium text-gray-700 mb-1">Universidad</label>
+									<label for="user-university" class="block text-sm font-medium text-gray-700 mb-1">Universidad</label>
 									{#if editingAccount}
 										<input 
+											id="user-university"
 											type="text" 
 											bind:value={tempUserData.university}
 											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -176,9 +185,10 @@
 							<!-- Información académica -->
 							<div class="space-y-4">
 								<div>
-									<label class="block text-sm font-medium text-gray-700 mb-1">Carrera</label>
+									<label for="user-career" class="block text-sm font-medium text-gray-700 mb-1">Carrera</label>
 									{#if editingAccount}
 										<input 
+											id="user-career"
 											type="text" 
 											bind:value={tempUserData.career}
 											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -190,9 +200,10 @@
 								</div>
 
 								<div>
-									<label class="block text-sm font-medium text-gray-700 mb-1">Semestre</label>
+									<label for="user-semester" class="block text-sm font-medium text-gray-700 mb-1">Semestre</label>
 									{#if editingAccount}
 										<input 
+											id="user-semester"
 											type="number" 
 											bind:value={tempUserData.semester}
 											min="1" 
@@ -206,7 +217,7 @@
 								</div>
 
 								<div>
-									<label class="block text-sm font-medium text-gray-700 mb-1">Miembro desde</label>
+									<span class="block text-sm font-medium text-gray-700 mb-1">Miembro desde</span>
 									<p class="text-gray-600 py-2">
 										{new Date(user.createdAt).toLocaleDateString('es-ES', { 
 											year: 'numeric', 
@@ -235,7 +246,8 @@
 							</div>
 						{/if}
 					{/if}
-				</section>
+				{/if}
+			</section>
 
 				<!-- === HORARIO === -->
 				<section class="bg-gray-50 rounded-xl p-6">
@@ -246,65 +258,70 @@
 
 					<div class="space-y-4">
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-3">Vista preferida del horario</label>
-							<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-								<!-- Vista Lista -->
-								<label class="relative cursor-pointer">
-									<input 
-										type="radio" 
-										name="scheduleView"
-										value="list"
-										checked={preferences?.scheduleView === 'list'}
-										on:change={() => updatePreference('scheduleView', 'list')}
-										class="sr-only peer"
-									/>
-									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-										<div class="flex items-center space-x-3 mb-2">
-											<span class="text-2xl">📋</span>
-											<h3 class="font-semibold text-gray-800">Lista</h3>
+							<fieldset>
+								<legend class="block text-sm font-medium text-gray-700 mb-3">Vista preferida del horario</legend>
+								<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+									<!-- Vista Lista -->
+									<label for="schedule-view-list" class="relative cursor-pointer">
+										<input 
+											id="schedule-view-list"
+											type="radio" 
+											name="scheduleView"
+											value="list"
+											checked={preferences?.scheduleView === 'list'}
+											on:change={() => updatePreference('scheduleView', 'list')}
+											class="sr-only peer"
+										/>
+										<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+											<div class="flex items-center space-x-3 mb-2">
+												<span class="text-2xl">📋</span>
+												<h3 class="font-semibold text-gray-800">Lista</h3>
+											</div>
+											<p class="text-sm text-gray-600">Vista detallada por día con información completa de cada clase.</p>
 										</div>
-										<p class="text-sm text-gray-600">Vista detallada por día con información completa de cada clase.</p>
-									</div>
-								</label>
+									</label>
 
-								<!-- Vista Tabla/Grid -->
-								<label class="relative cursor-pointer">
-									<input 
-										type="radio" 
-										name="scheduleView"
-										value="grid"
-										checked={preferences?.scheduleView === 'grid'}
-										on:change={() => updatePreference('scheduleView', 'grid')}
-										class="sr-only peer"
-									/>
-									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-										<div class="flex items-center space-x-3 mb-2">
-											<span class="text-2xl">📊</span>
-											<h3 class="font-semibold text-gray-800">Tabla</h3>
+									<!-- Vista Tabla/Grid -->
+									<label for="schedule-view-grid" class="relative cursor-pointer">
+										<input 
+											id="schedule-view-grid"
+											type="radio" 
+											name="scheduleView"
+											value="grid"
+											checked={preferences?.scheduleView === 'grid'}
+											on:change={() => updatePreference('scheduleView', 'grid')}
+											class="sr-only peer"
+										/>
+										<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+											<div class="flex items-center space-x-3 mb-2">
+												<span class="text-2xl">📊</span>
+												<h3 class="font-semibold text-gray-800">Tabla</h3>
+											</div>
+											<p class="text-sm text-gray-600">Vista semanal tipo calendario con horarios en tabla.</p>
 										</div>
-										<p class="text-sm text-gray-600">Vista semanal tipo calendario con horarios en tabla.</p>
-									</div>
-								</label>
+									</label>
 
-								<!-- Vista Tarjetas -->
-								<label class="relative cursor-pointer">
-									<input 
-										type="radio" 
-										name="scheduleView"
-										value="cards"
-										checked={preferences?.scheduleView === 'cards'}
-										on:change={() => updatePreference('scheduleView', 'cards')}
-										class="sr-only peer"
-									/>
-									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-										<div class="flex items-center space-x-3 mb-2">
-											<span class="text-2xl">🗃️</span>
-											<h3 class="font-semibold text-gray-800">Tarjetas</h3>
+									<!-- Vista Tarjetas -->
+									<label for="schedule-view-cards" class="relative cursor-pointer">
+										<input 
+											id="schedule-view-cards"
+											type="radio" 
+											name="scheduleView"
+											value="cards"
+											checked={preferences?.scheduleView === 'cards'}
+											on:change={() => updatePreference('scheduleView', 'cards')}
+											class="sr-only peer"
+										/>
+										<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+											<div class="flex items-center space-x-3 mb-2">
+												<span class="text-2xl">🗃️</span>
+												<h3 class="font-semibold text-gray-800">Tarjetas</h3>
+											</div>
+											<p class="text-sm text-gray-600">Vista compacta con tarjetas organizadas por día.</p>
 										</div>
-										<p class="text-sm text-gray-600">Vista compacta con tarjetas organizadas por día.</p>
-									</div>
-								</label>
-							</div>
+									</label>
+								</div>
+							</fieldset>
 						</div>
 
 						<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -325,78 +342,83 @@
 					<div class="space-y-6">
 						<!-- Método de cálculo de notas -->
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-3">Método de cálculo de predicciones</label>
-							<div class="space-y-3">
-								<!-- LP Smooth Solution (Seleccionado) -->
-								<label class="relative cursor-not-allowed opacity-75">
-									<input 
-										type="radio" 
-										name="calculationMethod"
-										value="lp-smooth"
-										checked={true}
-										disabled
-										class="sr-only peer"
-									/>
-									<div class="border-2 border-blue-500 bg-blue-50 rounded-lg p-4 transition-colors">
-										<div class="flex items-center justify-between mb-2">
-											<div class="flex items-center space-x-3">
-												<span class="text-2xl">🧮</span>
-												<h3 class="font-semibold text-gray-800">LP Smooth Solution</h3>
+							<fieldset>
+								<legend class="block text-sm font-medium text-gray-700 mb-3">Método de cálculo de predicciones</legend>
+								<div class="space-y-3">
+									<!-- LP Smooth Solution (Seleccionado) -->
+									<label for="calc-method-lp-smooth" class="relative cursor-not-allowed opacity-75">
+										<input 
+											id="calc-method-lp-smooth"
+											type="radio" 
+											name="calculationMethod"
+											value="lp-smooth"
+											checked={true}
+											disabled
+											class="sr-only peer"
+										/>
+										<div class="border-2 border-blue-500 bg-blue-50 rounded-lg p-4 transition-colors">
+											<div class="flex items-center justify-between mb-2">
+												<div class="flex items-center space-x-3">
+													<span class="text-2xl">🧮</span>
+													<h3 class="font-semibold text-gray-800">LP Smooth Solution</h3>
+												</div>
+												<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+													Activo
+												</span>
 											</div>
-											<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-												Activo
-											</span>
+											<p class="text-sm text-gray-600">Optimización matemática con soluciones suaves y balanceadas. Evita notas extremas y proporciona predicciones realistas.</p>
 										</div>
-										<p class="text-sm text-gray-600">Optimización matemática con soluciones suaves y balanceadas. Evita notas extremas y proporciona predicciones realistas.</p>
-									</div>
-								</label>
+									</label>
 
-								<!-- Método Simple (Deshabilitado) -->
-								<label class="relative cursor-not-allowed opacity-50">
-									<input 
-										type="radio" 
-										name="calculationMethod"
-										value="simple"
-										disabled
-										class="sr-only peer"
-									/>
-									<div class="border-2 border-gray-200 rounded-lg p-4 transition-colors">
-										<div class="flex items-center justify-between mb-2">
-											<div class="flex items-center space-x-3">
-												<span class="text-2xl">📝</span>
-												<h3 class="font-semibold text-gray-400">Método Simple</h3>
+									<!-- Método Simple (Deshabilitado) -->
+									<label for="calc-method-simple" class="relative cursor-not-allowed opacity-50">
+										<input 
+											id="calc-method-simple"
+											type="radio" 
+											name="calculationMethod"
+											value="simple"
+											disabled
+											class="sr-only peer"
+										/>
+										<div class="border-2 border-gray-200 rounded-lg p-4 transition-colors">
+											<div class="flex items-center justify-between mb-2">
+												<div class="flex items-center space-x-3">
+													<span class="text-2xl">📝</span>
+													<h3 class="font-semibold text-gray-400">Método Simple</h3>
+												</div>
+												<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+													Disponible próximamente
+												</span>
 											</div>
-											<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-												Disponible próximamente
-											</span>
+											<p class="text-sm text-gray-400">Cálculo básico de promedios sin optimización. Más directo pero menos preciso.</p>
 										</div>
-										<p class="text-sm text-gray-400">Cálculo básico de promedios sin optimización. Más directo pero menos preciso.</p>
-									</div>
-								</label>
+									</label>
 
-								<!-- Método Avanzado (Deshabilitado) -->
-								<label class="relative cursor-not-allowed opacity-50">
-									<input 
-										type="radio" 
-										name="calculationMethod"
-										value="advanced"
-										disabled
-										class="sr-only peer"
-									/>
-									<div class="border-2 border-gray-200 rounded-lg p-4 transition-colors">
-										<div class="flex items-center justify-between mb-2">
-											<div class="flex items-center space-x-3">
-												<span class="text-2xl">🎯</span>
-												<h3 class="font-semibold text-gray-400">Método Avanzado</h3>
+									<!-- Método Avanzado (Deshabilitado) -->
+									<label for="calc-method-advanced" class="relative cursor-not-allowed opacity-50">
+										<input 
+											id="calc-method-advanced"
+											type="radio" 
+											name="calculationMethod"
+											value="advanced"
+											disabled
+											class="sr-only peer"
+										/>
+										<div class="border-2 border-gray-200 rounded-lg p-4 transition-colors">
+											<div class="flex items-center justify-between mb-2">
+												<div class="flex items-center space-x-3">
+													<span class="text-2xl">🎯</span>
+													<h3 class="font-semibold text-gray-400">Método Avanzado</h3>
+												</div>
+												<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+													Disponible próximamente
+												</span>
 											</div>
-											<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-												Disponible próximamente
-											</span>
+											<p class="text-sm text-gray-400">Algoritmos de machine learning para predicciones personalizadas basadas en tu historial.</p>
 										</div>
-										<p class="text-sm text-gray-400">Algoritmos de machine learning para predicciones personalizadas basadas en tu historial.</p>
-									</div>
-								</label>
-							</div>
+									</label>
+								</div>
+							</fieldset>
 						</div>
 
 						<!-- Información adicional -->
@@ -417,12 +439,13 @@
 
 					<div class="space-y-6">
 						<!-- Selección de vista -->
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-3">Vista preferida de eventos</label>
+						<fieldset>
+							<legend class="block text-sm font-medium text-gray-700 mb-3">Vista preferida de eventos</legend>
 							<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 								<!-- Vista Calendario -->
-								<label class="relative cursor-pointer">
+								<label for="events-view-calendar" class="relative cursor-pointer">
 									<input 
+										id="events-view-calendar"
 										type="radio" 
 										name="eventsView"
 										value="calendar"
@@ -440,8 +463,9 @@
 								</label>
 
 								<!-- Vista Lista -->
-								<label class="relative cursor-pointer">
+								<label for="events-view-list" class="relative cursor-pointer">
 									<input 
+										id="events-view-list"
 										type="radio" 
 										name="eventsView"
 										value="list"
@@ -459,8 +483,9 @@
 								</label>
 
 								<!-- Vista Kanban -->
-								<label class="relative cursor-pointer">
+								<label for="events-view-kanban" class="relative cursor-pointer">
 									<input 
+										id="events-view-kanban"
 										type="radio" 
 										name="eventsView"
 										value="kanban"
@@ -478,8 +503,9 @@
 								</label>
 
 								<!-- Vista Timeline -->
-								<label class="relative cursor-pointer">
+								<label for="events-view-timeline" class="relative cursor-pointer">
 									<input 
+										id="events-view-timeline"
 										type="radio" 
 										name="eventsView"
 										value="timeline"
@@ -496,7 +522,7 @@
 									</div>
 								</label>
 							</div>
-						</div>
+						</fieldset>
 
 						<!-- Gestión de eventos -->
 						<div class="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -531,22 +557,72 @@
 					</h2>
 					
 					<div class="space-y-6">
-						<!-- Acciones de cuenta -->
-						<div>
-							<h3 class="text-lg font-semibold text-gray-800 mb-4">Acciones de cuenta</h3>
-							<div class="flex flex-wrap gap-3">
-								<button 
-									on:click={handleLogout}
-									class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
-								>
-									<span><span class="text-xl"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span></span> Cerrar sesión
-								</button>
+						<!-- Acciones de cuenta - Solo si está logueado -->
+						{#if $isLoggedIn}
+							<div>
+								<h3 class="text-lg font-semibold text-gray-800 mb-4">Acciones de cuenta</h3>
+								<div class="flex flex-wrap gap-3">
+									<button 
+										on:click={handleLogout}
+										class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
+									>
+										<span>🚪</span> Cerrar sesión
+									</button>
+									
+									<button 
+										on:click={() => showDeleteConfirm = true}
+										class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+									>
+										<span>👤</span> Eliminar cuenta
+									</button>
+								</div>
 								
+								<!-- Modal de confirmación para eliminar cuenta -->
+								{#if showDeleteConfirm}
+									<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+										<div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
+											<div class="text-center mb-4">
+												<span class="text-4xl">⚠️</span>
+												<h3 class="text-xl font-bold text-red-600 mt-2">Eliminar cuenta</h3>
+											</div>
+											<p class="text-gray-700 mb-6 text-center">
+												¿Estás seguro de que quieres eliminar tu cuenta? Esta acción cerrará tu sesión y eliminará tu información de usuario.
+											</p>
+											<p class="text-sm text-red-600 mb-6 text-center font-medium">
+												Esta acción <strong>no se puede deshacer</strong>.
+											</p>
+											<div class="flex space-x-3">
+												<button 
+													on:click={deleteAccount}
+													class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1 flex items-center justify-center gap-2"
+												>
+													<span>👤</span> Sí, eliminar cuenta
+												</button>
+												<button 
+													on:click={() => showDeleteConfirm = false}
+													class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex-1"
+												>
+													Cancelar
+												</button>
+											</div>
+										</div>
+									</div>
+								{/if}
+							</div>
+						{/if}
+
+						<!-- Gestión de datos - Disponible para todos -->
+						<div>
+							<h3 class="text-lg font-semibold text-gray-800 mb-4">Gestión de datos</h3>
+							<div class="bg-red-50 border border-red-200 rounded-lg p-4">
+								<p class="text-red-700 mb-3 text-sm">
+									Elimina todos tus datos guardados localmente. Esto incluye horarios, notas, eventos y configuraciones.
+								</p>
 								<button 
 									on:click={() => showDeleteDataConfirm = true}
 									class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
 								>
-									<span>🗑️</span> Eliminar datos
+									<span>🗑️</span> Limpiar todos los datos
 								</button>
 							</div>
 						</div>
@@ -567,11 +643,7 @@
 								</p>
 							</div>
 						</div>
-					</div>
-				</section>
-
-			</div>
-		{/if}
+		</div>
 	</div>
 </div>
 
@@ -581,7 +653,7 @@
 		<div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
 			<div class="text-center mb-4">
 				<span class="text-4xl">🗑️</span>
-				<h3 class="text-xl font-bold text-red-600 mt-2">Eliminar todos los datos</h3>
+				<h3 class="text-xl font-bold text-red-600 mt-2">Limpiar todos los datos</h3>
 			</div>
 			<p class="text-gray-700 mb-6 text-center">
 				¿Estás seguro de que quieres eliminar todos tus datos? Esta acción eliminará:
@@ -591,7 +663,7 @@
 				<li>• Todas las notas y configuraciones</li>
 				<li>• Todos los eventos guardados</li>
 				<li>• Configuraciones de usuario</li>
-				<li>• Datos de sesión</li>
+				<li>• Datos de sesión (si los hay)</li>
 			</ul>
 			<p class="text-sm text-red-600 mb-6 text-center font-medium">
 				Esta acción <strong>no se puede deshacer</strong>.
@@ -601,7 +673,7 @@
 					on:click={deleteAllData}
 					class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1 flex items-center justify-center gap-2"
 				>
-					<span>🗑️</span> Sí, eliminar todo
+					<span>🗑️</span> Sí, limpiar todo
 				</button>
 				<button 
 					on:click={() => showDeleteDataConfirm = false}
