@@ -116,12 +116,11 @@
 	<!-- Modal backdrop -->
 	<div 
 		class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+		role="button"
+		tabindex="0"
 		on:click={handleOverlayClick}
-		on:keydown={handleKeydown}
-		role="dialog"
-		aria-modal="true"
-		aria-labelledby="schedule-modal-title"
-		tabindex="-1"
+		on:keydown={(e) => e.key === 'Escape' && handleClose()}
+		aria-label="Cerrar modal de horario"
 	>
 		<div class="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
 			<!-- Header -->

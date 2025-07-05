@@ -2,7 +2,7 @@
 	import type { Event, Subject } from '@ramo-libre/shared';
 
 	export let events: Event[] = [];
-	export let subjectList: Subject[] = [];
+	export const subjectList: Subject[] = [];
 	export let getSubjectName: (id: string) => string;
 	export let getEventTypeIcon: (type: string) => string;
 	export let getPriorityColor: (priority: string) => string;
@@ -320,6 +320,7 @@
 	.line-clamp-2 {
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
+		line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}

@@ -2,7 +2,7 @@
 	import type { Event, Subject } from '@ramo-libre/shared';
 
 	export let events: Event[] = [];
-	export let subjectList: Subject[] = [];
+	export const subjectList: Subject[] = [];
 	export let selectedDate: string;
 	export let getSubjectName: (id: string) => string;
 	export let getEventTypeIcon: (type: string) => string;

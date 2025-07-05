@@ -566,48 +566,16 @@
 										on:click={handleLogout}
 										class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
 									>
-										<span>🚪</span> Cerrar sesión
+										<span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span> Cerrar sesión
 									</button>
 									
 									<button 
-										on:click={() => showDeleteConfirm = true}
-										class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+										disabled
+										class="bg-red-300 text-white px-4 py-2 rounded-lg cursor-not-allowed opacity-60 flex items-center gap-2"
 									>
-										<span>👤</span> Eliminar cuenta
+										Eliminar cuenta
 									</button>
 								</div>
-								
-								<!-- Modal de confirmación para eliminar cuenta -->
-								{#if showDeleteConfirm}
-									<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-										<div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
-											<div class="text-center mb-4">
-												<span class="text-4xl">⚠️</span>
-												<h3 class="text-xl font-bold text-red-600 mt-2">Eliminar cuenta</h3>
-											</div>
-											<p class="text-gray-700 mb-6 text-center">
-												¿Estás seguro de que quieres eliminar tu cuenta? Esta acción cerrará tu sesión y eliminará tu información de usuario.
-											</p>
-											<p class="text-sm text-red-600 mb-6 text-center font-medium">
-												Esta acción <strong>no se puede deshacer</strong>.
-											</p>
-											<div class="flex space-x-3">
-												<button 
-													on:click={deleteAccount}
-													class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1 flex items-center justify-center gap-2"
-												>
-													<span>👤</span> Sí, eliminar cuenta
-												</button>
-												<button 
-													on:click={() => showDeleteConfirm = false}
-													class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex-1"
-												>
-													Cancelar
-												</button>
-											</div>
-										</div>
-									</div>
-								{/if}
 							</div>
 						{/if}
 
@@ -616,7 +584,7 @@
 							<h3 class="text-lg font-semibold text-gray-800 mb-4">Gestión de datos</h3>
 							<div class="bg-red-50 border border-red-200 rounded-lg p-4">
 								<p class="text-red-700 mb-3 text-sm">
-									Elimina todos tus datos guardados localmente. Esto incluye horarios, notas, eventos y configuraciones.
+									Elimina todos tus datos guardados localmente. Esto incluye cuenta, horarios, notas, eventos y configuraciones.
 								</p>
 								<button 
 									on:click={() => showDeleteDataConfirm = true}
