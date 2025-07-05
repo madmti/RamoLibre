@@ -66,13 +66,59 @@ export interface Subject {
 export interface Grade {
   id: string;
   subjectId: string;
-  value: number;
+  categoryId?: string; // ID de la categoría de evaluación (opcional para retrocompatibilidad)
+  value?: number; // Opcional: si no se especifica, es una variable para el cálculo
   maxValue: number;
   description: string;
   date: string;
   type: 'exam' | 'homework' | 'project' | 'participation' | 'other';
   weight: number;
   userId: string;
+}
+
+// === TIPOS PARA GESTIÓN AVANZADA DE NOTAS ===
+export interface GradeCategory {
+  id: string;
+  subjectId: string;
+  name: string;
+  description?: string;
+  weight: number; // Porcentaje del total (debe sumar 100% entre todas las categorías)
+  userId: string;
+  createdAt: string;
+}
+
+export interface SubjectGradeConfig {
+  id: string;
+  subjectId: string;
+  minGrade: number; // Nota mínima posible (ej: 1.0 para chilena, 0 para UTFSM)
+  passingGrade: number; // Nota mínima para aprobar (ej: 4.0 para chilena, 55 para UTFSM)
+  maxGrade: number; // Nota máxima posible (ej: 7.0 para chilena, 100 para UTFSM)
+  gradeScale: 'chilena' | 'utfsm' | 'personalizada'; // Escala de notas predefinida o personalizada
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GradeCalculationResult {
+  subjectId: string;
+  currentGrade: number;
+  possibleFinalGrades: {
+    minimum: number;
+    maximum: number;
+    target: number; // Para aprobar
+  };
+  canPass: boolean;
+  requiredGrades: RequiredGrade[];
+  recommendations: string[];
+  calculatedAt: string;
+}
+
+export interface RequiredGrade {
+  categoryId: string;
+  categoryName: string;
+  requiredValue: number;
+  description: string;
+  achievable: boolean;
 }
 
 export interface Event {
