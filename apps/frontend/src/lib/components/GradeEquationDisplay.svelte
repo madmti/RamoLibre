@@ -70,29 +70,35 @@
 				const gradeWeight = grade.weight / 100;
 				
 				if (category) {
-					// Con categoría
-					terms.push(`\\textcolor{${color}}{${formatWeight(categoryWeight)} \\times ${formatWeight(gradeWeight)} \\times \\text{${noteName}}}`);
+					// Con categoría: manejar ambos pesos
+					const gradeTermWithWeight = generateWeightedTerm(gradeWeight, `\\text{${noteName}}`);
+					const fullTerm = generateWeightedTerm(categoryWeight, gradeTermWithWeight);
+					terms.push(`\\textcolor{${color}}{${fullTerm}}`);
 				} else {
-					// Sin categoría
-					terms.push(`\\textcolor{${color}}{${formatWeight(gradeWeight)} \\times \\text{${noteName}}}`);
+					// Sin categoría: solo peso de la nota
+					const fullTerm = generateWeightedTerm(gradeWeight, `\\text{${noteName}}`);
+					terms.push(`\\textcolor{${color}}{${fullTerm}}`);
 				}
 			} else {
 				// Múltiples notas en la categoría
 				const gradeTerms = categoryGrades.map(grade => {
 					const noteName = cleanNoteName(grade.description || `Nota${getGradeIndex(grade, grades)}`);
 					const gradeWeight = grade.weight / 100;
-					return `${formatWeight(gradeWeight)} \\text{ } \\text{${noteName}}`;
+					return generateWeightedTerm(gradeWeight, `\\text{${noteName}}`);
 				});
 
 				if (category) {
 					// Con categoría - agrupar con paréntesis y color
-					terms.push(`\\textcolor{${color}}{${formatWeight(categoryWeight)} \\left( ${gradeTerms.join(' + ')} \\right)}`);
+					const groupedTerm = `\\left( ${gradeTerms.join(' + ')} \\right)`;
+					const fullTerm = generateWeightedTerm(categoryWeight, groupedTerm);
+					terms.push(`\\textcolor{${color}}{${fullTerm}}`);
 				} else {
 					// Sin categoría - agregar términos individuales con color
 					const individualTerms = categoryGrades.map(grade => {
 						const noteName = cleanNoteName(grade.description || `Nota${getGradeIndex(grade, grades)}`);
 						const gradeWeight = grade.weight / 100;
-						return `\\textcolor{${color}}{${formatWeight(gradeWeight)} \\text{ } \\text{${noteName}}}`;
+						const fullTerm = generateWeightedTerm(gradeWeight, `\\text{${noteName}}`);
+						return `\\textcolor{${color}}{${fullTerm}}`;
 					});
 					terms.push(...individualTerms);
 				}
@@ -118,7 +124,7 @@
 
 	// Función para formatear pesos de manera limpia
 	function formatWeight(weight: number): string {
-		// Si es 1, no mostrar el peso
+		// Si es 1, no mostrar nada (se manejará la multiplicación por separado)
 		if (weight === 1) return '';
 		
 		// Si es un decimal simple (0.5, 0.3, etc.), mostrar como decimal
@@ -128,6 +134,17 @@
 		
 		// Para decimales más complejos, redondear a 2 decimales
 		return weight.toFixed(2);
+	}
+
+	// Función para generar término con peso (maneja la multiplicación correctamente)
+	function generateWeightedTerm(weight: number, term: string): string {
+		if (weight === 1) {
+			// Sin multiplicación para peso 1
+			return term;
+		} else {
+			// Con multiplicación para otros pesos
+			return `${formatWeight(weight)} \\ ${term}`;
+		}
 	}
 
 	// Función auxiliar para obtener el índice de una nota

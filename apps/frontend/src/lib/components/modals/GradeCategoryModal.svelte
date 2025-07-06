@@ -13,19 +13,25 @@
 		weight: 0
 	};
 
-	$: if (category) {
-		formData = {
-			name: category.name,
-			description: category.description || '',
-			weight: category.weight
-		};
-	} else if (isOpen) {
-		// Reset form when opening for new category
-		formData = {
-			name: '',
-			description: '',
-			weight: 0
-		};
+	// Solo actualizar formData cuando el modal se abre o cambia la categoría inicial
+	let initialCategory: GradeCategory | null = null;
+	
+	$: if (isOpen && category !== initialCategory) {
+		initialCategory = category;
+		if (category) {
+			formData = {
+				name: category.name,
+				description: category.description || '',
+				weight: category.weight
+			};
+		} else {
+			// Reset form when opening for new category
+			formData = {
+				name: '',
+				description: '',
+				weight: 0
+			};
+		}
 	}
 
 	function handleSubmit() {
@@ -45,6 +51,7 @@
 
 	function closeModal() {
 		isOpen = false;
+		initialCategory = null; // Reset the initial category reference
 		dispatch('close');
 	}
 

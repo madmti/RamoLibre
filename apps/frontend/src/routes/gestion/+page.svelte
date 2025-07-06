@@ -539,7 +539,7 @@
 													<div class="flex items-center space-x-2">
 														<span class="font-medium text-gray-800 text-sm">{grade.description}</span>
 														<span class="text-sm font-bold" class:text-green-600={grade.value && config && grade.value >= config.passingGrade} class:text-red-600={isFailingGrade} class:text-gray-500={!grade.value}>
-															{#if grade.value}
+															{#if grade.value !== null && grade.value !== undefined}
 																{grade.value.toFixed(1)}/{grade.maxValue}
 															{:else}
 																—/{grade.maxValue}

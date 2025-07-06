@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { eventService, events } from '$lib/stores/events';
-	import { subjects } from '$lib/stores/schedule';
+	import { scheduleService, subjects } from '$lib/stores/schedule';
 	import { currentUser, userPreferences } from '$lib/stores/user';
 	import CalendarView from '$lib/components/events/CalendarView.svelte';
 	import ListView from '$lib/components/events/ListView.svelte';
@@ -73,9 +73,11 @@
 	onMount(() => {
 		// Inicializar servicios
 		eventService.initialize();
+		scheduleService.initialize();
 
-		// Cargar eventos existentes desde localStorage
+		// Cargar datos existentes desde localStorage
 		eventService.loadEvents();
+		scheduleService.loadSubjects();
 
 		const unsubscribeUser = currentUser.subscribe(value => {
 			user = value;

@@ -145,8 +145,8 @@
 						id="value"
 						type="number"
 						step="0.1"
-						min={config?.minGrade || 1}
-						max={config?.maxGrade || 7}
+						min={config?.minGrade ?? 1}
+						max={config?.maxGrade ?? 7}
 						bind:value={formData.value}
 						disabled={!formData.hasValue}
 						required={formData.hasValue}

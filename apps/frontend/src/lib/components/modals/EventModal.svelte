@@ -351,12 +351,15 @@
 						Recordatorio
 					</label>
 					<select
+						disabled
 						id="reminder"
 						bind:value={formData.reminder}
+						class:opacity-60={true}
+						class:cursor-not-allowed={true}
 						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 					>
 						{#each getReminderOptions() as option}
-							<option value={option.value}>{option.label}</option>
+							<option value={option.value} selected={!option.value}>{option.label}</option>
 						{/each}
 					</select>
 				</div>
