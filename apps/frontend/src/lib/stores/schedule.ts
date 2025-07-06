@@ -39,11 +39,14 @@ class ScheduleService {
   }
 
   // Agregar nueva materia
-  addSubject(subjectData: Omit<Subject, 'id' | 'createdAt' | 'userId'>, userId: string): Subject {
+  addSubject(subjectData: Omit<Subject, 'id' | 'createdAt' | 'userId'>, userId?: string): Subject {
+    // Usar un userId por defecto si no se proporciona
+    const finalUserId = userId || 'anonymous';
+    
     const newSubject: Subject = {
       ...subjectData,
       id: this.generateId(),
-      userId,
+      userId: finalUserId,
       createdAt: new Date().toISOString()
     };
 
@@ -102,11 +105,14 @@ class ScheduleService {
   }
 
   // Agregar nuevo horario
-  addSchedule(scheduleData: Omit<Schedule, 'id' | 'userId'>, userId: string): Schedule {
+  addSchedule(scheduleData: Omit<Schedule, 'id' | 'userId'>, userId?: string): Schedule {
+    // Usar un userId por defecto si no se proporciona
+    const finalUserId = userId || 'anonymous';
+    
     const newSchedule: Schedule = {
       ...scheduleData,
       id: this.generateId(),
-      userId
+      userId: finalUserId
     };
 
     const currentSchedules = get(schedules);

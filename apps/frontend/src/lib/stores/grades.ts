@@ -113,7 +113,9 @@ class GradeService {
     }
   }
 
-  addGrade(gradeData: Omit<Grade, 'id'>, userId: string): void {
+  addGrade(gradeData: Omit<Grade, 'id'>, userId?: string): void {
+    // Usar un userId por defecto si no se proporciona
+    const finalUserId = userId || 'anonymous';
     const newGrade: Grade = {
       ...gradeData,
       id: crypto.randomUUID(),
@@ -197,7 +199,9 @@ class GradeService {
     }
   }
 
-  addGradeCategory(categoryData: Omit<GradeCategory, 'id' | 'createdAt'>, userId: string): void {
+  addGradeCategory(categoryData: Omit<GradeCategory, 'id' | 'createdAt'>, userId?: string): void {
+    // Usar un userId por defecto si no se proporciona
+    const finalUserId = userId || 'anonymous';
     const newCategory: GradeCategory = {
       ...categoryData,
       id: crypto.randomUUID(),
@@ -281,7 +285,9 @@ class GradeService {
     }
   }
 
-  addOrUpdateSubjectGradeConfig(configData: Omit<SubjectGradeConfig, 'id' | 'createdAt' | 'updatedAt'>, userId: string): void {
+  addOrUpdateSubjectGradeConfig(configData: Omit<SubjectGradeConfig, 'id' | 'createdAt' | 'updatedAt'>, userId?: string): void {
+    // Usar un userId por defecto si no se proporciona
+    const finalUserId = userId || 'anonymous';
     const currentConfigs = get(subjectGradeConfigs);
     const existingConfigIndex = currentConfigs.findIndex(c => c.subjectId === configData.subjectId);
 

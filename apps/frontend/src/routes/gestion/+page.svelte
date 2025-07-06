@@ -87,8 +87,6 @@
 	}
 
 	function handleSaveSubject(event: CustomEvent<{ subject: Omit<Subject, 'id' | 'createdAt' | 'userId'> }>) {
-		if (!user) return;
-
 		const subjectData = event.detail.subject;
 
 		if (editingSubject) {
@@ -96,7 +94,7 @@
 			scheduleService.updateSubject(editingSubject.id, subjectData);
 		} else {
 			// Crear nueva materia
-			scheduleService.addSubject(subjectData, user.id);
+			scheduleService.addSubject(subjectData, user?.id);
 		}
 
 		showSubjectModal = false;
@@ -121,8 +119,6 @@
 	}
 
 	function handleSaveSchedule(event: CustomEvent<{ schedule: Omit<Schedule, 'id' | 'userId'> }>) {
-		if (!user) return;
-
 		const scheduleData = event.detail.schedule;
 
 		if (editingSchedule) {
@@ -130,7 +126,7 @@
 			scheduleService.updateSchedule(editingSchedule.id, scheduleData);
 		} else {
 			// Crear nuevo horario
-			scheduleService.addSchedule(scheduleData, user.id);
+			scheduleService.addSchedule(scheduleData, user?.id);
 		}
 
 		showScheduleModal = false;
@@ -168,14 +164,14 @@
 	}
 
 	function handleSaveGrade(event: CustomEvent<{ grade: Omit<Grade, 'id' | 'userId'> }>) {
-		if (!user || !selectedSubjectForGrades) return;
+		if (!selectedSubjectForGrades) return;
 
-		const gradeData = { ...event.detail.grade, subjectId: selectedSubjectForGrades.id, userId: user.id };
+		const gradeData = { ...event.detail.grade, subjectId: selectedSubjectForGrades.id, userId: user?.id || 'anonymous' };
 
 		if (editingGrade) {
 			gradeService.updateGrade(editingGrade.id, gradeData);
 		} else {
-			gradeService.addGrade(gradeData, user.id);
+			gradeService.addGrade(gradeData, user?.id);
 		}
 
 		showGradeModal = false;
@@ -200,14 +196,14 @@
 	}
 
 	function handleSaveCategory(event: CustomEvent<{ category: Omit<GradeCategory, 'id' | 'userId' | 'createdAt'> }>) {
-		if (!user || !selectedSubjectForGrades) return;
+		if (!selectedSubjectForGrades) return;
 
-		const categoryData = { ...event.detail.category, subjectId: selectedSubjectForGrades.id, userId: user.id };
+		const categoryData = { ...event.detail.category, subjectId: selectedSubjectForGrades.id, userId: user?.id || 'anonymous' };
 
 		if (editingCategory) {
 			gradeService.updateGradeCategory(editingCategory.id, categoryData);
 		} else {
-			gradeService.addGradeCategory(categoryData, user.id);
+			gradeService.addGradeCategory(categoryData, user?.id);
 		}
 
 		showCategoryModal = false;
@@ -226,10 +222,10 @@
 	}
 
 	function handleSaveConfig(event: CustomEvent<{ config: Omit<SubjectGradeConfig, 'id' | 'userId' | 'createdAt' | 'updatedAt'> }>) {
-		if (!user || !selectedSubjectForGrades) return;
+		if (!selectedSubjectForGrades) return;
 
-		const configData = { ...event.detail.config, subjectId: selectedSubjectForGrades.id, userId: user.id };
-		gradeService.addOrUpdateSubjectGradeConfig(configData, user.id);
+		const configData = { ...event.detail.config, subjectId: selectedSubjectForGrades.id, userId: user?.id || 'anonymous' };
+		gradeService.addOrUpdateSubjectGradeConfig(configData, user?.id);
 
 		showConfigModal = false;
 	}

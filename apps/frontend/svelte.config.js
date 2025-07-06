@@ -23,7 +23,7 @@ const config = {
 				'worker-src': ['self', 'blob:'],
 				'child-src': ['self', 'blob:'],
 				'style-src': ['self', 'unsafe-inline', 'https://fonts.googleapis.com'],
-				'font-src': ['self', 'https://fonts.gstatic.com'],
+				'font-src': ['self', 'https://fonts.gstatic.com', 'data:', 'blob:'],
 				'connect-src': ['self'],
 				'img-src': ['self', 'data:', 'blob:'],
 				'object-src': ['none'],

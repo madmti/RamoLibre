@@ -166,8 +166,7 @@
 	}
 
 	function handleCreateEvent(eventData: any) {
-		if (!user) return;
-		eventService.addEvent(eventData.detail, user.id);
+		eventService.addEvent(eventData.detail, user?.id);
 	}
 
 	function handleUpdateEvent(eventData: any) {

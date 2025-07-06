@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	import '../app.css';
+	import 'katex/dist/katex.min.css';
 	import Navigation from '$lib/components/Navigation.svelte';
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 	import { userService } from '$lib/stores/user';

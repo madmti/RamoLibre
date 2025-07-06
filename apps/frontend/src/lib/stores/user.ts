@@ -120,6 +120,12 @@ export const userService = {
     }
   },
 
+  // Función auxiliar para obtener ID de usuario actual o por defecto
+  getCurrentUserId: (): string => {
+    const user = userService.loadUser();
+    return user?.id || 'anonymous';
+  },
+
   // Inicializar el servicio (llamar al cargar la app)
   init: (): void => {
     userService.loadUser();

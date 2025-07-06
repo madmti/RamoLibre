@@ -99,7 +99,10 @@ class EventService {
   }
 
   // Agregar nuevo evento
-  addEvent(eventData: Omit<Event, 'id' | 'createdAt' | 'userId'>, userId: string): Event {
+  addEvent(eventData: Omit<Event, 'id' | 'createdAt' | 'userId'>, userId?: string): Event {
+    // Usar un userId por defecto si no se proporciona
+    const finalUserId = userId || 'anonymous';
+    
     // Normalizar fecha a formato local YYYY-MM-DD
     let localDate = eventData.date;
     if (Object.prototype.toString.call(eventData.date) === '[object Date]') {
@@ -110,7 +113,7 @@ class EventService {
       ...eventData,
       date: localDate,
       id: this.generateId(),
-      userId,
+      userId: finalUserId,
       createdAt: new Date().toISOString()
     };
 
@@ -220,7 +223,7 @@ export const eventsStore = {
   subscribe: events.subscribe,
   // Métodos del servicio
   loadEvents: () => eventService.loadEvents(),
-  addEvent: (eventData: Omit<Event, 'id' | 'createdAt' | 'userId'>, userId: string) => 
+  addEvent: (eventData: Omit<Event, 'id' | 'createdAt' | 'userId'>, userId?: string) => 
     eventService.addEvent(eventData, userId),
   updateEvent: (id: string, updates: Partial<Event>) => eventService.updateEvent(id, updates),
   deleteEvent: (id: string) => eventService.deleteEvent(id),
