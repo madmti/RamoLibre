@@ -9,8 +9,8 @@ const config = {
         adapter: adapter({
             // Configuración del adaptador para generar archivos estáticos
             fallback: 'index.html', // Archivo de fallback para SPA
-            pages: 'build', // Directorio de salida para las páginas generadas
-            assets: 'build' // Directorio de salida para los activos estáticos
+            pages: 'public', // Directorio de salida para las páginas generadas
+            assets: 'public' // Directorio de salida para los activos estáticos
         }),
         files: {
             routes: 'src/routes'
