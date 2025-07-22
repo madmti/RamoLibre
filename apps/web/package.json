@@ -1,0 +1,37 @@
+{
+	"name": "web",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"type-check": "svelte-check --tsconfig ./tsconfig.json",
+		"lint": "eslint .",
+		"clean": "rm -rf .svelte-kit build"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^3.0.0",
+		"@sveltejs/adapter-static": "^3.0.8",
+		"@sveltejs/kit": "^2.0.0",
+		"@sveltejs/vite-plugin-svelte": "^3.0.0",
+		"@tailwindcss/typography": "^0.5.10",
+		"@types/katex": "^0.16.7",
+		"autoprefixer": "^10.4.21",
+		"postcss": "^8.5.6",
+		"svelte": "^4.2.7",
+		"svelte-check": "^3.6.0",
+		"tailwindcss": "^3.4.0",
+		"typescript": "^5.0.0",
+		"vite": "^5.0.3"
+	},
+	"dependencies": {
+		"@ramo-libre/shared": "workspace:*",
+		"glpk.js": "^4.0.2",
+		"katex": "^0.16.22"
+	}
+}

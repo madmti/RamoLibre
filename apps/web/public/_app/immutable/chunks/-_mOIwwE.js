@@ -1,0 +1,1 @@
+import{U as s}from"./DoR1-v3w.js";import{D as n}from"./Nk41YHiH.js";const o=null;class a extends n{constructor(){super(s,o,!0)}createUser(r){const t=new Date().toISOString(),e={...r,id:crypto.randomUUID(),createdAt:t,updatedAt:t};return this.set(e),e}}const d=new a;export{d as c};
