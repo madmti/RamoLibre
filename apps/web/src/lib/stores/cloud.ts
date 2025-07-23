@@ -11,7 +11,7 @@ import { type Session, type Provider } from '@supabase/supabase-js';
 const DEFAULT_CLOUD: Session | null = null;
 
 class CloudSessionManager extends DefaultStore<Session | null> {
-	API_URL: string = import.meta.env.PUBLIC_VITE_API_URL || 'http://localhost:3000';
+	API_URL: string = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 	constructor() {
 		super(CLOUD_STORAGE_KEY, DEFAULT_CLOUD, true);
