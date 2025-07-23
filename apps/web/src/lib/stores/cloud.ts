@@ -60,9 +60,9 @@ class CloudSessionManager extends DefaultStore<Session | null> {
 			headers: {
 				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
-				credentials: 'include',
-				mode: 'cors',
 			},
+			credentials: 'include',
+			mode: 'cors',
 			body: JSON.stringify({ profile }),
 		});
 		if (!response.ok) {
@@ -79,9 +79,9 @@ class CloudSessionManager extends DefaultStore<Session | null> {
 			headers: {
 				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
-				credentials: 'include',
-				mode: 'cors',
 			},
+			credentials: 'include',
+			mode: 'cors',
 		});
 		if (!response.ok) {
 			return { ok: false, error: `Failed to pull data: ${response.statusText}` };
@@ -97,9 +97,9 @@ class CloudSessionManager extends DefaultStore<Session | null> {
 			headers: {
 				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
-				credentials: 'include',
-				mode: 'cors',
 			},
+			credentials: 'include',
+			mode: 'cors',
 		});
 		if (!response.ok) {
 			return { ok: false, error: `Failed to forget data: ${response.statusText}` };

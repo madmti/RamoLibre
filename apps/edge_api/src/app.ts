@@ -13,6 +13,18 @@ app.get('/', (c) => {
 	});
 });
 
+app.options('*', (c) => {
+	return new Response(null, {
+		status: 204,
+		headers: {
+			'Access-Control-Allow-Origin': c.req.header('Origin') ?? '*',
+			'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+			'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+			'Access-Control-Allow-Credentials': 'true',
+		},
+	});
+});
+
 app.post('/pull/', requireAuth, async (c) => {
 	const authId = c.get('authId');
 	const db = createDatabaseAdapter('supabase');
