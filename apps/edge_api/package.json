@@ -1,14 +1,24 @@
 {
-  "name": "edge_api",
-  "type": "module",
-  "scripts": {
-    "start": "vercel dev",
-    "deploy": "vercel"
-  },
-  "dependencies": {
-    "hono": "^4.8.5"
-  },
-  "devDependencies": {
-    "vercel": "^32.4.1"
-  }
+    "name": "edge_api",
+    "version": "1.0.0",
+    "description": "API REST con Hono para RamoLibre",
+    "type": "module",
+    "scripts": {
+        "build": "bun build src/*.ts --outdir dist",
+        "dev": "bun run src/index.ts",
+        "test": "bun test"
+    },
+    "devDependencies": {
+        "@types/bun": "latest"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "@ramo-libre/database": "workspace:*",
+        "@ramo-libre/shared": "workspace:*",
+        "@supabase/supabase-js": "^2.52.0",
+        "hono": "^4.8.5",
+        "jose": "^6.0.12"
+    }
 }
