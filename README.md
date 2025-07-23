@@ -18,6 +18,7 @@ RamoLibre/
 ## Comandos disponibles
 
 ### Desarrollo
+
 ```bash
 # Ejecutar todas las apps en modo desarrollo
 bun dev
@@ -29,6 +30,7 @@ bun api:dev     # API Hono
 ```
 
 ### Construcción
+
 ```bash
 # Construir todas las apps
 bun build
@@ -40,6 +42,7 @@ bun api:build
 ```
 
 ### Otros comandos
+
 ```bash
 # Instalar dependencias
 bun install
@@ -60,16 +63,19 @@ bun clean
 ## Apps
 
 ### Web (SvelteKit)
+
 - Puerto de desarrollo: 5173
 - Framework: SvelteKit
 - Lenguaje: TypeScript
 
 ### Mobile (React Native + Expo)
+
 - Framework: React Native con Expo
 - Lenguaje: TypeScript
 - Soporta: iOS, Android, Web
 
 ### API (Hono)
+
 - Puerto: 3001
 - Framework: Hono
 - Runtime: Bun
@@ -78,11 +84,17 @@ bun clean
 ## Paquetes compartidos
 
 ### @ramo-libre/shared
+
 Contiene tipos, utilidades y constantes compartidas entre todas las aplicaciones.
+
+### @ramo-libre/database
+
+Contiene tipos y utilidades para implementar adaptadores de bases de datos
 
 ## Configuración
 
 El proyecto está configurado para usar:
+
 - **Bun** como gestor de paquetes y runtime
 - **Turborepo** para la gestión del monorepo
 - **TypeScript** en todas las aplicaciones
