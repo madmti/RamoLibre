@@ -1,1 +1,0 @@
-import{a as d}from"./DoR1-v3w.js";import{D as o}from"./Nk41YHiH.js";const r=[];class s extends o{constructor(){super(d,r)}addSubject(t){t.id||(t.id=crypto.randomUUID()),this.update(e=>[...e,t])}removeSubject(t){this.update(e=>{const i=e.findIndex(a=>a.id===t);return i>-1&&e.splice(i,1),e})}updateSubject(t){this.update(e=>e.map(i=>i.id===t.id?t:i))}}const S=new s;export{S as c};

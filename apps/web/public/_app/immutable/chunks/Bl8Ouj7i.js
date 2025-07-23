@@ -1,1 +1,0 @@
-import{P as r}from"./DoR1-v3w.js";import{D as t}from"./Nk41YHiH.js";const a={theme:"light",language:"es",scheduleView:"list",eventsView:"calendar"};class n extends t{constructor(){super(r,a)}updatePreferences(e){this.update(s=>({...s,...e}))}}const u=new n;export{u};
