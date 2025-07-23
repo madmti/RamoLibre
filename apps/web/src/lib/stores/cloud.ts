@@ -60,6 +60,8 @@ class CloudSessionManager extends DefaultStore<Session | null> {
 			headers: {
 				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
+				credentials: 'include',
+				mode: 'cors',
 			},
 			body: JSON.stringify({ profile }),
 		});
@@ -77,6 +79,8 @@ class CloudSessionManager extends DefaultStore<Session | null> {
 			headers: {
 				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
+				credentials: 'include',
+				mode: 'cors',
 			},
 		});
 		if (!response.ok) {
@@ -93,6 +97,8 @@ class CloudSessionManager extends DefaultStore<Session | null> {
 			headers: {
 				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
+				credentials: 'include',
+				mode: 'cors',
 			},
 		});
 		if (!response.ok) {

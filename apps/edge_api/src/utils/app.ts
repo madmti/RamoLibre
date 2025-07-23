@@ -7,14 +7,19 @@ type Variables = {
 
 export function createApp() {
 	const app = new Hono<{ Variables: Variables }>().basePath('/api/');
-	const frontendOrigin = process.env.VITE_WEB_URL || 'http://localhost:5173';
+
+	const allowedOrigins = [
+		'http://localhost:5173',
+		process.env.PUBLIC_WEB_URL || 'https://ramolibre.vercel.app',
+	];
 
 	app.use(
 		'*',
 		cors({
-			origin: [frontendOrigin],
+			origin: allowedOrigins,
 			allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 			allowHeaders: ['Content-Type', 'Authorization'],
+			credentials: true,
 		})
 	);
 
