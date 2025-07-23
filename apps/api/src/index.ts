@@ -1,13 +1,8 @@
-import '../../database/register';
-import { handle } from 'hono/vercel';
-import { createApp } from '../../utils/app';
-import { requireAuth } from '../../utils/middleware';
+import './database/register';
+import { createApp } from './utils/app';
+import { requireAuth } from './utils/middleware';
 import { createDatabaseAdapter } from '@ramo-libre/database';
 import { type ApiResponse, type UserProfileResponse } from '@ramo-libre/shared';
-
-export const config = {
-	runtime: 'edge',
-};
 
 const app = createApp();
 
@@ -50,4 +45,4 @@ app.post('/forget/', requireAuth, async (c) => {
 	return c.json({ ok: true });
 });
 
-export default handle(app);
+export default app;
