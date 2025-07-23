@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import { cloudSession } from "$lib/stores/cloud";
   import { onMount } from "svelte";
 
   let currentTime = new Date();
@@ -74,11 +75,21 @@
         {/each}
       </div>
 
-      <!-- Hora y fecha -->
+      <!-- Hora, fecha e indicador de conexión -->
       <div class="text-right" aria-live="polite">
-        <time class="text-sm font-medium text-gray-800" datetime={currentTime.toISOString()}>
-          {formattedTime}
-        </time>
+        <div class="flex items-center justify-between gap-2 mb-1">
+          <!-- Indicador de estado de conexión -->
+          <div class="flex items-center gap-1">
+            <div class="w-2 h-2 rounded-full {$cloudSession ? 'bg-green-500' : 'bg-gray-400'} animate-pulse"></div>
+            <span class={`text-xs ${$cloudSession ? 'text-green-500' : 'text-gray-500'} font-medium`}>
+              {$cloudSession ? 'Online' : 'Offline'}
+            </span>
+          </div>
+          
+            <time class="text-sm font-medium text-gray-800" datetime={currentTime.toISOString()}>
+              {formattedTime}
+            </time>
+        </div>
         <div class="text-xs text-gray-500 capitalize">{formattedDate}</div>
       </div>
     </div>

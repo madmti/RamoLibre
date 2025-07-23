@@ -37,8 +37,8 @@ const config = {
                 'child-src': ['self', 'blob:'],
                 'style-src': ['self', 'unsafe-inline', 'https://fonts.googleapis.com'],
                 'font-src': ['self', 'https://fonts.gstatic.com', 'data:', 'blob:'],
-                'connect-src': ['self'],
-                'img-src': ['self', 'data:', 'blob:'],
+                'connect-src': ['self', 'https://zoquyhsbryempqxxgtet.supabase.co', process.env.PUBLIC_VITE_API_URL || 'http://localhost:3000'],
+                'img-src': ['self', 'data:', 'blob:', 'https://lh3.googleusercontent.com'],
                 'object-src': ['none'],
                 'base-uri': ['self']
             }

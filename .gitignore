@@ -18,6 +18,8 @@ build/
 .next/
 .expo/
 .svelte-kit/
+.vercel/
+apps/api/public/
 
 # Environment variables
 .env

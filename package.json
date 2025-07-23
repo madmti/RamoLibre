@@ -16,7 +16,7 @@
     "clean": "turbo clean && rm -rf node_modules",
     "web:dev": "turbo dev --filter=web",
     "mobile:dev": "turbo dev --filter=mobile",
-    "api:dev": "turbo dev --filter=api",
+    "api:dev": "turbo start --filter=api",
     "web:build": "turbo build --filter=web",
     "mobile:build": "turbo build --filter=mobile", 
     "api:build": "turbo build --filter=api"

@@ -11,102 +11,102 @@ export { EncryptionAdapter, BaseEncryption, deriveKey } from './utils/encryption
 ==================================================================
 */
 export type User = {
-    id: string;
+	id: string;
 
-    name: string;
-    email: string;
-    avatar?: string;
-    university?: string;
-    career?: string;
-    semester?: number;
+	name: string;
+	email: string;
+	avatar?: string;
+	university?: string;
+	career?: string;
+	semester?: number;
 
-    createdAt: string;
-    updatedAt: string;
+	createdAt: string;
+	updatedAt: string;
 };
 
 export type Subject = {
-    id: string;
-    userId: string;
+	id: string;
+	userId: string;
 
-    name: string;
-    code: string;
-    credits: number;
-    color: string;
-    professor?: string;
-    semester: number;
+	name: string;
+	code: string;
+	credits: number;
+	color: string;
+	professor?: string;
+	semester: number;
 
-    createdAt: string;
+	createdAt: string;
 };
 
 export type Grade = {
-    id: string;
-    userId: string;
-    subjectId: string;
-    categoryId?: string;
+	id: string;
+	userId: string;
+	subjectId: string;
+	categoryId?: string;
 
-    value?: number;
-    description: string;
-    date: string;
-    type: 'exam' | 'homework' | 'project' | 'participation' | 'other';
-    weight: number;
+	value?: number;
+	description: string;
+	date: string;
+	type: 'exam' | 'homework' | 'project' | 'participation' | 'other';
+	weight: number;
 };
 
 export type GradeCategory = {
-    id: string;
-    userId: string;
-    subjectId: string;
+	id: string;
+	userId: string;
+	subjectId: string;
 
-    name: string;
-    description?: string;
-    weight: number;
+	name: string;
+	description?: string;
+	weight: number;
 
-    createdAt: string;
+	createdAt: string;
 };
 
 export type SubjectGradeConfig = {
-    id: string;
-    userId: string;
-    subjectId: string;
+	id: string;
+	userId: string;
+	subjectId: string;
 
-    minGrade: number;
-    passingGrade: number;
-    maxGrade: number;
-    gradeScale: 'chilean' | 'utfsm' | 'custom';
+	minGrade: number;
+	passingGrade: number;
+	maxGrade: number;
+	gradeScale: 'chilean' | 'utfsm' | 'custom';
 
-    createdAt: string;
-    updatedAt: string;
+	createdAt: string;
+	updatedAt: string;
 };
 
 export type Event = {
-    id: string;
-    userId: string;
-    subjectId?: string;
+	id: string;
+	userId: string;
+	subjectId?: string;
 
-    title: string;
-    description?: string;
-    date: string;         // YYYY-MM-DD format
-    time?: string;        // HH:MM format
-    endTime?: string;     // HH:MM format for duration
-    type: 'exam' | 'assignment' | 'class' | 'meeting' | 'project' | 'deadline' | 'other';
-    priority: 'low' | 'medium' | 'high';
-    completed: boolean;
-    location?: string;
-    reminder?: number;    // minutes before event
-    isAllDay?: boolean;
+	title: string;
+	description?: string;
+	date: string; // YYYY-MM-DD format
+	time?: string; // HH:MM format
+	endTime?: string; // HH:MM format for duration
+	type: 'exam' | 'assignment' | 'class' | 'meeting' | 'project' | 'deadline' | 'other';
+	priority: 'low' | 'medium' | 'high';
+	completed: boolean;
+	location?: string;
+	reminder?: number; // minutes before event
+	isAllDay?: boolean;
 
-    createdAt: string;
+	createdAt: string;
 };
 
 export type Schedule = {
-    id: string;
-    userId: string;
-    subjectId: string;
+	id: string;
+	userId: string;
+	subjectId: string;
 
-    dayOfWeek: number;  // 0 = Sunday, 1 = Monday, etc.
-    startTime: string;  // HH:MM format
-    endTime: string;    // HH:MM format
-    classroom?: string;
-    type: 'class' | 'lab' | 'tutorial';
+	dayOfWeek: number; // 0 = Sunday, 1 = Monday, etc.
+	startTime: string; // HH:MM format
+	endTime: string; // HH:MM format
+	classroom?: string;
+	type: 'class' | 'lab' | 'tutorial';
 };
 
 /*
@@ -115,45 +115,61 @@ export type Schedule = {
 ==================================================================
 */
 export interface UserPreferences {
-    theme: 'light' | 'dark' | 'auto';
-    language: 'es' | 'en';
-    scheduleView: 'list' | 'grid' | 'cards';
-    eventsView: 'calendar' | 'list' | 'kanban' | 'timeline';
-};
-
-export interface UserStats {
-    totalSubjects: number;
-    averageGrade: number;
-    completedTasks: number;
-    upcomingEvents: number;
-    lastActivity: string;
-};
+	theme: 'light' | 'dark' | 'auto';
+	language: 'es' | 'en';
+	scheduleView: 'list' | 'grid' | 'cards';
+	eventsView: 'calendar' | 'list' | 'kanban' | 'timeline';
+}
 
 export interface UserProfile {
-    user: User;
-    preferences: UserPreferences;
-    stats: UserStats;
-};
+	user: User;
+	preferences: UserPreferences;
+	subjects: Subject[];
+	grades: Grade[];
+	gradeCategories: GradeCategory[];
+	subjectGradeConfigs: SubjectGradeConfig[];
+	events: Event[];
+	schedule: Schedule[];
+
+	lastPush?: string; // ISO date string of the last push to the server
+	lastPull?: string; // ISO date string of the last pull from the server
+}
 
 export interface RequiredGrade {
-    categoryId: string;
-    categoryName: string;
-    requiredValue: number;
-    description: string;
-    achievable: boolean;
-};
+	categoryId: string;
+	categoryName: string;
+	requiredValue: number;
+	description: string;
+	achievable: boolean;
+}
 
 export interface GradeCalculationResult {
-    subjectId: string;
+	subjectId: string;
 
-    currentGrade: number;
-    canPass: boolean;
+	currentGrade: number;
+	canPass: boolean;
 
-    requiredGrades: RequiredGrade[];
-    recommendations: string[];
+	requiredGrades: RequiredGrade[];
+	recommendations: string[];
 
-    calculatedAt: string;
-};
+	calculatedAt: string;
+}
+
+/*
+==================================================================
+                            API Responses
+==================================================================
+*/
+
+export interface ApiResponse<T> {
+	ok: boolean;
+	data?: T;
+	error?: string;
+}
+
+export interface UserProfileResponse {
+	profile: UserProfile;
+}
 
 /*
 ==================================================================
@@ -168,3 +184,4 @@ export const CATEGORY_STORAGE_KEY = 'ramo-libre-categories';
 export const SUBJECT_GRADE_CONFIG_STORAGE_KEY = 'ramo-libre-subject-grade-config';
 export const EVENT_STORAGE_KEY = 'ramo-libre-events';
 export const SCHEDULE_STORAGE_KEY = 'ramo-libre-schedule';
+export const CLOUD_STORAGE_KEY = 'ramo-libre-cloud';
