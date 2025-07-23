@@ -9,9 +9,10 @@ import { supabase } from '$lib/utils/supabase';
 import { type Session, type Provider } from '@supabase/supabase-js';
 
 const DEFAULT_CLOUD: Session | null = null;
+const API_URL = import.meta.env.VITE_PUBLIC_API_URL || 'https://ramolibre.vercel.app';
 
 class CloudSessionManager extends DefaultStore<Session | null> {
-	API_URL: string = import.meta.env.VITE_PUBLIC_API_URL;
+	API_URL: string = API_URL;
 
 	constructor() {
 		super(CLOUD_STORAGE_KEY, DEFAULT_CLOUD, true);
