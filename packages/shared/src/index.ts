@@ -168,7 +168,7 @@ export interface ApiResponse<T> {
 }
 
 export interface UserProfileResponse {
-	profile: UserProfile;
+	profile: UserProfile | null;
 }
 
 /*
