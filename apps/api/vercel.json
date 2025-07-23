@@ -1,4 +1,6 @@
 {
+    "outputDirectory": null,
+    "framework": null,
     "rewrites": [
         {
             "source": "/api/(.*)",

@@ -1,7 +1,7 @@
-import '../database/register';
+import '../../database/register';
 import { handle } from 'hono/vercel';
-import { createApp } from '../utils/app';
-import { requireAuth } from '../utils/middleware';
+import { createApp } from '../../utils/app';
+import { requireAuth } from '../../utils/middleware';
 import { createDatabaseAdapter } from '@ramo-libre/database';
 import { type ApiResponse, type UserProfileResponse } from '@ramo-libre/shared';
 
