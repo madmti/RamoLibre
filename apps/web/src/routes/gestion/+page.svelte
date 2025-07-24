@@ -263,35 +263,76 @@
 							<div class="space-y-2">
 								<h4 class="text-sm font-medium text-gray-700 mb-3">Horarios ({scheduleData.length})</h4>
 								{#each scheduleData as schedule}
-									<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-										<div class="flex items-center space-x-3">
-											<span class="text-lg">{currentSchedules.getTypeIcon(schedule.type)}</span>
-											<div>
-												<div class="flex items-center space-x-2">
-													<span class="font-medium text-gray-800">{currentSchedules.getDayName(schedule.dayOfWeek)}</span>
-													<span class="text-gray-600">{schedule.startTime} - {schedule.endTime}</span>
-													{#if schedule.classroom}
-														<span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">{schedule.classroom}</span>
-													{/if}
+									<div class="p-3 bg-gray-50 rounded-lg">
+										<!-- Layout móvil (< md): diseño vertical optimizado -->
+										<div class="md:hidden">
+											<div class="flex items-start justify-between">
+												<div class="flex items-start space-x-3 flex-1 min-w-0">
+													<span class="text-lg shrink-0 mt-0.5">{currentSchedules.getTypeIcon(schedule.type)}</span>
+													<div class="min-w-0 flex-1">
+														<div class="flex flex-col items-start gap-1 mb-1">
+															<span class="font-medium text-gray-800 text-sm">{currentSchedules.getDayName(schedule.dayOfWeek)}</span>
+															<span class="text-gray-600 text-sm">{schedule.startTime} - {schedule.endTime}</span>
+															{#if schedule.classroom}
+																<span class="text-xs bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded whitespace-nowrap inline-block mt-1">{schedule.classroom}</span>
+															{/if}
+														</div>
+													</div>
 												</div>
-												<div class="text-xs text-gray-500">{schedule.type}</div>
+												
+												<!-- Botones de acción móvil -->
+												<div class="flex items-center space-x-1 ml-2 shrink-0">
+													<button 
+														on:click={() => openModal('schedule', schedule)}
+														class="p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+														title="Editar horario"
+													>
+														✏️
+													</button>
+													<button 
+														on:click={() => openModal('deleteConfirm', { id:schedule.id, name:`${currentSchedules.getDayName(schedule.dayOfWeek)} ${schedule.startTime}-${schedule.endTime}`}, 'schedule')}
+														class="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+														title="Eliminar horario"
+													>
+														🗑️
+													</button>
+												</div>
 											</div>
 										</div>
-										<div class="flex items-center space-x-1">
-											<button 
-												on:click={() => openModal('schedule', schedule)}
-												class="p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-												title="Editar horario"
-											>
-												✏️
-											</button>
-											<button 
-												on:click={() => openModal('deleteConfirm', { id:schedule.id, name:`${currentSchedules.getDayName(schedule.dayOfWeek)} ${schedule.startTime}-${schedule.endTime}`}, 'schedule')}
-												class="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-												title="Eliminar horario"
-											>
-												🗑️
-											</button>
+
+										<!-- Layout desktop (>= md): diseño original horizontal completo -->
+										<div class="hidden md:flex items-center justify-between">
+											<div class="flex items-center space-x-3">
+												<span class="text-lg">{currentSchedules.getTypeIcon(schedule.type)}</span>
+												<div>
+													<div class="flex items-center space-x-2">
+														<span class="font-medium text-gray-800">{currentSchedules.getDayName(schedule.dayOfWeek)}</span>
+														<span class="text-gray-600">{schedule.startTime} - {schedule.endTime}</span>
+														{#if schedule.classroom}
+															<span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">{schedule.classroom}</span>
+														{/if}
+													</div>
+													<div class="text-xs text-gray-500">{schedule.type}</div>
+												</div>
+											</div>
+											
+											<!-- Botones de acción desktop -->
+											<div class="flex items-center space-x-1">
+												<button 
+													on:click={() => openModal('schedule', schedule)}
+													class="p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+													title="Editar horario"
+												>
+													✏️
+												</button>
+												<button 
+													on:click={() => openModal('deleteConfirm', { id:schedule.id, name:`${currentSchedules.getDayName(schedule.dayOfWeek)} ${schedule.startTime}-${schedule.endTime}`}, 'schedule')}
+													class="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+													title="Eliminar horario"
+												>
+													🗑️
+												</button>
+											</div>
 										</div>
 									</div>
 								{/each}
@@ -433,43 +474,54 @@
 										{#each gradesData as grade}
 											{@const categoryName = categoriesData?.find(cat => cat.id === grade.categoryId)?.name}
 											{@const isFailingGrade = grade.value && configData && grade.value < configData.passingGrade}
-											<div class="flex items-center justify-between p-2 bg-white rounded border">
-												<div class="flex-1">
-													<div class="flex items-center space-x-2">
-														<span class="font-medium text-gray-800 text-sm">{grade.description}</span>
-														<span class="text-sm font-bold" class:text-green-600={grade.value && configData && grade.value >= configData.passingGrade} class:text-red-600={isFailingGrade} class:text-gray-500={!grade.value}>
-															{#if grade.value !== null && grade.value !== undefined}
-																{grade.value.toFixed(1)}/{configData.maxGrade}
-															{:else}
-																—/{configData.maxGrade}
+											<div class="flex items-center md:items-start justify-between p-2 md:p-3 bg-white rounded border">
+												<div class="flex-1 min-w-0">
+													<!-- Layout móvil (< md): vertical | Layout desktop (>= md): horizontal original -->
+													<div class="md:flex md:items-center md:space-x-2 md:gap-1">
+                                                        <div class="flex items-start space-x-2 md:space-x-3">
+                                                            <span class="font-medium text-gray-800 text-sm md:truncate block md:inline">{grade.description}</span>
+                                                            <span class="text-sm font-bold shrink-0 block md:inline" class:text-green-600={grade.value && configData && grade.value >= configData.passingGrade} class:text-red-600={isFailingGrade} class:text-gray-500={!grade.value}>
+                                                                {#if grade.value !== null && grade.value !== undefined}
+																{grade.value.toFixed(1)}/{configData?.maxGrade || '-'}
+                                                                {:else}
+																—/{configData?.maxGrade || '-'}
+                                                                {/if}
+                                                            </span>
+                                                        </div>
+														
+														<!-- Tags/Badges - responsivos solo en móvil -->
+														<div class="flex flex-wrap gap-1 mt-2 md:mt-0 md:contents">
+															<span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded whitespace-nowrap">{grade.type}</span>
+															{#if categoryName}
+																<span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded whitespace-nowrap">{categoryName}</span>
 															{/if}
-														</span>
-														<span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">{grade.type}</span>
-														{#if categoryName}
-															<span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">{categoryName}</span>
-														{/if}
-														{#if !grade.value}
-															<span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Variable</span>
+															{#if !grade.value}
+																<span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded whitespace-nowrap">Variable</span>
+															{/if}
+														</div>
+													</div>
+													
+													<!-- Información adicional -->
+													<div class="text-xs text-gray-600 mt-1 md:mt-1">
+														<div>{new Date(grade.date).toLocaleDateString('es-ES')} • Peso: {grade.weight}%</div>
+														{#if isFailingGrade && configData}
+															<div class="text-red-600 font-medium mt-1">Por debajo del mínimo ({configData.passingGrade})</div>
 														{/if}
 													</div>
-													<p class="text-xs text-gray-600 mt-1">
-														{new Date(grade.date).toLocaleDateString('es-ES')} • Peso: {grade.weight}%
-														{#if isFailingGrade && configData}
-															<span class="text-red-600 font-medium">• Por debajo del mínimo ({configData.passingGrade})</span>
-														{/if}
-													</p>
 												</div>
-												<div class="flex items-center space-x-1">
+												
+												<!-- Botones de acción -->
+												<div class="flex items-center space-x-1 ml-2 shrink-0">
 													<button 
 														on:click={() => openModal('grade', grade)}
-														class="p-1 text-gray-600 hover:text-blue-600 text-xs"
+														class="p-1 md:p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors text-xs md:text-base"
 														title="Editar nota"
 													>
 														✏️
 													</button>
 													<button 
 														on:click={() => openModal('deleteConfirm', { ...grade, name: grade.description }, 'grade')}
-														class="p-1 text-gray-600 hover:text-red-600 text-xs"
+														class="p-1 md:p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors text-xs md:text-base"
 														title="Eliminar nota"
 													>
 														🗑️
