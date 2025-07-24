@@ -56,42 +56,51 @@
 	<title>Configuración - Ramo Libre</title>
 </svelte:head>
 
-<div class="container mx-auto px-4 py-8 max-w-4xl">
-	<div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-8">
-		<h1 class="text-3xl font-bold text-gray-800 mb-2">⚙️ Configuración</h1>
-		<p class="text-gray-600 mb-8">Personaliza tu experiencia con Ramo Libre.</p>
+<div class="container mx-auto lg:px-4 lg:py-8 max-w-4xl">
+	<div class="lg:bg-white/90 lg:backdrop-blur-sm lg:rounded-xl lg:shadow-lg lg:border lg:border-gray-200/50 lg:p-8">
+		<!-- Header móvil -->
+		<div class="lg:hidden px-4 py-6 bg-white border-b border-gray-200">
+			<h1 class="text-2xl font-bold text-gray-800 mb-1">⚙️ Configuración</h1>
+			<p class="text-gray-600 text-sm">Personaliza tu experiencia con Ramo Libre.</p>
+		</div>
+		
+		<!-- Header desktop -->
+		<div class="hidden lg:block">
+			<h1 class="text-3xl font-bold text-gray-800 mb-2">⚙️ Configuración</h1>
+			<p class="text-gray-600 mb-8">Personaliza tu experiencia con Ramo Libre.</p>
+		</div>
 		
 			<!-- === CUENTA === -->
-			<section class="bg-gray-50 rounded-xl p-6">
-				<div class="flex items-center justify-between mb-6">
-					<h2 class="text-2xl font-bold text-gray-800 flex items-center space-x-2">
+			<section class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6">
+				<div class="flex items-center justify-between mb-4 lg:mb-6">
+					<h2 class="text-lg lg:text-2xl font-bold text-gray-800 flex items-center space-x-2">
 						<span>👤</span>
 						<span>Cuenta</span>
 					</h2>
 					{#if $currentUser !== null && !editingAccount}
-					<div class="flex gap-2">
+					<div class="flex flex-col lg:flex-row gap-2">
 						{#if $cloudSession}
                             <button
                                 on:click={() => {
                                     showSyncModal = true;
                                 }}
-                                class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm flex items-center gap-2"
+                                class="bg-emerald-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm flex items-center gap-2 justify-center lg:justify-start"
                             >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 64 64"><path fill="currentColor" d="M39.7 46c-.9-.6-2.2-.4-2.8.6c-1.1 1.7-3 2.7-5.1 2.7c-1 0-2-.3-2.9-.7h1.9c1.1 0 2-.9 2-2s-.9-2-2-2h-6.3c-1.3 0-2.5 1.1-2.5 2.5V52c0 1.1.9 2 2 2s2-.9 2-2v-.6c1.7 1.1 3.6 1.8 5.7 1.8c3.4 0 6.5-1.7 8.4-4.5c.8-.8.5-2.1-.4-2.7m3-14.5c0-1.1-.9-2-2-2s-2 .9-2 2v1c-2-1.5-4.4-2.7-6.6-2.7c-3.8 0-7.2 2.1-9 5.5c-.5 1-.1 2.2.8 2.7c1 .5 2.2.1 2.7-.8c1.1-2.1 3.2-3.4 5.5-3.4c1.4 0 3.5 1.2 4.9 2.5h-1.8c-1.1 0-2 .9-2 2s.9 2 2 2h5c1.3 0 2.5-1.1 2.5-2.5z"/><path fill="currentColor" d="M58 23.4c-2.7-3-6.6-5.1-10.7-5.8c-2.2-3.6-5.5-6.3-9.4-7.6c-1.8-.7-3.7-1-5.9-1c-9.7 0-17.7 7.7-18.1 17.3C6.7 27 1 33.2 1 40.6C1 48.5 7.5 55 15.4 55c1.1 0 2-.9 2-2s-.9-2-2-2C9.6 51 5 46.4 5 40.6s4.6-10.4 10.4-10.4h.5c1.1 0 2-.9 2-2v-1.1C17.9 19.3 24.2 13 32 13c1.7 0 3.2.3 4.5.8c3.3 1.1 6 3.5 7.8 6.7c.3.6.9 1 1.5 1c3.5.4 6.8 2.1 9.2 4.6c2.6 2.8 4 6.4 4 10.1C59 44.4 52.3 51 44.1 51c-1.1 0-2 .9-2 2s.9 2 2 2C54.5 55 63 46.6 63 36.2c0-4.8-1.8-9.3-5-12.8"/></svg>                                Sincronizar
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 64 64"><path fill="currentColor" d="M39.7 46c-.9-.6-2.2-.4-2.8.6c-1.1 1.7-3 2.7-5.1 2.7c-1 0-2-.3-2.9-.7h1.9c1.1 0 2-.9 2-2s-.9-2-2-2h-6.3c-1.3 0-2.5 1.1-2.5 2.5V52c0 1.1.9 2 2 2s2-.9 2-2v-.6c1.7 1.1 3.6 1.8 5.7 1.8c3.4 0 6.5-1.7 8.4-4.5c.8-.8.5-2.1-.4-2.7m3-14.5c0-1.1-.9-2-2-2s-2 .9-2 2v1c-2-1.5-4.4-2.7-6.6-2.7c-3.8 0-7.2 2.1-9 5.5c-.5 1-.1 2.2.8 2.7c1 .5 2.2.1 2.7-.8c1.1-2.1 3.2-3.4 5.5-3.4c1.4 0 3.5 1.2 4.9 2.5h-1.8c-1.1 0-2 .9-2 2s.9 2 2 2h5c1.3 0 2.5-1.1 2.5-2.5z"/><path fill="currentColor" d="M58 23.4c-2.7-3-6.6-5.1-10.7-5.8c-2.2-3.6-5.5-6.3-9.4-7.6c-1.8-.7-3.7-1-5.9-1c-9.7 0-17.7 7.7-18.1 17.3C6.7 27 1 33.2 1 40.6C1 48.5 7.5 55 15.4 55c1.1 0 2-.9 2-2s-.9-2-2-2C9.6 51 5 46.4 5 40.6s4.6-10.4 10.4-10.4h.5c1.1 0 2-.9 2-2v-1.1C17.9 19.3 24.2 13 32 13c1.7 0 3.2.3 4.5.8c3.3 1.1 6 3.5 7.8 6.7c.3.6.9 1 1.5 1c3.5.4 6.8 2.1 9.2 4.6c2.6 2.8 4 6.4 4 10.1C59 44.4 52.3 51 44.1 51c-1.1 0-2 .9-2 2s.9 2 2 2C54.5 55 63 46.6 63 36.2c0-4.8-1.8-9.3-5-12.8"/></svg>                                Sincronizar
                             </button>
                         {:else}
                             <button
                                 on:click={() => {
                                     showSyncModal = true;
                                 }}
-                                class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm flex items-center gap-2"
+                                class="bg-indigo-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm flex items-center gap-2 justify-center lg:justify-start"
                             >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 64 64"><path fill="currentColor" d="M43.7 54.1H15.9c-7.8 0-14.1-6.3-14.1-14c0-7.1 5.5-13 12.5-13.9c.5-9.1 8.3-16.3 17.7-16.3c2.1 0 4.1.3 5.8 1c3.7 1.3 6.9 3.8 9.1 7.2c4 .7 7.7 2.6 10.3 5.5c3.2 3.4 4.9 7.8 4.9 12.4c.2 10-8.2 18.1-18.4 18.1M16 49.6h27.7c7.8 0 14.1-6.1 14.1-13.7c0-3.4-1.3-6.7-3.7-9.3c-2.2-2.4-5.4-3.9-8.7-4.3c-.7-.1-1.4-.5-1.7-1.1c-1.6-2.9-4.2-5.1-7.3-6.1c-1.3-.5-2.7-.7-4.3-.7c-7.3 0-13.3 5.8-13.3 13v1c0 1.2-1 2.3-2.3 2.3H16c-5.5 0-9.7 4.2-9.7 9.5s4.2 9.4 9.7 9.4"/></svg>                                Conectar
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 64 64"><path fill="currentColor" d="M43.7 54.1H15.9c-7.8 0-14.1-6.3-14.1-14c0-7.1 5.5-13 12.5-13.9c.5-9.1 8.3-16.3 17.7-16.3c2.1 0 4.1.3 5.8 1c3.7 1.3 6.9 3.8 9.1 7.2c4 .7 7.7 2.6 10.3 5.5c3.2 3.4 4.9 7.8 4.9 12.4c.2 10-8.2 18.1-18.4 18.1M16 49.6h27.7c7.8 0 14.1-6.1 14.1-13.7c0-3.4-1.3-6.7-3.7-9.3c-2.2-2.4-5.4-3.9-8.7-4.3c-.7-.1-1.4-.5-1.7-1.1c-1.6-2.9-4.2-5.1-7.3-6.1c-1.3-.5-2.7-.7-4.3-.7c-7.3 0-13.3 5.8-13.3 13v1c0 1.2-1 2.3-2.3 2.3H16c-5.5 0-9.7 4.2-9.7 9.5s4.2 9.4 9.7 9.4"/></svg>                                Conectar
                             </button>
                         {/if}
 						<button 
 							on:click={() => editingAccount = true}
-							class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+							class="bg-blue-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
 						>
 							Editar
 						</button>
@@ -101,19 +110,19 @@
 
 				{#if $currentUser === null}
 					<!-- Usuario no logueado - Solo para la sección de cuenta -->
-					<div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-						<span class="text-4xl mb-4 block">👤</span>
-						<h3 class="text-xl font-semibold text-blue-800 mb-2">Gestiona tu cuenta</h3>
-						<p class="text-blue-700 mb-4">Inicia sesión para personalizar tu perfil académico y sincronizar tus datos.</p>
-						<div class="flex flex-col sm:flex-row gap-3 justify-center">
-							<a href="/#usercard" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+					<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 lg:p-6 text-center">
+						<span class="text-3xl lg:text-4xl mb-3 lg:mb-4 block">👤</span>
+						<h3 class="text-lg lg:text-xl font-semibold text-blue-800 mb-2">Gestiona tu cuenta</h3>
+						<p class="text-blue-700 mb-4 text-sm lg:text-base">Inicia sesión para personalizar tu perfil académico y sincronizar tus datos.</p>
+						<div class="flex flex-col gap-2 lg:flex-row lg:gap-3 lg:justify-center">
+							<a href="/#usercard" class="bg-blue-600 text-white px-4 lg:px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm lg:text-base">
 								Crear cuenta
 							</a>
-							<a href="/#usercard" class="bg-white text-blue-600 border border-blue-300 px-6 py-2 rounded-lg hover:bg-blue-50 transition-colors">
+							<a href="/#usercard" class="bg-white text-blue-600 border border-blue-300 px-4 lg:px-6 py-2 rounded-lg hover:bg-blue-50 transition-colors text-sm lg:text-base">
 								Iniciar sesión
 							</a>
 						</div>
-						<p class="text-sm text-blue-600 mt-4">
+						<p class="text-xs lg:text-sm text-blue-600 mt-3 lg:mt-4">
 							💡 <strong>Tip:</strong> Puedes usar la aplicación sin cuenta, pero registrarte te permitirá sincronizar tus datos.
 						</p>
 					</div>
@@ -237,8 +246,8 @@
 			</section>
 
 				<!-- === HORARIO === -->
-				<section class="bg-gray-50 rounded-xl p-6">
-					<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
+				<section class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6">
+					<h2 class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2">
 						<span>📅</span>
 						<span>Horario</span>
 					</h2>
@@ -247,7 +256,7 @@
 						<div>
 							<fieldset>
 								<legend class="block text-sm font-medium text-gray-700 mb-3">Vista preferida del horario</legend>
-								<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+								<div class="space-y-3 lg:grid lg:grid-cols-3 lg:gap-4 lg:space-y-0">
 									<!-- Vista Lista -->
 									<label for="schedule-view-list" class="relative cursor-pointer">
 										<input 
@@ -259,12 +268,12 @@
 											on:change={() => updatePreference('scheduleView', 'list')}
 											class="sr-only peer"
 										/>
-										<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-											<div class="flex items-center space-x-3 mb-2">
-												<span class="text-2xl">📋</span>
+										<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+											<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+												<span class="text-xl lg:text-2xl">📋</span>
 												<h3 class="font-semibold text-gray-800">Lista</h3>
 											</div>
-											<p class="text-sm text-gray-600">Vista detallada por día con información completa de cada clase.</p>
+											<p class="text-xs lg:text-sm text-gray-600">Vista detallada por día con información completa de cada clase.</p>
 										</div>
 									</label>
 
@@ -279,12 +288,12 @@
 											on:change={() => updatePreference('scheduleView', 'grid')}
 											class="sr-only peer"
 										/>
-										<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-											<div class="flex items-center space-x-3 mb-2">
-												<span class="text-2xl">📊</span>
+										<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+											<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+												<span class="text-xl lg:text-2xl">📊</span>
 												<h3 class="font-semibold text-gray-800">Tabla</h3>
 											</div>
-											<p class="text-sm text-gray-600">Vista semanal tipo calendario con horarios en tabla.</p>
+											<p class="text-xs lg:text-sm text-gray-600">Vista semanal tipo calendario con horarios en tabla.</p>
 										</div>
 									</label>
 
@@ -299,12 +308,12 @@
 											on:change={() => updatePreference('scheduleView', 'cards')}
 											class="sr-only peer"
 										/>
-										<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-											<div class="flex items-center space-x-3 mb-2">
-												<span class="text-2xl">🗃️</span>
+										<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+											<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+												<span class="text-xl lg:text-2xl">🗃️</span>
 												<h3 class="font-semibold text-gray-800">Tarjetas</h3>
 											</div>
-											<p class="text-sm text-gray-600">Vista compacta con tarjetas organizadas por día.</p>
+											<p class="text-xs lg:text-sm text-gray-600">Vista compacta con tarjetas organizadas por día.</p>
 										</div>
 									</label>
 								</div>
@@ -312,123 +321,25 @@
 						</div>
 
 						<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-							<p class="text-sm text-blue-700">
+							<p class="text-xs lg:text-sm text-blue-700">
 								💡 <strong>Tip:</strong> La vista seleccionada se aplicará automáticamente en la página de horarios.
 							</p>
 						</div>
 					</div>
 				</section>
 
-				<!-- === NOTAS === -->
-				<section class="bg-gray-50 rounded-xl p-6">
-					<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
-						<span>📊</span>
-						<span>Notas</span>
-					</h2>
-					
-					<div class="space-y-6">
-						<!-- Método de cálculo de notas -->
-						<div>
-							<fieldset>
-								<legend class="block text-sm font-medium text-gray-700 mb-3">Método de cálculo de predicciones</legend>
-								<div class="space-y-3">
-									<!-- LP Smooth Solution (Seleccionado) -->
-									<label for="calc-method-lp-smooth" class="relative cursor-not-allowed opacity-75">
-										<input 
-											id="calc-method-lp-smooth"
-											type="radio" 
-											name="calculationMethod"
-											value="lp-smooth"
-											checked={true}
-											disabled
-											class="sr-only peer"
-										/>
-										<div class="border-2 border-blue-500 bg-blue-50 rounded-lg p-4 transition-colors">
-											<div class="flex items-center justify-between mb-2">
-												<div class="flex items-center space-x-3">
-													<span class="text-2xl">🧮</span>
-													<h3 class="font-semibold text-gray-800">LP Min Passing Distance</h3>
-												</div>
-												<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-													Activo
-												</span>
-											</div>
-											<p class="text-sm text-gray-600">Optimización matemática con soluciones suaves y balanceadas. Evita notas extremas y proporciona predicciones realistas.</p>
-										</div>
-									</label>
-
-									<!-- Método Simple (Deshabilitado) -->
-									<label for="calc-method-simple" class="relative cursor-not-allowed opacity-50">
-										<input 
-											id="calc-method-simple"
-											type="radio" 
-											name="calculationMethod"
-											value="simple"
-											disabled
-											class="sr-only peer"
-										/>
-										<div class="border-2 border-gray-200 rounded-lg p-4 transition-colors">
-											<div class="flex items-center justify-between mb-2">
-												<div class="flex items-center space-x-3">
-													<span class="text-2xl">📝</span>
-													<h3 class="font-semibold text-gray-400">Método Simple</h3>
-												</div>
-												<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-													Disponible próximamente
-												</span>
-											</div>
-											<p class="text-sm text-gray-400">Cálculo básico de promedios sin optimización. Más directo pero menos preciso.</p>
-										</div>
-									</label>
-
-									<!-- Método Avanzado (Deshabilitado) -->
-									<label for="calc-method-advanced" class="relative cursor-not-allowed opacity-50">
-										<input 
-											id="calc-method-advanced"
-											type="radio" 
-											name="calculationMethod"
-											value="advanced"
-											disabled
-											class="sr-only peer"
-										/>
-										<div class="border-2 border-gray-200 rounded-lg p-4 transition-colors">
-											<div class="flex items-center justify-between mb-2">
-												<div class="flex items-center space-x-3">
-													<span class="text-2xl">🎯</span>
-													<h3 class="font-semibold text-gray-400">Método Avanzado</h3>
-												</div>
-												<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-													Disponible próximamente
-												</span>
-											</div>
-											<p class="text-sm text-gray-400">Algoritmos de machine learning para predicciones personalizadas basadas en tu historial.</p>
-										</div>
-									</label>
-								</div>
-							</fieldset>
-						</div>
-
-						<!-- Información adicional -->
-						<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-							<p class="text-sm text-blue-700">
-								💡 <strong>Información:</strong> El método LP Smooth Solution utiliza programación lineal para encontrar las notas mínimas requeridas de manera óptima, evitando soluciones extremas como 0.0 y 7.0 simultáneamente.
-							</p>
-						</div>
-					</div>
-				</section>
-
 				<!-- === EVENTOS === -->
-				<section class="bg-gray-50 rounded-xl p-6">
-					<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
+				<section class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6">
+					<h2 class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2">
 						<span>🎯</span>
 						<span>Eventos</span>
 					</h2>
 
-					<div class="space-y-6">
+					<div class="space-y-4 lg:space-y-6">
 						<!-- Selección de vista -->
 						<fieldset>
 							<legend class="block text-sm font-medium text-gray-700 mb-3">Vista preferida de eventos</legend>
-							<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+							<div class="space-y-3 lg:grid lg:grid-cols-1 lg:md:grid-cols-4 lg:gap-4 lg:space-y-0">
 								<!-- Vista Calendario -->
 								<label for="events-view-calendar" class="relative cursor-pointer">
 									<input 
@@ -440,12 +351,12 @@
 										on:change={() => updatePreference('eventsView', 'calendar')}
 										class="sr-only peer"
 									/>
-									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-										<div class="flex items-center space-x-3 mb-2">
-											<span class="text-2xl">📅</span>
+									<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+										<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+											<span class="text-xl lg:text-2xl">📅</span>
 											<h3 class="font-semibold text-gray-800">Calendario</h3>
 										</div>
-										<p class="text-sm text-gray-600">Vista mensual tipo calendario con eventos en cuadrícula.</p>
+										<p class="text-xs lg:text-sm text-gray-600">Vista mensual tipo calendario con eventos en cuadrícula.</p>
 									</div>
 								</label>
 
@@ -460,12 +371,12 @@
 										on:change={() => updatePreference('eventsView', 'list')}
 										class="sr-only peer"
 									/>
-									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-										<div class="flex items-center space-x-3 mb-2">
-											<span class="text-2xl">📋</span>
+									<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+										<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+											<span class="text-xl lg:text-2xl">📋</span>
 											<h3 class="font-semibold text-gray-800">Lista</h3>
 										</div>
-										<p class="text-sm text-gray-600">Vista lista ordenada por fecha con información detallada.</p>
+										<p class="text-xs lg:text-sm text-gray-600">Vista lista ordenada por fecha con información detallada.</p>
 									</div>
 								</label>
 
@@ -480,12 +391,12 @@
 										on:change={() => updatePreference('eventsView', 'kanban')}
 										class="sr-only peer"
 									/>
-									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-										<div class="flex items-center space-x-3 mb-2">
-											<span class="text-2xl">🗂️</span>
+									<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+										<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+											<span class="text-xl lg:text-2xl">🗂️</span>
 											<h3 class="font-semibold text-gray-800">Kanban</h3>
 										</div>
-										<p class="text-sm text-gray-600">Vista tablero con eventos organizados por columnas.</p>
+										<p class="text-xs lg:text-sm text-gray-600">Vista tablero con eventos organizados por columnas.</p>
 									</div>
 								</label>
 
@@ -500,36 +411,36 @@
 										on:change={() => updatePreference('eventsView', 'timeline')}
 										class="sr-only peer"
 									/>
-									<div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-										<div class="flex items-center space-x-3 mb-2">
-											<span class="text-2xl">📈</span>
+									<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
+										<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+											<span class="text-xl lg:text-2xl">📈</span>
 											<h3 class="font-semibold text-gray-800">Timeline</h3>
 										</div>
-										<p class="text-sm text-gray-600">Vista cronológica tipo línea de tiempo con eventos.</p>
+										<p class="text-xs lg:text-sm text-gray-600">Vista cronológica tipo línea de tiempo con eventos.</p>
 									</div>
 								</label>
 							</div>
 						</fieldset>
 
 						<!-- Gestión de eventos -->
-						<div class="bg-red-50 border border-red-200 rounded-lg p-4">
-							<h3 class="text-lg font-semibold text-red-800 mb-3 flex items-center gap-2">
+						<div class="bg-red-50 border border-red-200 rounded-lg p-3 lg:p-4">
+							<h3 class="text-base lg:text-lg font-semibold text-red-800 mb-3 flex items-center gap-2">
 								<span>🗑️</span>
 								Gestión de eventos
 							</h3>
-							<p class="text-red-700 mb-3 text-sm">
+							<p class="text-red-700 mb-3 text-xs lg:text-sm">
 								Elimina todos tus eventos guardados. Esta acción no se puede deshacer.
 							</p>
 							<button 
 								on:click={() => showDeleteEventsConfirm = true}
-								class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 text-sm"
+								class="bg-red-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 text-xs lg:text-sm"
 							>
 								Eliminar todos los eventos
 							</button>
 						</div>
 
 						<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-							<p class="text-sm text-blue-700">
+							<p class="text-xs lg:text-sm text-blue-700">
 								💡 <strong>Tip:</strong> La vista seleccionada se aplicará automáticamente al abrir la sección de eventos.
 							</p>
 						</div>
@@ -537,13 +448,13 @@
 				</section>
 
 				<!-- === EXTRA === -->
-				<section class="bg-gray-50 rounded-xl p-6">
-					<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
+				<section class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6">
+					<h2 class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2">
 						<span>⚡</span>
 						<span>Extra</span>
 					</h2>
 					
-					<div class="space-y-6">
+					<div class="space-y-4 lg:space-y-6">
 						<!-- Acciones de cuenta - Solo si está logueado -->
 						{#if $currentUser !== null}
 							<div>

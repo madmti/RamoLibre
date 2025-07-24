@@ -29,25 +29,84 @@
 	<title>Horario - Ramo Libre</title>
 </svelte:head>
 
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
 	<!-- Encabezado -->
-	<div class="mb-8">
-		<h1 class="text-3xl font-bold text-gray-800 mb-2">📅 Horario</h1>
-		<p class="text-gray-600">Organiza y visualiza tus clases y horarios académicos</p>
+	<div class="mb-6 sm:mb-8">
+		<h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">📅 Horario</h1>
+		<p class="text-sm sm:text-base text-gray-600">Organiza y visualiza tus clases y horarios académicos</p>
 	</div>
 	
-	<!-- Vista actual -->
-	<div class="flex items-center justify-between bg-white/70 backdrop-blur-sm rounded-lg border border-gray-200/50 px-4 py-3 mb-6">
-		<div class="flex items-center space-x-2">
-			<span class="text-lg">{icons[currentView]}</span>
-			<span class="text-sm font-medium text-gray-700">Vista: {names[currentView]}</span>
+	<!-- Selector de vista -->
+	<div class="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 mb-8">
+		<!-- Layout móvil: Grid 1x3 -->
+		<div class="sm:hidden">
+			<div class="flex flex-col space-y-3">
+				<span class="text-sm font-medium text-gray-700">Vista:</span>
+				<div class="grid grid-cols-1 gap-2">
+					<button 
+						on:click={() => currentView = 'cards'}
+						class="px-3 py-2 text-xs font-medium rounded-lg transition-colors flex items-center justify-center space-x-2 {currentView === 'cards' 
+							? 'bg-blue-500 text-white' 
+							: 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+					>
+						<span>{icons.cards}</span>
+						<span>{names.cards}</span>
+					</button>
+					<button 
+						on:click={() => currentView = 'grid'}
+						class="px-3 py-2 text-xs font-medium rounded-lg transition-colors flex items-center justify-center space-x-2 {currentView === 'grid' 
+							? 'bg-blue-500 text-white' 
+							: 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+					>
+						<span>{icons.grid}</span>
+						<span>{names.grid}</span>
+					</button>
+					<button 
+						on:click={() => currentView = 'list'}
+						class="px-3 py-2 text-xs font-medium rounded-lg transition-colors flex items-center justify-center space-x-2 {currentView === 'list' 
+							? 'bg-blue-500 text-white' 
+							: 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+					>
+						<span>{icons.list}</span>
+						<span>{names.list}</span>
+					</button>
+				</div>
+			</div>
 		</div>
-		<a 
-			href="/configuracion" 
-			class="flex items-center space-x-1 px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-		>
-			<span>Cambiar</span>
-		</a>
+		
+		<!-- Layout desktop: horizontal -->
+		<div class="hidden sm:flex sm:items-center sm:space-x-2">
+			<span class="text-sm font-medium text-gray-700">Vista:</span>
+			<div class="flex rounded-lg border border-gray-300 overflow-hidden">
+				<button 
+					on:click={() => currentView = 'cards'}
+					class="px-3 py-2 text-sm font-medium transition-colors flex items-center space-x-2 {currentView === 'cards' 
+						? 'bg-blue-500 text-white' 
+						: 'bg-white text-gray-700 hover:bg-gray-50'}"
+				>
+					<span>{icons.cards}</span>
+					<span>{names.cards}</span>
+				</button>
+				<button 
+					on:click={() => currentView = 'grid'}
+					class="px-3 py-2 text-sm font-medium transition-colors border-l border-gray-300 flex items-center space-x-2 {currentView === 'grid' 
+						? 'bg-blue-500 text-white' 
+						: 'bg-white text-gray-700 hover:bg-gray-50'}"
+				>
+					<span>{icons.grid}</span>
+					<span>{names.grid}</span>
+				</button>
+				<button 
+					on:click={() => currentView = 'list'}
+					class="px-3 py-2 text-sm font-medium transition-colors border-l border-gray-300 flex items-center space-x-2 {currentView === 'list' 
+						? 'bg-blue-500 text-white' 
+						: 'bg-white text-gray-700 hover:bg-gray-50'}"
+				>
+					<span>{icons.list}</span>
+					<span>{names.list}</span>
+				</button>
+			</div>
+		</div>
 	</div>
 	
 	<!-- Horario según preferencias del usuario -->

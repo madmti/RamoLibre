@@ -29,6 +29,9 @@
 	// Obtener eventos para el período seleccionado (reactivo)
 	$: timelineEvents = getEventsForPeriod(selectedDate, timelineView, events);
 
+	// Texto del rango de fechas (reactivo)
+	$: dateRangeText = getDateRangeText(selectedDate, timelineView);
+
 	function getEventsForPeriod(date: Date, period: 'week' | 'month', eventList: Event[]): Event[] {
 		const startDate = new Date(date);
 		const endDate = new Date(date);
@@ -59,9 +62,9 @@
 		});
 	}
 
-	function getDateRangeText(): string {
-		if (timelineView === 'week') {
-			const startDate = new Date(selectedDate);
+	function getDateRangeText(date: Date, view: 'week' | 'month'): string {
+		if (view === 'week') {
+			const startDate = new Date(date);
 			const day = startDate.getDay();
 			const diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
 			startDate.setDate(diff);
@@ -71,7 +74,7 @@
 
 			return `${startDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} - ${endDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}`;
 		} else {
-			return selectedDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+			return date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
 		}
 	}
 
@@ -163,22 +166,24 @@
 			</div>
 		</div>
 
-		<div class="flex items-center space-x-2">
-			<button 
-				on:click={navigatePrevious}
-				class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-			>
-				◀
-			</button>
-			<span class="text-sm font-medium text-gray-700 min-w-[200px] text-center">
-				{getDateRangeText()}
-			</span>
-			<button 
-				on:click={navigateNext}
-				class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-			>
-				▶
-			</button>
+		<div class="flex items-center max-sm:flex-wrap space-x-2">
+            <div class="flex items-center gap-1">
+                <button 
+                    on:click={navigatePrevious}
+                    class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                    ◀
+                </button>
+                <span class="text-sm font-medium text-gray-700 min-w-[200px] text-center">
+                    {dateRangeText}
+                </span>
+                <button 
+                    on:click={navigateNext}
+                    class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                    ▶
+                </button>
+            </div>
 			<button 
 				on:click={goToToday}
 				class="px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors ml-2"

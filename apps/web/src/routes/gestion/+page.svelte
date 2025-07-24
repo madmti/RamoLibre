@@ -166,9 +166,19 @@
 			{@const configDataArray = configsBySubject.get(subject.id)}
 			{@const configData = configDataArray && configDataArray.length > 0 ? configDataArray[0] : null}
 
-				<div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+				<div 
+					class={`bg-white rounded-xl border-2 overflow-hidden transition-all duration-300 ${
+						expandedSubject === subject.id 
+							? 'border-opacity-80' 
+							: 'border-gray-200'
+					}`}
+					style={expandedSubject === subject.id 
+						? `border-color: ${subject.color}` 
+						: ''
+					}
+				>
 					<!-- Header de la materia -->
-					<div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+					<div class="px-6 py-5 bg-gray-50 border-b border-gray-200">
 						<div class="flex items-center justify-between">
 							<div class="flex items-center space-x-3">
 								<div 
@@ -183,7 +193,8 @@
 									</p>
 								</div>
 							</div>
-							<div class="flex items-center space-x-2">
+							<!-- Botones para desktop (ocultos en móvil) -->
+							<div class="hidden lg:flex items-center space-x-2">
 								<button 
 									on:click={() => toggleSubject(subject.id)}
 									class="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
@@ -209,8 +220,35 @@
 						</div>
 					</div>
 
+					<!-- Barra de acciones móvil (solo visible en móvil) -->
+					<div class="lg:hidden px-6 py-2 bg-gray-100 border-b border-gray-200">
+						<div class="flex items-center justify-end space-x-2">
+							<button 
+								on:click={() => toggleSubject(subject.id)}
+								class="text-xs px-3 py-1 text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors font-medium"
+								title={expandedSubject === subject.id ? 'Ocultar gestión de notas' : 'Mostrar gestión de notas'}
+							>
+								{expandedSubject === subject.id ? 'Ocultar Notas' : 'Mostrar Notas'}
+							</button>
+							<button 
+								on:click={() => openModal('subject', subject)}
+								class="text-xs px-3 py-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors font-medium"
+								title="Editar materia"
+							>
+								✏️ Editar
+							</button>
+							<button 
+								on:click={() => openModal('deleteConfirm', subject, 'subject')}
+								class="text-xs px-3 py-1 text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors font-medium"
+								title="Eliminar materia"
+							>
+								🗑️ Eliminar
+							</button>
+						</div>
+					</div>
+
 					<!-- Horarios de la materia -->
-					<div class="px-6 py-4 border-b border-gray-200">
+					<div class="lg:px-6 md:px-4 px-2 py-4 border-b border-gray-200">
 						{#if !scheduleData || scheduleData.length === 0}
 							<div class="text-center py-4">
 								<p class="text-gray-500 text-sm mb-3">Esta materia no tiene horarios asignados</p>
@@ -268,7 +306,8 @@
 							<div class="mb-6">
 								<div class="flex items-center justify-between mb-4">
 									<h4 class="text-lg font-semibold text-gray-800">Gestión de Notas</h4>
-									<div class="flex items-center space-x-2">
+									<!-- Botones para desktop (ocultos en móvil) -->
+									<div class="hidden lg:flex items-center space-x-2">
 										<button 
 											on:click={() => openModal('grade', { subjectId: subject.id })}
 											class="text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
@@ -289,21 +328,45 @@
 										</button>
 									</div>
 								</div>
+
+								<!-- Barra de acciones móvil (solo visible en móvil) -->
+								<div class="lg:hidden mb-4 p-3 bg-gray-100 rounded-lg">
+									<div class="flex items-center justify-center space-x-2">
+										<button 
+											on:click={() => openModal('grade', { subjectId: subject.id })}
+											class="text-xs px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors font-medium flex-1"
+										>
+											+ Nota
+										</button>
+										<button 
+											on:click={() => openModal('category', { subjectId: subject.id })}
+											class="text-xs px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors font-medium flex-1"
+										>
+											+ Categoría
+										</button>
+										<button 
+											on:click={() => openModal('config', configData ?? { subjectId: subject.id })}
+											class="text-xs px-3 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors font-medium flex-1"
+										>
+											⚙️ Config
+										</button>
+									</div>
+								</div>
 								
-								<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-									<div class="text-center p-3 bg-blue-50 rounded-lg">
-										<div class="text-xl font-bold text-blue-600">{gradesData?.length ?? 0}</div>
+								<div class="grid grid-cols-3 gap-2 lg:gap-4 mb-4">
+									<div class="text-center p-2 lg:p-3 bg-blue-50 rounded-lg">
+										<div class="text-lg lg:text-xl font-bold text-blue-600">{gradesData?.length ?? 0}</div>
 										<div class="text-xs text-blue-800">Notas</div>
 									</div>
-									<div class="text-center p-3 bg-green-50 rounded-lg">
-										<div class="text-xl font-bold text-green-600">{categoriesData?.length ?? 0}</div>
+									<div class="text-center p-2 lg:p-3 bg-green-50 rounded-lg">
+										<div class="text-lg lg:text-xl font-bold text-green-600">{categoriesData?.length ?? 0}</div>
 										<div class="text-xs text-green-800">Categorías</div>
 									</div>
 									<div 
-										class={`text-center p-3 rounded-lg transition-colors duration-200 
+										class={`text-center p-2 lg:p-3 rounded-lg transition-colors duration-200 
 											${configData ? 'bg-purple-50 text-purple-800' : 'bg-red-50 text-red-800 border border-red-300'}`}
 									>
-										<div class={`text-xl font-bold ${configData ? 'text-purple-600' : 'text-red-600'}`}>
+										<div class={`text-lg lg:text-xl font-bold ${configData ? 'text-purple-600' : 'text-red-600'}`}>
 											{configData ? '✓' : '✗'}
 										</div>
 										<div class="text-xs">

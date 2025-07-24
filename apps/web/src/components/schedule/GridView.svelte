@@ -176,6 +176,26 @@
 		const slots = Math.ceil(durationMinutes / 30);
 		return Math.max(slots, 1); // Mínimo 1 slot
 	};
+
+	// Estado para el día seleccionado en vista móvil
+	let selectedDayIndex = 0;
+	
+	// Inicializar con el día actual si es un día laboral
+	$: if (isWorkDay && currentDayOfWeek >= 1 && currentDayOfWeek <= 6) {
+		selectedDayIndex = currentDayOfWeek - 1; // Convertir a índice (0-5)
+	}
+	
+	// Día actualmente seleccionado en vista móvil
+	$: selectedDay = weekDays[selectedDayIndex];
+	
+	// Funciones de navegación móvil
+	const goToPreviousDay = () => {
+		selectedDayIndex = selectedDayIndex > 0 ? selectedDayIndex - 1 : weekDays.length - 1;
+	};
+	
+	const goToNextDay = () => {
+		selectedDayIndex = selectedDayIndex < weekDays.length - 1 ? selectedDayIndex + 1 : 0;
+	};
 </script>
 
 <!-- Indicador de clase actual (si hay una en progreso) -->
@@ -200,15 +220,69 @@
 	{/if}
 {/if}
 
+<!-- Navegación de días (solo móvil) -->
+<div class="block lg:hidden mb-4">
+	<div class="bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/50 p-4">
+		<div class="flex items-center justify-between">
+			<button 
+				on:click={goToPreviousDay}
+				class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+			>
+				<svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+				</svg>
+			</button>
+			
+			<div class="text-center">
+				<h3 class="text-lg font-bold {currentDayOfWeek === selectedDay.id && isWorkDay ? 'text-blue-600' : 'text-gray-800'}">
+					{selectedDay.name}
+					{#if currentDayOfWeek === selectedDay.id && isWorkDay}
+						<span class="ml-2 text-xs bg-blue-600 text-white px-2 py-1 rounded-full">HOY</span>
+					{/if}
+				</h3>
+				<p class="text-sm text-gray-500">{selectedDay.short}</p>
+			</div>
+			
+			<button 
+				on:click={goToNextDay}
+				class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+			>
+				<svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+				</svg>
+			</button>
+		</div>
+		
+		<!-- Indicadores de días -->
+		<div class="flex justify-center mt-3 space-x-2">
+			{#each weekDays as day, index}
+				<button
+					on:click={() => selectedDayIndex = index}
+					class="w-2 h-2 rounded-full transition-colors {index === selectedDayIndex ? 'bg-blue-600' : 'bg-gray-300'}"
+				></button>
+			{/each}
+		</div>
+	</div>
+</div>
+
 <div class="bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/50 overflow-hidden relative">
-	<div class="overflow-x-auto">
-		<table class="w-full min-w-[800px]">
+	<div class="overflow-x-auto lg:overflow-x-visible">
+		<table class="w-full lg:min-w-[800px]">
 			<!-- Encabezado -->
 			<thead>
 				<tr class="bg-blue-50 border-b border-blue-100">
-					<th class="w-20 p-3 text-left text-sm font-semibold text-blue-800">Hora</th>
+					<th class="w-12 lg:w-20 p-1 lg:p-3 text-left text-xs lg:text-sm font-semibold text-blue-800">Hora</th>
+					<!-- Vista móvil: solo día seleccionado -->
+					<th class="block lg:hidden p-2 lg:p-3 text-center text-sm font-semibold text-blue-800 {currentDayOfWeek === selectedDay.id && isWorkDay ? 'bg-blue-100' : ''}">
+						<div>{selectedDay.name}</div>
+						<div class="text-xs font-normal text-blue-600">{selectedDay.short}</div>
+						{#if currentDayOfWeek === selectedDay.id && isWorkDay}
+							<div class="text-xs font-medium text-blue-700 mt-1">Hoy</div>
+						{/if}
+					</th>
+					<!-- Vista desktop: todos los días -->
 					{#each weekDays as day}
-						<th class="p-3 text-center text-sm font-semibold text-blue-800 {currentDayOfWeek === day.id && isWorkDay ? 'bg-blue-100' : ''}">
+						<th class="hidden lg:table-cell p-3 text-center text-sm font-semibold text-blue-800 {currentDayOfWeek === day.id && isWorkDay ? 'bg-blue-100' : ''}">
 							<div>{day.name}</div>
 							<div class="text-xs font-normal text-blue-600">{day.short}</div>
 							{#if currentDayOfWeek === day.id && isWorkDay}
@@ -222,19 +296,49 @@
 			<!-- Cuerpo de la tabla -->
 			<tbody class="relative">
 				{#each timeSlots as time, timeIndex}
+                {@const classData = scheduleGrid[time][selectedDay.id]}
 					<tr class="border-b border-gray-100 hover:bg-gray-50/50 relative">
 						<!-- Columna de hora -->
-						<td class="p-2 text-sm text-gray-600 font-medium bg-gray-50/50 text-center {currentTimePosition && currentTimePosition.slotIndex === timeIndex && isWorkDay ? 'bg-red-100 text-red-700' : ''}">
-							{time}
-							{#if currentTimePosition && currentTimePosition.slotIndex === timeIndex && isWorkDay}
-								<div class="text-xs text-red-500 font-bold">AHORA</div>
+						<td class="w-12 lg:w-20 p-0.5 lg:p-2 text-xs lg:text-sm text-gray-600 font-medium bg-gray-50/50 text-center {currentTimePosition && currentTimePosition.slotIndex === timeIndex && isWorkDay ? 'bg-red-100 text-red-700' : ''}">
+							<div class="leading-tight">
+								{time}
+								{#if currentTimePosition && currentTimePosition.slotIndex === timeIndex && isWorkDay}
+									<div class="text-xs text-red-500 font-bold">AHORA</div>
+								{/if}
+							</div>
+						</td>
+						
+						<!-- Vista móvil: solo día seleccionado -->
+						<td class="block lg:hidden p-1 relative h-12 lg:h-16 {currentDayOfWeek === selectedDay.id && isWorkDay ? 'bg-blue-50/30' : ''}">
+							{#if classData}
+								{@const { schedule, subject } = classData}
+								{@const isCurrentClass = currentClass && currentClass.id === schedule.id}
+								<div 
+									class="absolute inset-1 rounded-lg p-1 lg:p-2 text-xs text-white font-medium overflow-hidden {isCurrentClass ? 'ring-2 ring-green-400 ring-offset-1' : ''}"
+									style="background-color: {subject.color}; height: {getDurationSlots(schedule.startTime, schedule.endTime) * 3}rem;"
+								>
+									<div class="flex items-center justify-between mb-1/2">
+										<div class="flex items-center space-x-1 min-w-0 flex-1">
+											<span class="text-sm flex-shrink-0">{getTypeIcon(schedule.type)}</span>
+											<span class="truncate font-semibold text-sm">{subject.name}</span>
+										</div>
+										{#if isCurrentClass}
+											<span class="text-sm flex-shrink-0">🔴</span>
+										{/if}
+									</div>
+									<!-- Lugar y horas en una fila para móvil -->
+									<div class="flex items-center justify-between text-sm opacity-90">
+										<span class="truncate">{schedule.classroom || 'Sin aula'}</span>
+										<span class="flex-shrink-0 ml-2">{schedule.startTime}-{schedule.endTime}</span>
+									</div>
+								</div>
 							{/if}
 						</td>
 						
-						<!-- Columnas de días -->
+						<!-- Vista desktop: todas las columnas de días -->
 						{#each weekDays as day}
-							{@const classData = scheduleGrid[time][day.id]}
-							<td class="p-1 relative h-16 border-r border-gray-100 {currentDayOfWeek === day.id && isWorkDay ? 'bg-blue-50/30' : ''}">
+                        {@const classData = scheduleGrid[time][day.id]}
+							<td class="hidden lg:table-cell p-1 relative h-16 border-r border-gray-100 {currentDayOfWeek === day.id && isWorkDay ? 'bg-blue-50/30' : ''}">
 								{#if classData}
 									{@const { schedule, subject } = classData}
 									{@const isCurrentClass = currentClass && currentClass.id === schedule.id}

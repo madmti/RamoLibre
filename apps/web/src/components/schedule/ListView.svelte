@@ -145,7 +145,7 @@
 						{@const isPast = isClassPast(schedule, dayIndex)}
 						{@const isUpcoming = isClassUpcoming(schedule, dayIndex)}
 						{#if subject}
-							<div class="p-4 transition-all duration-200 relative {
+							<div class="p-3 sm:p-4 transition-all duration-200 relative {
 								inProgress 
 									? 'bg-green-50 border-l-4 border-green-500 shadow-md' 
 									: isPast 
@@ -154,29 +154,94 @@
 											? 'bg-orange-50 border-l-4 border-orange-400' 
 											: 'hover:bg-gray-50'
 							}">
+								<!-- Estado badge - responsivo -->
 								{#if inProgress}
 									<div class="absolute top-2 right-2">
 										<span class="inline-flex items-center px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
 											<div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse"></div>
-											En progreso
+											<span class="hidden sm:inline">En progreso</span>
+											<span class="sm:hidden">●</span>
 										</span>
 									</div>
 								{:else if isUpcoming}
 									<div class="absolute top-2 right-2">
 										<span class="inline-flex items-center px-2 py-1 text-xs font-medium text-orange-800 bg-orange-100 rounded-full">
 											<div class="w-1.5 h-1.5 bg-orange-500 rounded-full mr-1"></div>
-											Próxima
+											<span class="hidden sm:inline">Próxima</span>
+											<span class="sm:hidden">!</span>
 										</span>
 									</div>
 								{:else if isPast}
 									<div class="absolute top-2 right-2">
 										<span class="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-600 bg-gray-200 rounded-full">
-											✓ Finalizada
+											<span class="hidden sm:inline">✓ Finalizada</span>
+											<span class="sm:hidden">✓</span>
 										</span>
 									</div>
 								{/if}
 
-								<div class="flex items-center space-x-4">
+								<!-- Layout móvil: vertical -->
+								<div class="flex flex-col space-y-2 sm:hidden">
+									<!-- Horario y duración -->
+									<div class="flex items-center justify-between">
+										<div class="flex items-center space-x-2">
+											<div class="text-sm font-medium {inProgress ? 'text-green-800' : isPast ? 'text-gray-500' : 'text-gray-900'}">
+												{schedule.startTime}
+											</div>
+											<span class="text-xs {inProgress ? 'text-green-600' : isPast ? 'text-gray-400' : 'text-gray-500'}">
+												- {schedule.endTime}
+											</span>
+										</div>
+										<div class="text-xs {inProgress ? 'text-green-600 font-medium' : isPast ? 'text-gray-400' : 'text-gray-500'}">
+											{duration}h
+										</div>
+									</div>
+									
+									<!-- Materia -->
+									<div class="flex items-center space-x-2">
+										<div 
+											class="w-3 h-3 rounded-full flex-shrink-0 {inProgress ? 'ring-2 ring-green-300' : ''}" 
+											style="background-color: {subject.color}"
+										></div>
+										<h4 class="font-medium text-sm {inProgress ? 'text-green-900' : isPast ? 'text-gray-600' : 'text-gray-900'} truncate">
+											{subject.name}
+										</h4>
+									</div>
+									
+									<!-- Código y tipo -->
+									<div class="flex flex-wrap items-center gap-2 text-xs {inProgress ? 'text-green-700' : isPast ? 'text-gray-500' : 'text-gray-600'}">
+										<span class="px-2 py-1 rounded {
+											inProgress ? 'bg-green-200 text-green-800' : 
+											isPast ? 'bg-gray-200 text-gray-600' : 
+											'bg-gray-100 text-gray-600'
+										}">
+											{subject.code}
+										</span>
+										<span class="flex items-center space-x-1">
+											<span>{getTypeIcon(schedule.type)}</span>
+											<span class="capitalize">{schedule.type}</span>
+										</span>
+									</div>
+									
+									<!-- Detalles adicionales -->
+									<div class="flex flex-wrap items-center gap-2 text-xs {inProgress ? 'text-green-700' : isPast ? 'text-gray-500' : 'text-gray-600'}">
+										{#if schedule.classroom}
+											<span class="flex items-center space-x-1">
+												<span>📍</span>
+												<span class="truncate max-w-[120px]">{schedule.classroom}</span>
+											</span>
+										{/if}
+										{#if subject.professor}
+											<span class="flex items-center space-x-1">
+												<span>👨‍🏫</span>
+												<span class="truncate max-w-[100px]">{subject.professor}</span>
+											</span>
+										{/if}
+									</div>
+								</div>
+
+								<!-- Layout desktop: horizontal -->
+								<div class="hidden sm:flex sm:items-center sm:space-x-4">
 									<!-- Horario -->
 									<div class="text-center min-w-[80px]">
 										<div class="text-sm font-medium {inProgress ? 'text-green-800' : isPast ? 'text-gray-500' : 'text-gray-900'}">
@@ -247,24 +312,24 @@
 	{/each}
 
 	<!-- Leyenda -->
-	<div class="bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/50 p-4">
-		<h4 class="text-sm font-medium text-gray-700 mb-3">Leyenda de estados:</h4>
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-			<div class="flex items-center space-x-2">
-				<div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-				<span class="text-gray-600">En progreso</span>
+	<div class="bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/50 p-3 sm:p-4">
+		<h4 class="text-sm font-medium text-gray-700 mb-2 sm:mb-3">Leyenda de estados:</h4>
+		<div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 text-xs">
+			<div class="flex items-center space-x-1 sm:space-x-2">
+				<div class="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
+				<span class="text-gray-600 text-xs">En progreso</span>
 			</div>
-			<div class="flex items-center space-x-2">
-				<div class="w-3 h-3 bg-orange-400 rounded-full"></div>
-				<span class="text-gray-600">Próxima (30 min)</span>
+			<div class="flex items-center space-x-1 sm:space-x-2">
+				<div class="w-2 h-2 sm:w-3 sm:h-3 bg-orange-400 rounded-full flex-shrink-0"></div>
+				<span class="text-gray-600 text-xs">Próxima</span>
 			</div>
-			<div class="flex items-center space-x-2">
-				<div class="w-3 h-3 bg-gray-400 rounded-full"></div>
-				<span class="text-gray-600">Finalizada</span>
+			<div class="flex items-center space-x-1 sm:space-x-2">
+				<div class="w-2 h-2 sm:w-3 sm:h-3 bg-gray-400 rounded-full flex-shrink-0"></div>
+				<span class="text-gray-600 text-xs">Finalizada</span>
 			</div>
-			<div class="flex items-center space-x-2">
-				<div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-				<span class="text-gray-600">Día actual</span>
+			<div class="flex items-center space-x-1 sm:space-x-2">
+				<div class="w-2 h-2 sm:w-3 sm:h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
+				<span class="text-gray-600 text-xs">Día actual</span>
 			</div>
 		</div>
 	</div>

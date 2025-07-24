@@ -57,7 +57,7 @@
       </div>
 
       <!-- Navegación principal -->
-      <div class="hidden md:flex items-center space-x-1" role="menubar">
+      <div class="hidden lg:flex items-center space-x-1" role="menubar">
         {#each navItems as item}
           <a
             href={item.href}
@@ -75,8 +75,27 @@
         {/each}
       </div>
 
+      <!-- Navegación compacta (tablet) -->
+      <div class="hidden md:flex lg:hidden items-center space-x-1" role="menubar">
+        {#each navItems as item}
+          <a
+            href={item.href}
+            class="flex items-center justify-center p-2 rounded-lg text-sm font-medium transition-all hover:bg-gray-100 {$page
+              .url.pathname === item.href
+              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+              : 'text-gray-600 hover:text-gray-900'}"
+            role="menuitem"
+            aria-label={item.description}
+            aria-current={$page.url.pathname === item.href ? 'page' : undefined}
+            title={item.label}
+          >
+            <span class="text-lg" role="img" aria-hidden="true">{item.icon}</span>
+          </a>
+        {/each}
+      </div>
+
       <!-- Hora, fecha e indicador de conexión -->
-      <div class="text-right" aria-live="polite">
+      <div class="text-right ml-2" aria-live="polite">
         <div class="flex items-center justify-between gap-2 mb-1">
           <!-- Indicador de estado de conexión -->
           <div class="flex items-center gap-1">
@@ -95,22 +114,24 @@
     </div>
 
     <!-- Navegación móvil -->
-    <div class="md:hidden pb-3">
-      <div class="flex space-x-1 overflow-x-auto" role="tablist" aria-label="Navegación móvil">
+    <div class="md:hidden pb-3 bg-gray-50/80 -mx-4 px-4 pt-2">
+      <div class="flex space-x-1 overflow-x-auto max-md:justify-between" role="tablist" aria-label="Navegación móvil">
         {#each navItems as item}
-          <a
-            href={item.href}
-            class="flex flex-col items-center min-w-[70px] p-2 rounded-lg text-xs font-medium transition-all hover:bg-gray-100 {$page
-              .url.pathname === item.href
-              ? 'bg-blue-50 text-blue-700 border border-blue-200'
-              : 'text-gray-600'}"
-            role="tab"
-            aria-label={item.description}
-            aria-selected={$page.url.pathname === item.href}
-          >
-            <span class="text-lg mb-1" role="img" aria-hidden="true">{item.icon}</span>
-            <span>{item.label}</span>
-          </a>
+          {#if item.href !== "/"}
+            <a
+              href={item.href}
+              class="flex flex-col items-center min-w-[70px] p-2 rounded-lg text-xs font-medium transition-all hover:bg-gray-100 {$page
+                .url.pathname === item.href
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-gray-600'}"
+              role="tab"
+              aria-label={item.description}
+              aria-selected={$page.url.pathname === item.href}
+            >
+              <span class="text-lg mb-1" role="img" aria-hidden="true">{item.icon}</span>
+              <span>{item.label}</span>
+            </a>
+          {/if}
         {/each}
       </div>
     </div>

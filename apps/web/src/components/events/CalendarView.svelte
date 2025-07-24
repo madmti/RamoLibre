@@ -4,7 +4,7 @@
 	export let events: Event[] = [];
 	export let selectedDate: string;
 	export let getSubjectName: (id: string) => string;
-	export let getEventTypeIcon: (type: string) => string;
+	export let getEventTypeIcon: (type: Event['type']) => string;
 	export let getPriorityColor: (priority: string) => string;
 	export let onToggleComplete: ((eventId: string) => void) | undefined = undefined;
 	export let onEditEvent: ((event: Event) => void) | undefined = undefined;
