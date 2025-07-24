@@ -47,6 +47,8 @@ class CloudSessionManager extends DefaultStore<Session | null> {
 	async signOut(): Promise<void> {
 		const { error } = await supabase.auth.signOut();
 
+		this.reset();
+
 		if (error) {
 			throw new Error(`Sign out failed: ${error.message}`);
 		}

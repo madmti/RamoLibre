@@ -49,4 +49,4 @@ Thumbs.db
 
 # Temp
 _api
-apps/web/public
+apps/web/public/*
