@@ -23,5 +23,17 @@ export function createApp() {
 		})
 	);
 
+	app.options('*', (c) => {
+		return new Response(null, {
+			status: 204,
+			headers: {
+				'Access-Control-Allow-Origin': c.req.header('Origin') ?? '*',
+				'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+				'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+				'Access-Control-Allow-Credentials': 'true',
+			},
+		});
+	});
+
 	return app;
 }
