@@ -50,3 +50,4 @@ Thumbs.db
 # Temp
 _api
 apps/web/public/*
+*.local.*

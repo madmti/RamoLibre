@@ -19,7 +19,8 @@
 	onMount(async () => {
 		gradeCalculations = await currentGrades.getGradesCalculations(
 			$currentSubjects,
-			$userPreferences.gradeCalculationMethod as AvailableMethods
+			($userPreferences.gradeCalculationMethod as AvailableMethods) ||
+				'LP_MIN_PASSING_DISTANCE'
 		);
 		stats = currentGrades.getStats(gradeCalculations);
 		isCalculating = false;
