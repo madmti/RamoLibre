@@ -1,14 +1,25 @@
 <script lang="ts">
-    import { type Event } from '@ramo-libre/shared';
+	import { type Event } from '@ramo-libre/shared';
 	import { userPreferences } from '$lib/stores/preferences';
 	import { currentEvents } from '$lib/stores/events';
 	import { currentSubjects } from '$lib/stores/subject';
-	
+
 	import CalendarView from '../../components/events/CalendarView.svelte';
 	import ListView from '../../components/events/ListView.svelte';
 	import KanbanView from '../../components/events/KanbanView.svelte';
 	import TimelineView from '../../components/events/TimelineView.svelte';
 	import EventModal from '../../components/modals/EventModal.svelte';
+
+	// ICONS
+	import CalendarIcon from '$embedded-icons/calendar.svg?component';
+	import NextForwardIcon from '$embedded-icons/next-forward.svg?component';
+	import WarningIcon from '$embedded-icons/warning.svg?component';
+	import CheckIcon from '$embedded-icons/check.svg?component';
+	import ColChartIcon from '$embedded-icons/col-chart.svg?component';
+	import PlusIcon from '$embedded-icons/plus.svg?component';
+	import ListIcon from '$embedded-icons/list.svg?component';
+	import KanbanIcon from '$embedded-icons/kanban.svg?component';
+	import TimeLineIcon from '$embedded-icons/time-line.svg?component';
 
 	function getDateString(date: Date): string {
 		const year = date.getFullYear();
@@ -36,13 +47,13 @@
 	}
 
 	function handleUpdateEvent(event: any) {
-		const ev = { id:event.detail.id, ...event.detail.data };
+		const ev = { id: event.detail.id, ...event.detail.data };
 		currentEvents.updateEvent(ev);
 		openModal(null);
 	}
 
 	function getSubjectName(subjectId: string): string {
-		const subject = $currentSubjects.find(s => s.id === subjectId);
+		const subject = $currentSubjects.find((s) => s.id === subjectId);
 		return subject ? subject.name : 'Sin materia';
 	}
 
@@ -60,20 +71,24 @@
 	const priorityColors: Record<string, string> = {
 		low: 'bg-green-100 text-green-800',
 		medium: 'bg-yellow-100 text-yellow-800',
-		high: 'bg-red-100 text-red-800'
+		high: 'bg-red-100 text-red-800',
 	};
 
 	const priorityNames: Record<string, string> = {
 		low: 'Baja',
 		medium: 'Media',
-		high: 'Alta'
+		high: 'Alta',
 	};
 
-	const getPriorityColor = (priority: string): string => priorityColors[priority] || 'bg-gray-100 text-gray-800';
+	const getPriorityColor = (priority: string): string =>
+		priorityColors[priority] || 'bg-gray-100 text-gray-800';
 	const getPriorityName = (priority: string): string => priorityNames[priority] || 'Normal';
 
-	$: categorized = currentEvents.getCategorizedEvents($currentEvents, selectedDate, filterSubject);
-
+	$: categorized = currentEvents.getCategorizedEvents(
+		$currentEvents,
+		selectedDate,
+		filterSubject
+	);
 </script>
 
 <svelte:head>
@@ -83,8 +98,13 @@
 <div class="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
 	<!-- Encabezado -->
 	<div class="mb-6 sm:mb-8">
-		<h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">📅 Eventos</h1>
-		<p class="text-sm sm:text-base text-gray-600">Gestiona tus eventos académicos, exámenes y tareas</p>
+		<h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2 flex items-center">
+			<CalendarIcon class="inline-block w-8 h-8 mr-2" />
+			Eventos
+		</h1>
+		<p class="text-sm sm:text-base text-gray-600">
+			Gestiona tus eventos académicos, exámenes y tareas
+		</p>
 	</div>
 
 	<!-- Estadísticas rápidas -->
@@ -93,36 +113,52 @@
 			<div class="flex items-center justify-between">
 				<div>
 					<p class="text-blue-600 text-xs sm:text-sm font-medium">Próximos</p>
-					<p class="text-xl sm:text-2xl font-bold text-blue-800">{categorized.upcoming.length}</p>
+					<p class="text-xl sm:text-2xl font-bold text-blue-800">
+						{categorized.upcoming.length}
+					</p>
 				</div>
-				<div class="text-lg sm:text-2xl">📋</div>
+				<div class="text-lg sm:text-2xl">
+					<NextForwardIcon class="w-8 h-8 text-blue-600" />
+				</div>
 			</div>
 		</div>
 		<div class="bg-red-50 border border-red-200 rounded-xl p-3 sm:p-4">
 			<div class="flex items-center justify-between">
 				<div>
 					<p class="text-red-600 text-xs sm:text-sm font-medium">Vencidos</p>
-					<p class="text-xl sm:text-2xl font-bold text-red-800">{categorized.overdue.length}</p>
+					<p class="text-xl sm:text-2xl font-bold text-red-800">
+						{categorized.overdue.length}
+					</p>
 				</div>
-				<div class="text-lg sm:text-2xl">⚠️</div>
+				<div class="text-lg sm:text-2xl">
+					<WarningIcon class="w-8 h-8 text-red-600" />
+				</div>
 			</div>
 		</div>
 		<div class="bg-green-50 border border-green-200 rounded-xl p-3 sm:p-4">
 			<div class="flex items-center justify-between">
 				<div>
 					<p class="text-green-600 text-xs sm:text-sm font-medium">Completados</p>
-					<p class="text-xl sm:text-2xl font-bold text-green-800">{categorized.completed.length}</p>
+					<p class="text-xl sm:text-2xl font-bold text-green-800">
+						{categorized.completed.length}
+					</p>
 				</div>
-				<div class="text-lg sm:text-2xl">✅</div>
+				<div class="text-lg sm:text-2xl">
+					<CheckIcon class="w-8 h-8 text-green-600" />
+				</div>
 			</div>
 		</div>
 		<div class="bg-purple-50 border border-purple-200 rounded-xl p-3 sm:p-4">
 			<div class="flex items-center justify-between">
 				<div>
 					<p class="text-purple-600 text-xs sm:text-sm font-medium">Total</p>
-					<p class="text-xl sm:text-2xl font-bold text-purple-800">{categorized.all.length}</p>
+					<p class="text-xl sm:text-2xl font-bold text-purple-800">
+						{categorized.all.length}
+					</p>
 				</div>
-				<div class="text-lg sm:text-2xl">📊</div>
+				<div class="text-lg sm:text-2xl">
+					<ColChartIcon class="w-8 h-8 text-purple-600" />
+				</div>
 			</div>
 		</div>
 	</div>
@@ -131,15 +167,21 @@
 	{#if categorized.all.length === 0}
 		<div class="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6 mb-8">
 			<div class="text-center">
-				<div class="text-3xl sm:text-4xl mb-4">📅</div>
-				<h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-2">No tienes eventos</h3>
-				<p class="text-sm sm:text-base text-gray-600 mb-4">Empieza agregando tu primer evento.</p>
+				<div class="text-3xl sm:text-4xl mb-4">
+					<CalendarIcon class="inline-block w-12 h-12" />
+				</div>
+				<h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-2">
+					No tienes eventos
+				</h3>
+				<p class="text-sm sm:text-base text-gray-600 mb-4">
+					Empieza agregando tu primer evento.
+				</p>
 				<div class="flex justify-center">
-					<button 
+					<button
 						on:click={() => openModal('create')}
 						class="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
 					>
-						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+						<PlusIcon class="w-5 h-5" />
 						Crear Primer Evento
 					</button>
 				</div>
@@ -147,16 +189,20 @@
 		</div>
 	{:else}
 		<div class="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 mb-8">
-			<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+			<div
+				class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
+			>
 				<div class="flex items-center space-x-2">
-					<span class="text-xs sm:text-sm font-medium text-gray-700">Gestiona tus eventos:</span>
+					<span class="text-xs sm:text-sm font-medium text-gray-700"
+						>Gestiona tus eventos:</span
+					>
 				</div>
 				<div class="flex justify-center sm:justify-end">
-					<button 
+					<button
 						on:click={() => openModal('create')}
 						class="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
 					>
-						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+						<PlusIcon class="w-5 h-5" />
 						Agregar Evento
 					</button>
 				</div>
@@ -172,37 +218,45 @@
 			<div class="flex flex-col space-y-3">
 				<span class="text-sm font-medium text-gray-700">Vista:</span>
 				<div class="grid grid-cols-2 gap-2">
-					<button 
-						on:click={() => currentView = 'calendar'}
-						class="px-3 py-2 text-xs font-medium rounded-lg transition-colors {currentView === 'calendar' 
-							? 'bg-blue-500 text-white' 
+					<button
+						on:click={() => (currentView = 'calendar')}
+						class="px-3 py-2 text-xs font-medium rounded-lg flex items-center justify-center transition-colors {currentView ===
+						'calendar'
+							? 'bg-blue-500 text-white'
 							: 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
 					>
-						📅 Calendario
+						<CalendarIcon class="inline-block w-5 h-5 mr-1" />
+						Calendario
 					</button>
-					<button 
-						on:click={() => currentView = 'list'}
-						class="px-3 py-2 text-xs font-medium rounded-lg transition-colors {currentView === 'list' 
-							? 'bg-blue-500 text-white' 
+					<button
+						on:click={() => (currentView = 'list')}
+						class="px-3 py-2 text-xs font-medium rounded-lg flex items-center justify-center transition-colors {currentView ===
+						'list'
+							? 'bg-blue-500 text-white'
 							: 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
 					>
-						📋 Lista
+						<ListIcon class="inline-block w-5 h-5 mr-1" />
+						Lista
 					</button>
-					<button 
-						on:click={() => currentView = 'kanban'}
-						class="px-3 py-2 text-xs font-medium rounded-lg transition-colors {currentView === 'kanban' 
-							? 'bg-blue-500 text-white' 
+					<button
+						on:click={() => (currentView = 'kanban')}
+						class="px-3 py-2 text-xs font-medium rounded-lg flex items-center justify-center transition-colors {currentView ===
+						'kanban'
+							? 'bg-blue-500 text-white'
 							: 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
 					>
-						📊 Kanban
+						<KanbanIcon class="inline-block w-5 h-5 mr-1" />
+						Kanban
 					</button>
-					<button 
-						on:click={() => currentView = 'timeline'}
-						class="px-3 py-2 text-xs font-medium rounded-lg transition-colors {currentView === 'timeline' 
-							? 'bg-blue-500 text-white' 
+					<button
+						on:click={() => (currentView = 'timeline')}
+						class="px-3 py-2 text-xs font-medium rounded-lg flex items-center justify-center transition-colors {currentView ===
+						'timeline'
+							? 'bg-blue-500 text-white'
 							: 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
 					>
-						📈 Timeline
+						<TimeLineIcon class="inline-block w-5 h-5 mr-1" />
+						Timeline
 					</button>
 				</div>
 			</div>
@@ -212,8 +266,10 @@
 				<span class="text-sm font-medium text-gray-700">Filtros:</span>
 				<div class="flex flex-col gap-3">
 					<div class="flex flex-col space-y-1">
-						<label for="filter-type-mobile" class="text-xs font-medium text-gray-700">Estado:</label>
-						<select 
+						<label for="filter-type-mobile" class="text-xs font-medium text-gray-700"
+							>Estado:</label
+						>
+						<select
 							id="filter-type-mobile"
 							bind:value={filter}
 							class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -225,8 +281,10 @@
 						</select>
 					</div>
 					<div class="flex flex-col space-y-1">
-						<label for="filter-subject-mobile" class="text-xs font-medium text-gray-700">Materia:</label>
-						<select 
+						<label for="filter-subject-mobile" class="text-xs font-medium text-gray-700"
+							>Materia:</label
+						>
+						<select
 							id="filter-subject-mobile"
 							bind:value={filterSubject}
 							class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -240,44 +298,54 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<!-- Layout desktop: horizontal compacto -->
-		<div class="hidden sm:flex sm:flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+		<div
+			class="hidden sm:flex sm:flex-col xl:flex-row xl:items-center xl:justify-between gap-4"
+		>
 			<!-- Selector de vista desktop -->
 			<div class="flex items-center space-x-2 flex-shrink-0">
 				<span class="text-sm font-medium text-gray-700">Vista:</span>
 				<div class="flex rounded-lg border border-gray-300 overflow-hidden">
-					<button 
-						on:click={() => currentView = 'calendar'}
-						class="px-3 py-2 text-sm font-medium transition-colors {currentView === 'calendar' 
-							? 'bg-blue-500 text-white' 
+					<button
+						on:click={() => (currentView = 'calendar')}
+						class="px-3 py-2 text-sm font-medium transition-colors flex items-center {currentView ===
+						'calendar'
+							? 'bg-blue-500 text-white'
 							: 'bg-white text-gray-700 hover:bg-gray-50'}"
 					>
-						📅 Calendario
+						<CalendarIcon class="inline-block w-5 h-5 mr-2" />
+						Calendario
 					</button>
-					<button 
-						on:click={() => currentView = 'list'}
-						class="px-3 py-2 text-sm font-medium transition-colors border-l border-gray-300 {currentView === 'list' 
-							? 'bg-blue-500 text-white' 
+					<button
+						on:click={() => (currentView = 'list')}
+						class="px-3 py-2 text-sm font-medium transition-colors flex items-center border-l border-gray-300 {currentView ===
+						'list'
+							? 'bg-blue-500 text-white'
 							: 'bg-white text-gray-700 hover:bg-gray-50'}"
 					>
-						📋 Lista
+						<ListIcon class="inline-block w-5 h-5 mr-2" />
+						Lista
 					</button>
-					<button 
-						on:click={() => currentView = 'kanban'}
-						class="px-3 py-2 text-sm font-medium transition-colors border-l border-gray-300 {currentView === 'kanban' 
-							? 'bg-blue-500 text-white' 
+					<button
+						on:click={() => (currentView = 'kanban')}
+						class="px-3 py-2 text-sm font-medium transition-colors flex items-center border-l border-gray-300 {currentView ===
+						'kanban'
+							? 'bg-blue-500 text-white'
 							: 'bg-white text-gray-700 hover:bg-gray-50'}"
 					>
-						📊 Kanban
+						<KanbanIcon class="inline-block w-5 h-5 mr-2" />
+						Kanban
 					</button>
-					<button 
-						on:click={() => currentView = 'timeline'}
-						class="px-3 py-2 text-sm font-medium transition-colors border-l border-gray-300 {currentView === 'timeline' 
-							? 'bg-blue-500 text-white' 
+					<button
+						on:click={() => (currentView = 'timeline')}
+						class="px-3 py-2 text-sm font-medium transition-colors flex items-center border-l border-gray-300 {currentView ===
+						'timeline'
+							? 'bg-blue-500 text-white'
 							: 'bg-white text-gray-700 hover:bg-gray-50'}"
 					>
-						📈 Timeline
+						<TimeLineIcon class="inline-block w-5 h-5 mr-2" />
+						Timeline
 					</button>
 				</div>
 			</div>
@@ -285,8 +353,12 @@
 			<!-- Filtros desktop -->
 			<div class="flex flex-col lg:flex-row items-start lg:items-center gap-3 lg:gap-4">
 				<div class="flex items-center space-x-2 w-full lg:w-auto">
-					<label for="filter-type" class="text-sm font-medium text-gray-700 whitespace-nowrap flex-shrink-0">Estado:</label>
-					<select 
+					<label
+						for="filter-type"
+						class="text-sm font-medium text-gray-700 whitespace-nowrap flex-shrink-0"
+						>Estado:</label
+					>
+					<select
 						id="filter-type"
 						bind:value={filter}
 						class="flex-1 lg:flex-none px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -299,8 +371,12 @@
 				</div>
 
 				<div class="flex items-center space-x-2 w-full lg:w-auto">
-					<label for="filter-subject" class="text-sm font-medium text-gray-700 whitespace-nowrap flex-shrink-0">Materia:</label>
-					<select 
+					<label
+						for="filter-subject"
+						class="text-sm font-medium text-gray-700 whitespace-nowrap flex-shrink-0"
+						>Materia:</label
+					>
+					<select
 						id="filter-subject"
 						bind:value={filterSubject}
 						class="flex-1 lg:flex-none px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -318,9 +394,9 @@
 	<!-- Vista de eventos -->
 	<div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
 		{#if currentView === 'calendar'}
-			<CalendarView 
+			<CalendarView
 				events={categorized[filter]}
-				bind:selectedDate={selectedDate}
+				bind:selectedDate
 				{getSubjectName}
 				getEventTypeIcon={currentEvents.getTypeIcon}
 				{getPriorityColor}
@@ -329,7 +405,7 @@
 				onDeleteEvent={handleDeleteEvent}
 			/>
 		{:else if currentView === 'list'}
-		<ListView 
+			<ListView
 				events={categorized[filter]}
 				{getSubjectName}
 				getEventTypeIcon={currentEvents.getTypeIcon}
@@ -341,7 +417,7 @@
 				onDeleteEvent={handleDeleteEvent}
 			/>
 		{:else if currentView === 'kanban'}
-			<KanbanView 
+			<KanbanView
 				events={categorized[filter]}
 				{getSubjectName}
 				getEventTypeIcon={currentEvents.getTypeIcon}
@@ -351,7 +427,7 @@
 				onDeleteEvent={handleDeleteEvent}
 			/>
 		{:else if currentView === 'timeline'}
-			<TimelineView 
+			<TimelineView
 				events={categorized[filter]}
 				{getSubjectName}
 				getEventTypeIcon={currentEvents.getTypeIcon}

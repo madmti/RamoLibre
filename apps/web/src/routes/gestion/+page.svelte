@@ -13,6 +13,19 @@
 	import GradeEquationDisplay from '../../components/GradeEquationDisplay.svelte';
 	import GradeCategoryModal from '../../components/modals/GradeCategoryModal.svelte';
 
+	// ICONS
+	import PlusIcon from '$embedded-icons/plus.svg?component';
+	import CalendarPlusIcon from '$embedded-icons/calendar-plus.svg?component';
+	import GestionIcon from '$embedded-icons/gestion.svg?component';
+	import BooksIcon from '$embedded-icons/books.svg?component';
+	import EditIcon from '$embedded-icons/edit.svg?component';
+	import TrashIcon from '$embedded-icons/trash.svg?component';
+	import ConfigIcon from '$embedded-icons/config.svg?component';
+	import CheckIcon from '$embedded-icons/check.svg?component';
+	import XIcon from '$embedded-icons/x.svg?component';
+	import GradeIcon from '$embedded-icons/grade.svg?component';
+	import WarningIcon from '$embedded-icons/warning.svg?component';
+
 	type Modals = null | 'subject' | 'schedule' | 'deleteConfirm' | 'grade' | 'category' | 'config';
 	type DeleteTargetType = 'subject' | 'schedule' | 'grade' | 'category' | null;
 
@@ -137,7 +150,10 @@
 <div class="container mx-auto px-4 py-8">
 	<!-- Encabezado -->
 	<div class="mb-8">
-		<h1 class="text-3xl font-bold text-gray-800 mb-2">📚 Gestión Académica</h1>
+		<h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center">
+			<GestionIcon class="inline-block w-8 h-8 mr-2" />
+			Gestión Académica
+		</h1>
 		<p class="text-gray-600">Administra tus materias, horarios y notas académicas</p>
 	</div>
 
@@ -147,21 +163,9 @@
 			on:click={() => openModal('subject')}
 			class="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
 		>
-			<span
-				><svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					class="lucide lucide-plus-icon lucide-plus"
-					><path d="M5 12h14" /><path d="M12 5v14" /></svg
-				></span
-			>
+			<span>
+				<PlusIcon class="w-5 h-5" />
+			</span>
 			<span>Nueva materia</span>
 		</button>
 		<button
@@ -169,23 +173,9 @@
 			disabled={$currentSubjects.length === 0}
 			class="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 		>
-			<span
-				><svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					class="lucide lucide-calendar-plus-icon lucide-calendar-plus"
-					><path d="M16 19h6" /><path d="M16 2v4" /><path d="M19 16v6" /><path
-						d="M21 12.598V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8.5"
-					/><path d="M3 10h18" /><path d="M8 2v4" /></svg
-				></span
-			>
+			<span>
+				<CalendarPlusIcon class="w-5 h-5" />
+			</span>
 			<span>Nuevo horario</span>
 		</button>
 	</div>
@@ -193,7 +183,9 @@
 	{#if $currentSubjects.length === 0}
 		<!-- Estado vacío -->
 		<div class="text-center py-12">
-			<div class="text-6xl mb-4">📚</div>
+			<div class="text-6xl mb-4">
+				<BooksIcon class="inline-block w-12 h-12" />
+			</div>
 			<h3 class="text-xl font-semibold text-gray-800 mb-2">¡Comienza agregando materias!</h3>
 			<p class="text-gray-600 mb-6">
 				Crea tus materias y luego agrega sus horarios correspondientes.
@@ -202,21 +194,7 @@
 				on:click={() => openModal('subject')}
 				class="inline-flex items-center space-x-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
 			>
-				<span
-					><svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="24"
-						height="24"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						class="lucide lucide-plus-icon lucide-plus"
-						><path d="M5 12h14" /><path d="M12 5v14" /></svg
-					></span
-				>
+				<PlusIcon class="inline-block w-5 h-5" />
 				<span>Crear mi primera materia</span>
 			</button>
 		</div>
@@ -273,14 +251,14 @@
 									class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
 									title="Editar materia"
 								>
-									✏️
+									<EditIcon class="w-5 h-5" />
 								</button>
 								<button
 									on:click={() => openModal('deleteConfirm', subject, 'subject')}
 									class="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
 									title="Eliminar materia"
 								>
-									🗑️
+									<TrashIcon class="w-5 h-5" />
 								</button>
 							</div>
 						</div>
@@ -300,17 +278,19 @@
 							</button>
 							<button
 								on:click={() => openModal('subject', subject)}
-								class="text-xs px-3 py-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors font-medium"
+								class="text-xs px-3 py-1 text-blue-600 bg-blue-50 hover:bg-blue-100 flex items-center rounded-md transition-colors font-medium"
 								title="Editar materia"
 							>
-								✏️ Editar
+								<EditIcon class="inline-block w-4 h-4 mr-1" />
+								Editar
 							</button>
 							<button
 								on:click={() => openModal('deleteConfirm', subject, 'subject')}
-								class="text-xs px-3 py-1 text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors font-medium"
+								class="text-xs px-3 py-1 text-red-600 bg-red-50 hover:bg-red-100 flex items-center rounded-md transition-colors font-medium"
 								title="Eliminar materia"
 							>
-								🗑️ Eliminar
+								<TrashIcon class="inline-block w-4 h-4 mr-1" />
+								Eliminar
 							</button>
 						</div>
 					</div>
@@ -381,7 +361,7 @@
 														class="p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
 														title="Editar horario"
 													>
-														✏️
+														<EditIcon class="w-5 h-5" />
 													</button>
 													<button
 														on:click={() =>
@@ -396,7 +376,7 @@
 														class="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
 														title="Eliminar horario"
 													>
-														🗑️
+														<TrashIcon class="w-5 h-5" />
 													</button>
 												</div>
 											</div>
@@ -440,7 +420,7 @@
 													class="p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
 													title="Editar horario"
 												>
-													✏️
+													<EditIcon class="w-5 h-5" />
 												</button>
 												<button
 													on:click={() =>
@@ -455,7 +435,7 @@
 													class="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
 													title="Eliminar horario"
 												>
-													🗑️
+													<TrashIcon class="w-5 h-5" />
 												</button>
 											</div>
 										</div>
@@ -479,16 +459,18 @@
 										<button
 											on:click={() =>
 												openModal('grade', { subjectId: subject.id })}
-											class="text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+											class="text-sm px-3 py-1 bg-blue-500 text-white rounded flex items-center hover:bg-blue-600 transition-colors"
 										>
-											+ Nota
+											<PlusIcon class="inline-block w-4 h-4 mr-1" />
+											Nota
 										</button>
 										<button
 											on:click={() =>
 												openModal('category', { subjectId: subject.id })}
-											class="text-sm px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+											class="text-sm px-3 py-1 bg-green-500 text-white rounded flex items-center hover:bg-green-600 transition-colors"
 										>
-											+ Categoría
+											<PlusIcon class="inline-block w-4 h-4 mr-1" />
+											Categoría
 										</button>
 										<button
 											on:click={() =>
@@ -496,9 +478,10 @@
 													'config',
 													configData ?? { subjectId: subject.id }
 												)}
-											class="text-sm px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
+											class="text-sm px-3 py-1 bg-purple-500 text-white rounded flex items-center hover:bg-purple-600 transition-colors"
 										>
-											⚙️ Config
+											<ConfigIcon class="inline-block w-4 h-4 mr-1" />
+											Config
 										</button>
 									</div>
 								</div>
@@ -509,16 +492,18 @@
 										<button
 											on:click={() =>
 												openModal('grade', { subjectId: subject.id })}
-											class="text-xs px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors font-medium flex-1"
+											class="text-xs px-3 py-2 bg-blue-500 text-white rounded-md flex items-center hover:bg-blue-600 transition-colors font-medium flex-1"
 										>
-											+ Nota
+											<PlusIcon class="inline-block w-4 h-4 mr-1" />
+											Nota
 										</button>
 										<button
 											on:click={() =>
 												openModal('category', { subjectId: subject.id })}
-											class="text-xs px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors font-medium flex-1"
+											class="text-xs px-3 py-2 bg-green-500 text-white rounded-md flex items-center hover:bg-green-600 transition-colors font-medium flex-1"
 										>
-											+ Categoría
+											<PlusIcon class="inline-block w-4 h-4 mr-1" />
+											Categoría
 										</button>
 										<button
 											on:click={() =>
@@ -526,9 +511,10 @@
 													'config',
 													configData ?? { subjectId: subject.id }
 												)}
-											class="text-xs px-3 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors font-medium flex-1"
+											class="text-xs px-3 py-2 bg-purple-500 text-white rounded-md flex items-center hover:bg-purple-600 transition-colors font-medium flex-1"
 										>
-											⚙️ Config
+											<ConfigIcon class="inline-block w-4 h-4 mr-1" />
+											Config
 										</button>
 									</div>
 								</div>
@@ -553,14 +539,18 @@
 										<div
 											class={`text-lg lg:text-xl font-bold ${configData ? 'text-purple-600' : 'text-red-600'}`}
 										>
-											{configData ? '✓' : '✗'}
+											{#if configData}
+												<CheckIcon class="inline-block w-5 h-5 mr-1" />
+											{:else}
+												<XIcon class="inline-block w-5 h-5 mr-1" />
+											{/if}
 										</div>
 										<div class="text-xs">Configuración</div>
 									</div>
 								</div>
 							</div>
 							<!-- Categorías -->
-							{#if categoriesData?.length > 0}
+							{#if categoriesData && categoriesData.length > 0}
 								<div class="mb-6">
 									<h5 class="text-sm font-semibold text-gray-700 mb-3">
 										Categorías de Evaluación
@@ -594,7 +584,7 @@
 														class="p-1 text-gray-600 hover:text-blue-600 text-xs"
 														title="Editar categoría"
 													>
-														✏️
+														<EditIcon class="w-5 h-5" />
 													</button>
 													<button
 														on:click={() =>
@@ -606,7 +596,7 @@
 														class="p-1 text-gray-600 hover:text-red-600 text-xs"
 														title="Eliminar categoría"
 													>
-														🗑️
+														<TrashIcon class="w-5 h-5" />
 													</button>
 												</div>
 											</div>
@@ -629,7 +619,9 @@
 								</h5>
 								{#if !gradesData?.length}
 									<div class="text-center py-4">
-										<div class="text-2xl mb-2">📝</div>
+										<div class="text-2xl mb-2">
+											<GradeIcon class="inline-block w-6 h-6" />
+										</div>
 										<p class="text-gray-500 text-sm">
 											No hay notas registradas
 										</p>
@@ -727,7 +719,7 @@
 														class="p-1 md:p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors text-xs md:text-base"
 														title="Editar nota"
 													>
-														✏️
+														<EditIcon class="w-5 h-5" />
 													</button>
 													<button
 														on:click={() =>
@@ -742,7 +734,7 @@
 														class="p-1 md:p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors text-xs md:text-base"
 														title="Eliminar nota"
 													>
-														🗑️
+														<TrashIcon class="w-5 h-5" />
 													</button>
 												</div>
 											</div>
@@ -806,7 +798,10 @@
 {#if currentModal === 'deleteConfirm' && targetObject !== null}
 	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
 		<div class="bg-white rounded-xl p-6 max-w-md w-full">
-			<h3 class="text-xl font-bold text-red-600 mb-4">⚠️ Confirmar eliminación</h3>
+			<h3 class="text-xl font-bold text-red-600 mb-4 flex items-center">
+				<WarningIcon class="inline-block w-6 h-6 mr-2" />
+				Confirmar eliminación
+			</h3>
 			<p class="text-gray-700 mb-6">
 				¿Estás seguro de que quieres eliminar "{targetObject.name}"?
 				{#if targetType === 'subject'}
