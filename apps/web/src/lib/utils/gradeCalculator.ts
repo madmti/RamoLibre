@@ -569,8 +569,6 @@ export class GradeCalculator {
 
 		const lpResult: Result = await glpk.solve(lp, options);
 
-		console.log('LP_MAX_POTENTIAL result:', lpResult);
-
 		let requiredGrades: RequiredGrade[] = [];
 
 		if (lpResult.result.status === glpk.GLP_OPT) {
