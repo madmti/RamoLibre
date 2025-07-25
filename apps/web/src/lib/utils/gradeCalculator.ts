@@ -12,6 +12,10 @@ import { currentGrades } from '../stores/grades';
 import { get } from 'svelte/store';
 import glpkInitializer from 'glpk.js';
 import type { GLPK, LP, Result, Options } from 'glpk.js';
+import Bigjs from 'big.js';
+import { Big } from 'big.js';
+
+Big.DP = 20;
 
 export type AvailableMethods = 'LP_MIN_PASSING_DISTANCE' | 'LP_MIN';
 
@@ -44,32 +48,33 @@ export class GradeCalculator {
 		GradeCalculator.isInitialized = true;
 	}
 
-	static currentContribution(grades: Grade[], categories: GradeCategory[]): number {
-		return grades.reduce((total, grade) => {
+	static currentContribution(grades: Grade[], categories: GradeCategory[]): Big {
+		let total = new Bigjs(0);
+		if (!grades.length) return total;
+		for (const grade of grades) {
 			const category = categories.find((cat) => cat.id === grade.categoryId);
-			if (category) {
-				return total + (grade.value || 0) * (grade.weight || 1) * (category.weight || 1);
-			}
-			return total + (grade.value || 0) * (grade.weight || 1);
-		}, 0);
+			const weight = category ? new Bigjs(category.weight || 100) : new Bigjs(100);
+			const value = new Bigjs(grade.value || 0);
+			total = total.plus(value.times(weight.div(100)));
+		}
+		return total;
 	}
 
 	static projectedContribution(
 		requiredGrades: RequiredGrade[],
 		grades: Grade[],
 		categories: GradeCategory[]
-	): number {
-		return requiredGrades.reduce((total, required) => {
+	): Big {
+		let total = new Bigjs(0);
+		if (!requiredGrades.length || !grades.length) return total;
+		for (const required of requiredGrades) {
 			const category = categories.find((cat) => cat.id === required.categoryId);
 			const grade = grades.find((g) => g.id === required.id);
-			if (category) {
-				return (
-					total +
-					(required.requiredValue || 0) * (grade?.weight || 1) * (category.weight || 1)
-				);
-			}
-			return total + (required.requiredValue || 0) * (grade?.weight || 1);
-		}, 0);
+			const weight = category ? new Bigjs(category.weight || 100) : new Bigjs(100);
+			const requiredValue = new Bigjs(required.requiredValue || 0);
+			total = total.plus(requiredValue.times(weight.div(100)));
+		}
+		return total;
 	}
 
 	static recomendationsByRequiredGrades(
@@ -185,18 +190,16 @@ export class GradeCalculator {
 			grades,
 			categories
 		);
-		const totalContribution = (currentContribution + projectedContribution) / 10000;
-		const canPass = totalContribution >= (config?.passingGrade || 0);
-		const alreadyPassed = currentContribution / 100 >= (config?.passingGrade || 0);
+		const totalContribution = currentContribution.plus(projectedContribution);
+		const canPass = totalContribution.gte(config?.passingGrade || 0);
+		const alreadyPassed = currentContribution.gte(config?.passingGrade || 0);
 
 		if (!canPass) {
-			result = await GradeCalculator.methods[method](grades, categories, config, true);
-			console.log(result);
+			result = await GradeCalculator.LP_LOSS_DISTANCE(grades, categories, config, true);
 		}
-
 		return {
 			subjectId: subject.id,
-			currentGrade: currentContribution,
+			currentGrade: currentContribution.toNumber(),
 			canPass,
 			status: alreadyPassed ? 'pass' : canPass ? 'in progress' : 'fail',
 			requiredGrades: result,
@@ -217,11 +220,13 @@ export class GradeCalculator {
 	static LP_MIN_weighted_grades_ids(
 		categories: GradeCategory[],
 		grades: Grade[]
-	): Record<string, number> {
-		const weights: Record<string, number> = {};
+	): Record<string, Big> {
+		const weights: Record<string, Big> = {};
 		grades.forEach((grade) => {
 			const category = categories.find((cat) => cat.id === grade.categoryId);
-			weights[grade.id] = category ? category.weight * grade.weight : grade.weight;
+			weights[grade.id] = category
+				? new Big(category.weight).div(100).times(grade.weight).div(100)
+				: new Big(grade.weight).div(100);
 		});
 		return weights;
 	}
@@ -250,14 +255,13 @@ export class GradeCalculator {
 			const grade = unsetGrades.find((g) => g.id === name);
 			if (grade) {
 				const category = categoriesByGradeId[name];
-				const requiredValue = varResult * 100;
 				requiredGrades.push({
 					id: grade.id,
 					categoryId: category?.id ?? '',
 					categoryName: category?.name ?? 'Sin categoría',
-					requiredValue: requiredValue,
+					requiredValue: varResult,
 					description: grade.description,
-					achievable: requiredValue >= minGrade && requiredValue <= maxGrade,
+					achievable: varResult >= minGrade && varResult <= maxGrade,
 				});
 			}
 		});
@@ -267,16 +271,17 @@ export class GradeCalculator {
 	static async LP_MIN(
 		grades: Grade[],
 		categories: GradeCategory[],
-		config: SubjectGradeConfig | null
+		config: SubjectGradeConfig | null,
+		unbounded: boolean = false
 	): Promise<RequiredGrade[]> {
 		const glpk = GradeCalculator.glpk;
 		if (!config || !glpk || !grades.length) return [];
 
 		const currentContribution = GradeCalculator.currentContribution(grades, categories);
 
-		const minGrade = config.minGrade * 100;
-		const passingGrade = (config.passingGrade - currentContribution) * 100;
-		const maxGrade = config.maxGrade * 100;
+		const minGrade = config.minGrade;
+		const passingGrade = new Big(config.passingGrade).minus(currentContribution).toNumber();
+		const maxGrade = config.maxGrade;
 
 		const categoriesByGradeId = GradeCalculator.LP_MIN_categories_by_grade_id(
 			categories,
@@ -289,7 +294,7 @@ export class GradeCalculator {
 		const weights = GradeCalculator.LP_MIN_weighted_grades_ids(categories, grades);
 		const unsetGradesVars = unsetGrades.map((grade) => ({
 			name: grade.id,
-			coef: weights[grade.id || ''] || 1,
+			coef: weights[grade.id || ''].toNumber() || 1,
 		}));
 
 		const lp: LP = {
@@ -323,11 +328,11 @@ export class GradeCalculator {
 					vars: [
 						{
 							name: grade.id,
-							coef: 10000,
+							coef: 1,
 						},
 					],
 					bnds: {
-						type: glpk.GLP_DB,
+						type: unbounded ? glpk.GLP_FR : glpk.GLP_DB,
 						ub: maxGrade,
 						lb: minGrade,
 					},
@@ -364,15 +369,16 @@ export class GradeCalculator {
 	static async LP_MIN_PASSING_DISTANCE(
 		grades: Grade[],
 		categories: GradeCategory[],
-		config: SubjectGradeConfig | null
+		config: SubjectGradeConfig | null,
+		unbounded: boolean = false
 	): Promise<RequiredGrade[]> {
 		const glpk = GradeCalculator.glpk;
 		if (!config || !glpk || !grades.length) return [];
 
 		const currentContribution = GradeCalculator.currentContribution(grades, categories);
-		const minGrade = config.minGrade * 100;
-		const passingGrade = (config.passingGrade - currentContribution) * 100;
-		const maxGrade = config.maxGrade * 100;
+		const minGrade = config.minGrade;
+		const passingGrade = new Big(config.passingGrade).minus(currentContribution).toNumber();
+		const maxGrade = config.maxGrade;
 
 		const categoriesByGradeId = GradeCalculator.LP_MIN_categories_by_grade_id(
 			categories,
@@ -385,7 +391,7 @@ export class GradeCalculator {
 		const weights = GradeCalculator.LP_MIN_weighted_grades_ids(categories, grades);
 		const unsetGradesVars = unsetGrades.map((grade) => ({
 			name: grade.id,
-			coef: weights[grade.id || ''] || 1,
+			coef: weights[grade.id || ''].toNumber() || 1,
 		}));
 		const distanceVars = unsetGrades.map((grade) => ({
 			name: `distance_${grade.id}`,
@@ -414,11 +420,11 @@ export class GradeCalculator {
 					vars: [
 						{
 							name: grade.id,
-							coef: 10000,
+							coef: 1,
 						},
 					],
 					bnds: {
-						type: glpk.GLP_DB,
+						type: unbounded ? glpk.GLP_FR : glpk.GLP_DB,
 						ub: maxGrade,
 						lb: minGrade,
 					},
@@ -428,17 +434,128 @@ export class GradeCalculator {
 					vars: [
 						{
 							name: grade.id,
-							coef: 10000,
+							coef: 1,
 						},
 						{
 							name: `distance_${grade.id}`,
-							coef: -10000,
+							coef: -1,
 						},
 					],
 					bnds: {
 						type: glpk.GLP_FX,
 						ub: passingGrade,
 						lb: passingGrade,
+					},
+				})),
+			],
+		};
+
+		const options: Options = {
+			tmlim: 60,
+			msglev: glpk.GLP_MSG_ERR,
+			presol: true,
+		};
+
+		const lpResult: Result = await glpk.solve(lp, options);
+
+		let requiredGrades: RequiredGrade[] = [];
+
+		if (lpResult.result.status === glpk.GLP_OPT) {
+			requiredGrades = GradeCalculator.LP_MIN_format_result(
+				lpResult,
+				categoriesByGradeId,
+				unsetGrades,
+				minGrade,
+				maxGrade
+			);
+		}
+
+		return requiredGrades;
+	}
+	/**
+	 * =========================================================================
+	 *                          LP_LOSS_DISTANCE
+	 * =========================================================================
+	 */
+	static async LP_LOSS_DISTANCE(
+		grades: Grade[],
+		categories: GradeCategory[],
+		config: SubjectGradeConfig | null,
+		unbounded: boolean = false
+	): Promise<RequiredGrade[]> {
+		const glpk = GradeCalculator.glpk;
+		if (!config || !glpk || !grades.length) return [];
+
+		const currentContribution = GradeCalculator.currentContribution(grades, categories);
+		const minGrade = config.minGrade;
+		const passingGrade = new Big(config.passingGrade).minus(currentContribution).toNumber();
+		const maxGrade = config.maxGrade;
+
+		const categoriesByGradeId = GradeCalculator.LP_MIN_categories_by_grade_id(
+			categories,
+			grades
+		);
+		const unsetGrades = grades.filter(
+			(grade) => grade.value === null || grade.value === undefined
+		);
+		if (!unsetGrades.length) return [];
+		const weights = GradeCalculator.LP_MIN_weighted_grades_ids(categories, grades);
+		const unsetGradesVars = unsetGrades.map((grade) => ({
+			name: grade.id,
+			coef: weights[grade.id || ''].toNumber() || 1,
+		}));
+		const distanceVars = unsetGrades.map((grade) => ({
+			name: `distance_${grade.id}`,
+			coef: 1,
+		}));
+
+		const lp: LP = {
+			name: 'Grade Calculation',
+			objective: {
+				direction: glpk.GLP_MIN,
+				name: 'min_distance',
+				vars: distanceVars,
+			},
+			subjectTo: [
+				{
+					name: 'passing_grade_constraint',
+					vars: unsetGradesVars,
+					bnds: {
+						type: glpk.GLP_DB,
+						ub: maxGrade,
+						lb: passingGrade,
+					},
+				},
+				...unsetGrades.map((grade) => ({
+					name: `limit_grade_${grade.id}`,
+					vars: [
+						{
+							name: grade.id,
+							coef: 1,
+						},
+					],
+					bnds: {
+						type: unbounded ? glpk.GLP_FR : glpk.GLP_DB,
+						ub: maxGrade,
+						lb: minGrade,
+					},
+				})),
+				...unsetGrades.map((grade) => ({
+					name: `distance_constraint_${grade.id}`,
+					vars: [
+						{
+							name: grade.id,
+							coef: 1,
+						},
+						{
+							name: `distance_${grade.id}`,
+							coef: -1,
+						},
+					],
+					bnds: {
+						type: glpk.GLP_FX,
+						ub: maxGrade,
+						lb: maxGrade,
 					},
 				})),
 			],
