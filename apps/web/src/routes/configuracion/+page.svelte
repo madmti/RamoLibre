@@ -25,6 +25,8 @@
 	import ZapIcon from '$embedded-icons/zap.svg?component';
 	import TrashIcon from '$embedded-icons/trash.svg?component';
 	import HatIcon from '$embedded-icons/hat.svg?component';
+	import LogoutIcon from '$embedded-icons/logout.svg?component';
+	import EditIcon from '$embedded-icons/edit.svg?component';
 
 	let editingAccount = false;
 	let showDeleteDataConfirm = false;
@@ -147,9 +149,9 @@
 								on:click={() => {
 									showSyncModal = true;
 								}}
-								class="bg-emerald-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm flex items-center gap-2 justify-center lg:justify-start"
+								class="px-2 py-2 rounded-lg hover:text-emerald-600 transition-colors flex items-center gap-2 justify-center lg:justify-start font-medium"
 							>
-								<SyncIcon class="h-4 w-4 inline-block" />
+								<SyncIcon class="h-5 w-5 inline-block" />
 								Sincronizar
 							</button>
 						{:else}
@@ -157,17 +159,25 @@
 								on:click={() => {
 									showSyncModal = true;
 								}}
-								class="bg-indigo-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm flex items-center gap-2 justify-center lg:justify-start"
+								class="px-2 py-2 rounded-lg hover:text-indigo-600 transition-colors flex items-center gap-2 justify-center lg:justify-start font-medium"
 							>
-								<CloudIcon class="h-4 w-4 inline-block" />
+								<CloudIcon class="h-5 w-5 inline-block" />
 								Conectar
 							</button>
 						{/if}
 						<button
 							on:click={() => (editingAccount = true)}
-							class="bg-blue-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+							class="px-2 py-2 rounded-lg hover:text-blue-600 transition-colors font-medium flex items-center gap-2"
 						>
+							<EditIcon class="h-5 w-5 inline-block" />
 							Editar
+						</button>
+						<button
+							on:click={handleLogout}
+							class="px-2 py-2 rounded-lg hover:text-red-600 transition-colors font-medium flex items-center gap-2"
+						>
+							<LogoutIcon class="h-5 w-5 inline-block" />
+							Cerrar sesión
 						</button>
 					</div>
 				{/if}
