@@ -119,6 +119,7 @@ export interface UserPreferences {
 	language: 'es' | 'en';
 	scheduleView: 'list' | 'grid' | 'cards';
 	eventsView: 'calendar' | 'list' | 'kanban' | 'timeline';
+	gradeCalculationMethod: string;
 }
 
 export interface UserProfile {
@@ -136,6 +137,7 @@ export interface UserProfile {
 }
 
 export interface RequiredGrade {
+	id: string;
 	categoryId: string;
 	categoryName: string;
 	requiredValue: number;
@@ -148,6 +150,7 @@ export interface GradeCalculationResult {
 
 	currentGrade: number;
 	canPass: boolean;
+	status: 'pass' | 'fail' | 'in progress';
 
 	requiredGrades: RequiredGrade[];
 	recommendations: string[];

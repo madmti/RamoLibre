@@ -1,335 +1,469 @@
-import type { 
-  Subject, 
-  Grade, 
-  GradeCategory, 
-  SubjectGradeConfig, 
-  GradeCalculationResult,
-  RequiredGrade 
+import type {
+	Subject,
+	Grade,
+	GradeCategory,
+	SubjectGradeConfig,
+	GradeCalculationResult,
+	RequiredGrade,
 } from '@ramo-libre/shared';
 import { currentCategories } from '../stores/categories';
 import { currentSubjectGradeConfigs } from '../stores/config';
+import { currentGrades } from '../stores/grades';
 import { get } from 'svelte/store';
+import glpkInitializer from 'glpk.js';
+import type { GLPK, LP, Result, Options } from 'glpk.js';
 
-// Tipo para el GradeManager que coincida con la interfaz esperada
-interface IGradeManager {
-  subscribe: (run: (value: Grade[]) => void) => () => void;
-}
+export type AvailableMethods = 'LP_MIN_PASSING_DISTANCE' | 'LP_MIN';
 
-export type AvailableMethods = 'LP_MIN_PASSING_DISTANCE';
-
-/**
- * Calculadora de notas moderna con soporte para múltiples métodos de cálculo.
- * 
- * Métodos disponibles:
- * - LP_MIN_PASSING_DISTANCE: Usa programación lineal para minimizar la distancia a la nota de aprobación
- */
 export class GradeCalculator {
+	private static isInitialized = false;
+	private static glpk: GLPK | null = null;
+	public static readonly availableMethods: AvailableMethods[] = [
+		'LP_MIN',
+		'LP_MIN_PASSING_DISTANCE',
+	];
+	private static readonly methods: Record<
+		AvailableMethods,
+		(
+			grades: Grade[],
+			categories: GradeCategory[],
+			config: SubjectGradeConfig | null,
+			unbounded?: boolean
+		) => Promise<RequiredGrade[]>
+	> = {
+		LP_MIN: GradeCalculator.LP_MIN,
+		LP_MIN_PASSING_DISTANCE: GradeCalculator.LP_MIN_PASSING_DISTANCE,
+	};
 
-  /**
-   * Función principal de cálculo que actúa como dispatcher para diferentes métodos
-   */
-  calculate(
-    subject: Subject,
-    gradeManager: IGradeManager,
-    method: AvailableMethods
-  ): GradeCalculationResult {
-    // Obtener datos necesarios
-    const grades = this.getGradesBySubject(gradeManager, subject.id);
-    const categories = this.getCategoriesBySubject(subject.id);
-    const config = this.getSubjectConfig(subject.id);
+	static async initialize() {
+		if (GradeCalculator.isInitialized) return;
+		GradeCalculator.glpk = await glpkInitializer();
+		if (!GradeCalculator.glpk) {
+			throw new Error('Failed to initialize GLPK');
+		}
+		GradeCalculator.isInitialized = true;
+	}
 
-    // Validar que tenemos una configuración válida
-    if (!config) {
-      return this.createErrorResult(subject.id, 'No se encontró configuración para esta materia');
-    }
+	static currentContribution(grades: Grade[], categories: GradeCategory[]): number {
+		return grades.reduce((total, grade) => {
+			const category = categories.find((cat) => cat.id === grade.categoryId);
+			if (category) {
+				return total + (grade.value || 0) * (grade.weight || 1) * (category.weight || 1);
+			}
+			return total + (grade.value || 0) * (grade.weight || 1);
+		}, 0);
+	}
 
-    // Calcular nota actual
-    const currentGrade = this.calculateCurrentGrade(grades, categories);
+	static projectedContribution(
+		requiredGrades: RequiredGrade[],
+		grades: Grade[],
+		categories: GradeCategory[]
+	): number {
+		return requiredGrades.reduce((total, required) => {
+			const category = categories.find((cat) => cat.id === required.categoryId);
+			const grade = grades.find((g) => g.id === required.id);
+			if (category) {
+				return (
+					total +
+					(required.requiredValue || 0) * (grade?.weight || 1) * (category.weight || 1)
+				);
+			}
+			return total + (required.requiredValue || 0) * (grade?.weight || 1);
+		}, 0);
+	}
 
-    // Dispatch al método específico
-    switch (method) {
-      case 'LP_MIN_PASSING_DISTANCE':
-        return this.calculateWithLinearProgramming(subject.id, grades, categories, config, currentGrade);
-      default:
-        return this.createErrorResult(subject.id, `Método de cálculo desconocido: ${method}`);
-    }
-  }
+	static recomendationsByRequiredGrades(
+		requiredGrades: RequiredGrade[],
+		config: SubjectGradeConfig,
+		canPass: boolean,
+		alreadyPassed: boolean
+	): string[] {
+		let recommendations: string[] = [];
+		if (alreadyPassed) {
+			recommendations.push(
+				'Ya has aprobado este ramo. No es necesario calcular notas adicionales.'
+			);
+			return recommendations;
+		}
+		if (canPass) {
+			recommendations.push('Con las notas requeridas, puedes aprobar el ramo.');
+		} else {
+			recommendations.push(
+				'No puedes aprobar el ramo con las notas actuales.',
+				'Considera mejorar tus notas o hablar con tu profesor.'
+			);
+		}
+		requiredGrades.forEach((required) => {
+			if (!required.achievable) {
+				recommendations.push(
+					`❌ No es posible alcanzar la nota requerida para ${required.description}`
+				);
+				return;
+			}
+			if (required.requiredValue >= config.maxGrade * 0.9) {
+				recommendations.push(
+					`🔥 ${required.description}: Nota muy alta requerida (${required.requiredValue.toFixed(1)})`
+				);
+			} else if (required.requiredValue >= config.passingGrade * 1.2) {
+				recommendations.push(
+					`📈 ${required.description}: Nota alta requerida (${required.requiredValue.toFixed(1)})`
+				);
+			} else if (required.requiredValue >= config.passingGrade) {
+				recommendations.push(
+					`✅ ${required.description}: Nota moderada requerida (${required.requiredValue.toFixed(1)})`
+				);
+			} else if (required.requiredValue > config.minGrade) {
+				recommendations.push(
+					`😄 ${required.description}: Nota baja requerida (${required.requiredValue.toFixed(1)})`
+				);
+			} else {
+				recommendations.push(
+					`🥳 ${required.description}: Nota muy baja requerida (${required.requiredValue.toFixed(1)})`
+				);
+			}
+		});
 
-  /**
-   * Calcula la nota actual usando la fórmula: ∑ c_i · w_i · s_i
-   * donde c_i = nota normalizada, w_i = peso de la nota, s_i = peso de la sección
-   */
-  private calculateCurrentGrade(
-    grades: Grade[], 
-    categories: GradeCategory[]
-  ): number {
-    if (grades.length === 0) return 0;
+		return recommendations;
+	}
 
-    // Filtrar solo las notas que tienen valor asignado
-    const gradesWithValue = grades.filter(g => g.value !== undefined && g.value !== null);
-    if (gradesWithValue.length === 0) return 0;
+	static async calculate(
+		subject: Subject,
+		method: AvailableMethods
+	): Promise<GradeCalculationResult> {
+		if (!GradeCalculator.isInitialized) await GradeCalculator.initialize();
+		// Obtener datos necesarios
+		const allOfGrades = get(currentGrades);
+		const grades: Grade[] = allOfGrades.filter((grade) => grade.subjectId === subject.id);
+		const categories: GradeCategory[] = get(currentCategories).filter(
+			(category) => category.subjectId === subject.id
+		);
+		const config: SubjectGradeConfig | null =
+			get(currentSubjectGradeConfigs).find((c) => c.subjectId === subject.id) || null;
 
-    let totalWeightedGrade = 0;
+		if (!config) {
+			return {
+				subjectId: subject.id,
+				currentGrade: 0,
+				canPass: false,
+				status: 'in progress',
+				requiredGrades: [],
+				recommendations: [
+					'No hay configuración de notas para este ramo.',
+					'Asegúrate de configurar las notas antes de calcular.',
+				],
+				calculatedAt: new Date().toISOString(),
+			};
+		}
 
-    // Procesar cada nota individualmente usando la fórmula: ∑ c_i · w_i · s_i
-    for (const grade of gradesWithValue) {
-      // c_i: Normalizar la nota a la escala del config (asumiendo que las notas están en la escala correcta)
-      const normalizedGrade = grade.value!;
-      
-      // w_i: Peso de la nota individual
-      const gradeWeight = grade.weight / 100;
-      
-      // s_i: Peso de la sección/categoría (1.0 si no tiene categoría)
-      let sectionWeight = 1.0; // Default para notas sin categoría
-      
-      if (grade.categoryId) {
-        // Buscar la categoría correspondiente
-        const category = categories.find(c => c.id === grade.categoryId);
-        if (category) {
-          sectionWeight = category.weight / 100;
-        }
-      }
-      
-      // Aplicar la fórmula: c_i · w_i · s_i
-      const contribution = normalizedGrade * gradeWeight * sectionWeight;
-      totalWeightedGrade += contribution;
-    }
+		if (!grades.length) {
+			return {
+				subjectId: subject.id,
+				currentGrade: 0,
+				canPass: false,
+				status: 'in progress',
+				requiredGrades: [],
+				recommendations: [
+					'No hay notas registradas para este ramo.',
+					'Asegúrate de ingresar las notas antes de calcular.',
+				],
+				calculatedAt: new Date().toISOString(),
+			};
+		}
 
-    return totalWeightedGrade;
-  }
+		if (!GradeCalculator.methods[method]) {
+			throw new Error(`Method ${method} is not supported`);
+		}
 
-  /**
-   * Método de cálculo usando programación lineal (versión simplificada sin GLPK)
-   * Se enfoca en encontrar la distribución mínima necesaria para aprobar
-   */
-  private calculateWithLinearProgramming(
-    subjectId: string,
-    grades: Grade[],
-    categories: GradeCategory[],
-    config: SubjectGradeConfig,
-    currentGrade: number
-  ): GradeCalculationResult {
-    const targetGrade = config.passingGrade;
-    
-    // Identificar notas variables (sin valor)
-    const variableGrades = grades.filter(g => g.value === undefined || g.value === null);
-    
-    if (variableGrades.length === 0) {
-      // Ya tiene todas las notas necesarias
-      return {
-        subjectId,
-        currentGrade,
-        canPass: currentGrade >= targetGrade,
-        requiredGrades: [],
-        recommendations: currentGrade >= targetGrade 
-          ? ['¡Felicitaciones! Ya tienes la nota suficiente para aprobar.']
-          : ['No es posible mejorar la nota con las evaluaciones actuales.'],
-        calculatedAt: new Date().toISOString()
-      };
-    }
+		let result: RequiredGrade[] = await GradeCalculator.methods[method](
+			grades,
+			categories,
+			config
+		);
+		const currentContribution = GradeCalculator.currentContribution(grades, categories);
+		const projectedContribution = GradeCalculator.projectedContribution(
+			result,
+			grades,
+			categories
+		);
+		const totalContribution = (currentContribution + projectedContribution) / 10000;
+		const canPass = totalContribution >= (config?.passingGrade || 0);
+		const alreadyPassed = currentContribution / 100 >= (config?.passingGrade || 0);
 
-    // Calcular contribución actual y necesaria
-    const currentContribution = this.calculateCurrentContribution(grades, categories);
-    const requiredContribution = targetGrade - currentContribution;
+		if (!canPass) {
+			result = await GradeCalculator.methods[method](grades, categories, config, true);
+			console.log(result);
+		}
 
-    // Si ya pasamos, no necesitamos calcular más
-    if (requiredContribution <= 0) {
-      return {
-        subjectId,
-        currentGrade,
-        canPass: true,
-        requiredGrades: variableGrades.map(grade => ({
-          categoryId: grade.categoryId || 'no-category',
-          categoryName: this.getGradeName(grade, categories),
-          requiredValue: config.minGrade,
-          achievable: config.minGrade <= config.maxGrade,
-          description: `Nota mínima sugerida: ${config.minGrade.toFixed(1)} en "${grade.description}"`
-        })),
-        recommendations: ['Ya tienes suficiente nota para aprobar. Las notas sugeridas son mínimas.'],
-        calculatedAt: new Date().toISOString()
-      };
-    }
+		return {
+			subjectId: subject.id,
+			currentGrade: currentContribution,
+			canPass,
+			status: alreadyPassed ? 'pass' : canPass ? 'in progress' : 'fail',
+			requiredGrades: result,
+			recommendations: GradeCalculator.recomendationsByRequiredGrades(
+				result,
+				config,
+				canPass,
+				alreadyPassed
+			),
+			calculatedAt: new Date().toISOString(),
+		};
+	}
+	/**
+	 * =========================================================================
+	 *                                 LP_MIN
+	 * =========================================================================
+	 */
+	static LP_MIN_weighted_grades_ids(
+		categories: GradeCategory[],
+		grades: Grade[]
+	): Record<string, number> {
+		const weights: Record<string, number> = {};
+		grades.forEach((grade) => {
+			const category = categories.find((cat) => cat.id === grade.categoryId);
+			weights[grade.id] = category ? category.weight * grade.weight : grade.weight;
+		});
+		return weights;
+	}
 
-    // Calcular pesos efectivos de las notas variables
-    const variableWeights = variableGrades.map(grade => {
-      const gradeWeight = grade.weight / 100;
-      const categoryWeight = grade.categoryId 
-        ? (categories.find(c => c.id === grade.categoryId)?.weight || 100) / 100
-        : 1.0;
-      return gradeWeight * categoryWeight;
-    });
+	static LP_MIN_categories_by_grade_id(
+		categories: GradeCategory[],
+		grades: Grade[]
+	): Record<string, GradeCategory | undefined> {
+		const categoryMap: Record<string, GradeCategory | undefined> = {};
+		grades.forEach((grade) => {
+			const category = categories.find((cat) => cat.id === grade.categoryId);
+			categoryMap[grade.id] = category;
+		});
+		return categoryMap;
+	}
 
-    const totalVariableWeight = variableWeights.reduce((sum, weight) => sum + weight, 0);
+	static LP_MIN_format_result(
+		result: Result,
+		categoriesByGradeId: Record<string, GradeCategory | undefined>,
+		unsetGrades: Grade[],
+		minGrade: number,
+		maxGrade: number
+	): RequiredGrade[] {
+		let requiredGrades: RequiredGrade[] = [];
+		Object.entries(result.result.vars).forEach(([name, varResult]) => {
+			const grade = unsetGrades.find((g) => g.id === name);
+			if (grade) {
+				const category = categoriesByGradeId[name];
+				const requiredValue = varResult * 100;
+				requiredGrades.push({
+					id: grade.id,
+					categoryId: category?.id ?? '',
+					categoryName: category?.name ?? 'Sin categoría',
+					requiredValue: requiredValue,
+					description: grade.description,
+					achievable: requiredValue >= minGrade && requiredValue <= maxGrade,
+				});
+			}
+		});
+		return requiredGrades;
+	}
 
-    // Si no hay peso en las variables, no se puede pasar
-    if (totalVariableWeight === 0) {
-      return {
-        subjectId,
-        currentGrade,
-        canPass: false,
-        requiredGrades: [],
-        recommendations: ['No es posible aprobar: las evaluaciones restantes no tienen peso.'],
-        calculatedAt: new Date().toISOString()
-      };
-    }
+	static async LP_MIN(
+		grades: Grade[],
+		categories: GradeCategory[],
+		config: SubjectGradeConfig | null
+	): Promise<RequiredGrade[]> {
+		const glpk = GradeCalculator.glpk;
+		if (!config || !glpk || !grades.length) return [];
 
-    // Calcular notas requeridas usando distribución proporcional equilibrada
-    const requiredGrades: RequiredGrade[] = [];
-    const recommendations: string[] = [];
+		const currentContribution = GradeCalculator.currentContribution(grades, categories);
 
-    // Método simplificado: distribuir equitativamente la contribución necesaria
-    const baseContributionPerGrade = requiredContribution / variableGrades.length;
-    let totalDistributedContribution = 0;
+		const minGrade = config.minGrade * 100;
+		const passingGrade = (config.passingGrade - currentContribution) * 100;
+		const maxGrade = config.maxGrade * 100;
 
-    for (let i = 0; i < variableGrades.length; i++) {
-      const grade = variableGrades[i];
-      const effectiveWeight = variableWeights[i];
-      
-      // Calcular nota requerida para esta contribución
-      let requiredValue = effectiveWeight > 0 ? baseContributionPerGrade / effectiveWeight : config.maxGrade;
-      
-      // Ajustar si excede los límites
-      if (requiredValue > config.maxGrade) {
-        requiredValue = config.maxGrade;
-      }
-      if (requiredValue < config.minGrade) {
-        requiredValue = config.minGrade;
-      }
+		const categoriesByGradeId = GradeCalculator.LP_MIN_categories_by_grade_id(
+			categories,
+			grades
+		);
+		const unsetGrades = grades.filter(
+			(grade) => grade.value === null || grade.value === undefined
+		);
+		if (!unsetGrades.length) return [];
+		const weights = GradeCalculator.LP_MIN_weighted_grades_ids(categories, grades);
+		const unsetGradesVars = unsetGrades.map((grade) => ({
+			name: grade.id,
+			coef: weights[grade.id || ''] || 1,
+		}));
 
-      const gradeName = this.getGradeName(grade, categories);
-      const categoryName = grade.categoryId 
-        ? categories.find(c => c.id === grade.categoryId)?.name || 'Sin categoría'
-        : 'Sin categoría';
+		const lp: LP = {
+			name: 'Grade Calculation',
+			objective: {
+				direction: glpk.GLP_MIN,
+				name: 'min_values',
+				vars: unsetGradesVars,
+			},
+			subjectTo: [
+				{
+					name: 'passing_grade_constraint',
+					vars: unsetGradesVars,
+					bnds: {
+						type: glpk.GLP_DB,
+						ub: maxGrade,
+						lb: passingGrade,
+					},
+				},
+				{
+					name: 'limit_z',
+					vars: unsetGradesVars,
+					bnds: {
+						type: glpk.GLP_DB,
+						ub: maxGrade,
+						lb: minGrade,
+					},
+				},
+				...unsetGrades.map((grade) => ({
+					name: `limit_grade_${grade.id}`,
+					vars: [
+						{
+							name: grade.id,
+							coef: 10000,
+						},
+					],
+					bnds: {
+						type: glpk.GLP_DB,
+						ub: maxGrade,
+						lb: minGrade,
+					},
+				})),
+			],
+		};
 
-      requiredGrades.push({
-        categoryId: grade.categoryId || 'no-category',
-        categoryName: gradeName,
-        requiredValue: Math.round(requiredValue * 10) / 10,
-        achievable: requiredValue <= config.maxGrade,
-        description: `Se necesita una nota de ${requiredValue.toFixed(1)} en "${grade.description}" (${categoryName})`
-      });
+		const options: Options = {
+			tmlim: 60,
+			msglev: glpk.GLP_MSG_ERR,
+			presol: true,
+		};
 
-      totalDistributedContribution += requiredValue * effectiveWeight;
+		const lpResult: Result = await glpk.solve(lp, options);
 
-      // Generar recomendaciones
-      if (requiredValue >= config.maxGrade * 0.9) {
-        recommendations.push(`🔥 ${gradeName}: Nota muy alta requerida (${requiredValue.toFixed(1)})`);
-      } else if (requiredValue >= config.passingGrade * 1.2) {
-        recommendations.push(`📈 ${gradeName}: Nota alta requerida (${requiredValue.toFixed(1)})`);
-      } else {
-        recommendations.push(`✅ ${gradeName}: Nota moderada requerida (${requiredValue.toFixed(1)})`);
-      }
-    }
+		let requiredGrades: RequiredGrade[] = [];
 
-    // Verificar si es posible aprobar
-    const projectedGrade = currentContribution + totalDistributedContribution;
-    const canPass = projectedGrade >= targetGrade && requiredGrades.every(rg => rg.requiredValue <= config.maxGrade);
+		if (lpResult.result.status === glpk.GLP_OPT) {
+			requiredGrades = GradeCalculator.LP_MIN_format_result(
+				lpResult,
+				categoriesByGradeId,
+				unsetGrades,
+				minGrade,
+				maxGrade
+			);
+		}
+		return requiredGrades;
+	}
+	/**
+	 * =========================================================================
+	 *                          LP_MIN_PASSING_DISTANCE
+	 * =========================================================================
+	 */
+	static async LP_MIN_PASSING_DISTANCE(
+		grades: Grade[],
+		categories: GradeCategory[],
+		config: SubjectGradeConfig | null
+	): Promise<RequiredGrade[]> {
+		const glpk = GradeCalculator.glpk;
+		if (!config || !glpk || !grades.length) return [];
 
-    if (!canPass) {
-      recommendations.unshift('❌ No es posible aprobar con las evaluaciones restantes');
-    } else {
-      recommendations.unshift('✅ Es posible aprobar con las notas calculadas');
-    }
+		const currentContribution = GradeCalculator.currentContribution(grades, categories);
+		const minGrade = config.minGrade * 100;
+		const passingGrade = (config.passingGrade - currentContribution) * 100;
+		const maxGrade = config.maxGrade * 100;
 
-    return {
-      subjectId,
-      currentGrade,
-      canPass,
-      requiredGrades,
-      recommendations,
-      calculatedAt: new Date().toISOString()
-    };
-  }
+		const categoriesByGradeId = GradeCalculator.LP_MIN_categories_by_grade_id(
+			categories,
+			grades
+		);
+		const unsetGrades = grades.filter(
+			(grade) => grade.value === null || grade.value === undefined
+		);
+		if (!unsetGrades.length) return [];
+		const weights = GradeCalculator.LP_MIN_weighted_grades_ids(categories, grades);
+		const unsetGradesVars = unsetGrades.map((grade) => ({
+			name: grade.id,
+			coef: weights[grade.id || ''] || 1,
+		}));
+		const distanceVars = unsetGrades.map((grade) => ({
+			name: `distance_${grade.id}`,
+			coef: 1,
+		}));
 
-  /**
-   * Calcula la contribución actual de las notas existentes
-   */
-  private calculateCurrentContribution(
-    grades: Grade[],
-    categories: GradeCategory[]
-  ): number {
-    let currentContribution = 0;
-    
-    const gradesWithValue = grades.filter(g => g.value !== undefined && g.value !== null);
-    
-    for (const grade of gradesWithValue) {
-      const gradeWeight = grade.weight / 100;
-      const categoryWeight = grade.categoryId 
-        ? (categories.find(c => c.id === grade.categoryId)?.weight || 100) / 100
-        : 1.0;
-      
-      currentContribution += grade.value! * gradeWeight * categoryWeight;
-    }
-    
-    return currentContribution;
-  }
+		const lp: LP = {
+			name: 'Grade Calculation',
+			objective: {
+				direction: glpk.GLP_MIN,
+				name: 'min_distance',
+				vars: distanceVars,
+			},
+			subjectTo: [
+				{
+					name: 'passing_grade_constraint',
+					vars: unsetGradesVars,
+					bnds: {
+						type: glpk.GLP_DB,
+						ub: maxGrade,
+						lb: passingGrade,
+					},
+				},
+				...unsetGrades.map((grade) => ({
+					name: `limit_grade_${grade.id}`,
+					vars: [
+						{
+							name: grade.id,
+							coef: 10000,
+						},
+					],
+					bnds: {
+						type: glpk.GLP_DB,
+						ub: maxGrade,
+						lb: minGrade,
+					},
+				})),
+				...unsetGrades.map((grade) => ({
+					name: `distance_constraint_${grade.id}`,
+					vars: [
+						{
+							name: grade.id,
+							coef: 10000,
+						},
+						{
+							name: `distance_${grade.id}`,
+							coef: -10000,
+						},
+					],
+					bnds: {
+						type: glpk.GLP_FX,
+						ub: passingGrade,
+						lb: passingGrade,
+					},
+				})),
+			],
+		};
 
-  /**
-   * Obtiene un nombre descriptivo para una nota
-   */
-  private getGradeName(grade: Grade, categories: GradeCategory[]): string {
-    const categoryName = grade.categoryId 
-      ? categories.find(c => c.id === grade.categoryId)?.name || 'Sin categoría'
-      : 'Sin categoría';
-    
-    return `${categoryName} - ${grade.description || 'Nota'}`;
-  }
+		const options: Options = {
+			tmlim: 60,
+			msglev: glpk.GLP_MSG_ERR,
+			presol: true,
+		};
 
-  /**
-   * Crea un resultado de error
-   */
-  private createErrorResult(subjectId: string, errorMessage: string): GradeCalculationResult {
-    return {
-      subjectId,
-      currentGrade: 0,
-      canPass: false,
-      requiredGrades: [],
-      recommendations: [errorMessage],
-      calculatedAt: new Date().toISOString()
-    };
-  }
+		const lpResult: Result = await glpk.solve(lp, options);
 
-  /**
-   * Obtiene las notas de una materia desde el store
-   */
-  private getGradesBySubject(gradeManager: IGradeManager, subjectId: string): Grade[] {
-    const allGrades = get(gradeManager) as Grade[];
-    return allGrades.filter(grade => grade.subjectId === subjectId);
-  }
+		let requiredGrades: RequiredGrade[] = [];
 
-  /**
-   * Obtiene las categorías de una materia desde el store
-   */
-  private getCategoriesBySubject(subjectId: string): GradeCategory[] {
-    const allCategories = get(currentCategories) as GradeCategory[];
-    return allCategories.filter(category => category.subjectId === subjectId);
-  }
+		if (lpResult.result.status === glpk.GLP_OPT) {
+			requiredGrades = GradeCalculator.LP_MIN_format_result(
+				lpResult,
+				categoriesByGradeId,
+				unsetGrades,
+				minGrade,
+				maxGrade
+			);
+		}
 
-  /**
-   * Obtiene la configuración de una materia desde el store
-   */
-  private getSubjectConfig(subjectId: string): SubjectGradeConfig | null {
-    const configs = get(currentSubjectGradeConfigs) as SubjectGradeConfig[];
-    return configs.find(config => config.subjectId === subjectId) || null;
-  }
-
-/**
- * Determina el estado de la materia según el promedio actual, la nota de aprobación y si es posible aprobar.
- */
-public getSubjectStatus(
-    currentAvg: number,
-    passingGrade: number,
-    canPass: boolean
-): 'Aprobado' | 'En curso' | 'Reprobado' {
-    if (currentAvg >= passingGrade) {
-        return 'Aprobado';
-    }
-    if (canPass) {
-        return 'En curso';
-    }
-    return 'Reprobado';
+		return requiredGrades;
+	}
 }
-}
-
-// Instancia singleton del calculador
-export const gradeCalculator = new GradeCalculator();

@@ -2,8 +2,10 @@
 	import { currentUser } from '$lib/stores/user';
 	import { userPreferences } from '$lib/stores/preferences';
 	import { currentEvents } from '$lib/stores/events';
-    import { cloudSession } from '$lib/stores/cloud';
-	import SyncModal from "$components/modals/SyncModal.svelte"
+	import { cloudSession } from '$lib/stores/cloud';
+	import SyncModal from '$components/modals/SyncModal.svelte';
+	import { GradeCalculator, type AvailableMethods } from '$lib/utils/gradeCalculator';
+	import { APP_NAME, VERSION } from '$lib';
 
 	let editingAccount = false;
 	let showDeleteDataConfirm = false;
@@ -16,7 +18,7 @@
 			const updatedUser = {
 				...$currentUser,
 				...tempUserData,
-				updatedAt: new Date().toISOString()
+				updatedAt: new Date().toISOString(),
 			};
 			currentUser.set(updatedUser);
 			editingAccount = false;
@@ -50,6 +52,38 @@
 		showDeleteEventsConfirm = false;
 	};
 
+	export function getMethodEmoji(method: AvailableMethods) {
+		switch (method) {
+			case 'LP_MIN_PASSING_DISTANCE':
+				return '⚖️';
+			case 'LP_MIN':
+				return '🔥';
+			default:
+				return '❓';
+		}
+	}
+
+	export function getMethodTitle(method: AvailableMethods) {
+		switch (method) {
+			case 'LP_MIN_PASSING_DISTANCE':
+				return 'Justo para Pasar';
+			case 'LP_MIN':
+				return 'Todo o Nada';
+			default:
+				return 'Método de cálculo desconocido';
+		}
+	}
+
+	function getMethodDescription(method: AvailableMethods) {
+		switch (method) {
+			case 'LP_MIN_PASSING_DISTANCE':
+				return 'Este método calcula las notas mínimas necesarias intentando que cada nota faltante quede lo más cerca posible del mínimo para aprobar. Minimiza la distancia total hacia la nota de aprobación. Es ideal si buscas pasar con el menor esfuerzo global y con resultados realistas y progresivos.';
+			case 'LP_MIN':
+				return 'Este método asigna todo el esfuerzo posible a las primeras evaluaciones disponibles y deja el resto en cero. Busca alcanzar la nota de aprobación con la menor cantidad de evaluaciones activas posibles, sin importar el equilibrio. Es útil si quieres concentrarte en rendir muy bien en pocas instancias y luego no depender del resto.';
+			default:
+				return 'Descripción del método de cálculo desconocida.';
+		}
+	}
 </script>
 
 <svelte:head>
@@ -57,459 +91,664 @@
 </svelte:head>
 
 <div class="container mx-auto lg:px-4 lg:py-8 max-w-4xl">
-	<div class="lg:bg-white/90 lg:backdrop-blur-sm lg:rounded-xl lg:shadow-lg lg:border lg:border-gray-200/50 lg:p-8">
+	<div
+		class="lg:bg-white/90 lg:backdrop-blur-sm lg:rounded-xl lg:shadow-lg lg:border lg:border-gray-200/50 lg:p-8"
+	>
 		<!-- Header móvil -->
 		<div class="lg:hidden px-4 py-6 bg-white border-b border-gray-200">
 			<h1 class="text-2xl font-bold text-gray-800 mb-1">⚙️ Configuración</h1>
 			<p class="text-gray-600 text-sm">Personaliza tu experiencia con Ramo Libre.</p>
 		</div>
-		
+
 		<!-- Header desktop -->
 		<div class="hidden lg:block">
 			<h1 class="text-3xl font-bold text-gray-800 mb-2">⚙️ Configuración</h1>
 			<p class="text-gray-600 mb-8">Personaliza tu experiencia con Ramo Libre.</p>
 		</div>
-		
-			<!-- === CUENTA === -->
-			<section class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6">
-				<div class="flex items-center justify-between mb-4 lg:mb-6">
-					<h2 class="text-lg lg:text-2xl font-bold text-gray-800 flex items-center space-x-2">
-						<span>👤</span>
-						<span>Cuenta</span>
-					</h2>
-					{#if $currentUser !== null && !editingAccount}
+
+		<!-- === CUENTA === -->
+		<section
+			class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6"
+		>
+			<div class="flex items-center justify-between mb-4 lg:mb-6">
+				<h2 class="text-lg lg:text-2xl font-bold text-gray-800 flex items-center space-x-2">
+					<span>👤</span>
+					<span>Cuenta</span>
+				</h2>
+				{#if $currentUser !== null && !editingAccount}
 					<div class="flex flex-col lg:flex-row gap-2">
 						{#if $cloudSession}
-                            <button
-                                on:click={() => {
-                                    showSyncModal = true;
-                                }}
-                                class="bg-emerald-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm flex items-center gap-2 justify-center lg:justify-start"
-                            >
-							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 64 64"><path fill="currentColor" d="M39.7 46c-.9-.6-2.2-.4-2.8.6c-1.1 1.7-3 2.7-5.1 2.7c-1 0-2-.3-2.9-.7h1.9c1.1 0 2-.9 2-2s-.9-2-2-2h-6.3c-1.3 0-2.5 1.1-2.5 2.5V52c0 1.1.9 2 2 2s2-.9 2-2v-.6c1.7 1.1 3.6 1.8 5.7 1.8c3.4 0 6.5-1.7 8.4-4.5c.8-.8.5-2.1-.4-2.7m3-14.5c0-1.1-.9-2-2-2s-2 .9-2 2v1c-2-1.5-4.4-2.7-6.6-2.7c-3.8 0-7.2 2.1-9 5.5c-.5 1-.1 2.2.8 2.7c1 .5 2.2.1 2.7-.8c1.1-2.1 3.2-3.4 5.5-3.4c1.4 0 3.5 1.2 4.9 2.5h-1.8c-1.1 0-2 .9-2 2s.9 2 2 2h5c1.3 0 2.5-1.1 2.5-2.5z"/><path fill="currentColor" d="M58 23.4c-2.7-3-6.6-5.1-10.7-5.8c-2.2-3.6-5.5-6.3-9.4-7.6c-1.8-.7-3.7-1-5.9-1c-9.7 0-17.7 7.7-18.1 17.3C6.7 27 1 33.2 1 40.6C1 48.5 7.5 55 15.4 55c1.1 0 2-.9 2-2s-.9-2-2-2C9.6 51 5 46.4 5 40.6s4.6-10.4 10.4-10.4h.5c1.1 0 2-.9 2-2v-1.1C17.9 19.3 24.2 13 32 13c1.7 0 3.2.3 4.5.8c3.3 1.1 6 3.5 7.8 6.7c.3.6.9 1 1.5 1c3.5.4 6.8 2.1 9.2 4.6c2.6 2.8 4 6.4 4 10.1C59 44.4 52.3 51 44.1 51c-1.1 0-2 .9-2 2s.9 2 2 2C54.5 55 63 46.6 63 36.2c0-4.8-1.8-9.3-5-12.8"/></svg>                                Sincronizar
-                            </button>
-                        {:else}
-                            <button
-                                on:click={() => {
-                                    showSyncModal = true;
-                                }}
-                                class="bg-indigo-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm flex items-center gap-2 justify-center lg:justify-start"
-                            >
-							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 64 64"><path fill="currentColor" d="M43.7 54.1H15.9c-7.8 0-14.1-6.3-14.1-14c0-7.1 5.5-13 12.5-13.9c.5-9.1 8.3-16.3 17.7-16.3c2.1 0 4.1.3 5.8 1c3.7 1.3 6.9 3.8 9.1 7.2c4 .7 7.7 2.6 10.3 5.5c3.2 3.4 4.9 7.8 4.9 12.4c.2 10-8.2 18.1-18.4 18.1M16 49.6h27.7c7.8 0 14.1-6.1 14.1-13.7c0-3.4-1.3-6.7-3.7-9.3c-2.2-2.4-5.4-3.9-8.7-4.3c-.7-.1-1.4-.5-1.7-1.1c-1.6-2.9-4.2-5.1-7.3-6.1c-1.3-.5-2.7-.7-4.3-.7c-7.3 0-13.3 5.8-13.3 13v1c0 1.2-1 2.3-2.3 2.3H16c-5.5 0-9.7 4.2-9.7 9.5s4.2 9.4 9.7 9.4"/></svg>                                Conectar
-                            </button>
-                        {/if}
-						<button 
-							on:click={() => editingAccount = true}
+							<button
+								on:click={() => {
+									showSyncModal = true;
+								}}
+								class="bg-emerald-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm flex items-center gap-2 justify-center lg:justify-start"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									viewBox="0 0 64 64"
+									><path
+										fill="currentColor"
+										d="M39.7 46c-.9-.6-2.2-.4-2.8.6c-1.1 1.7-3 2.7-5.1 2.7c-1 0-2-.3-2.9-.7h1.9c1.1 0 2-.9 2-2s-.9-2-2-2h-6.3c-1.3 0-2.5 1.1-2.5 2.5V52c0 1.1.9 2 2 2s2-.9 2-2v-.6c1.7 1.1 3.6 1.8 5.7 1.8c3.4 0 6.5-1.7 8.4-4.5c.8-.8.5-2.1-.4-2.7m3-14.5c0-1.1-.9-2-2-2s-2 .9-2 2v1c-2-1.5-4.4-2.7-6.6-2.7c-3.8 0-7.2 2.1-9 5.5c-.5 1-.1 2.2.8 2.7c1 .5 2.2.1 2.7-.8c1.1-2.1 3.2-3.4 5.5-3.4c1.4 0 3.5 1.2 4.9 2.5h-1.8c-1.1 0-2 .9-2 2s.9 2 2 2h5c1.3 0 2.5-1.1 2.5-2.5z"
+									/><path
+										fill="currentColor"
+										d="M58 23.4c-2.7-3-6.6-5.1-10.7-5.8c-2.2-3.6-5.5-6.3-9.4-7.6c-1.8-.7-3.7-1-5.9-1c-9.7 0-17.7 7.7-18.1 17.3C6.7 27 1 33.2 1 40.6C1 48.5 7.5 55 15.4 55c1.1 0 2-.9 2-2s-.9-2-2-2C9.6 51 5 46.4 5 40.6s4.6-10.4 10.4-10.4h.5c1.1 0 2-.9 2-2v-1.1C17.9 19.3 24.2 13 32 13c1.7 0 3.2.3 4.5.8c3.3 1.1 6 3.5 7.8 6.7c.3.6.9 1 1.5 1c3.5.4 6.8 2.1 9.2 4.6c2.6 2.8 4 6.4 4 10.1C59 44.4 52.3 51 44.1 51c-1.1 0-2 .9-2 2s.9 2 2 2C54.5 55 63 46.6 63 36.2c0-4.8-1.8-9.3-5-12.8"
+									/></svg
+								> Sincronizar
+							</button>
+						{:else}
+							<button
+								on:click={() => {
+									showSyncModal = true;
+								}}
+								class="bg-indigo-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm flex items-center gap-2 justify-center lg:justify-start"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									viewBox="0 0 64 64"
+									><path
+										fill="currentColor"
+										d="M43.7 54.1H15.9c-7.8 0-14.1-6.3-14.1-14c0-7.1 5.5-13 12.5-13.9c.5-9.1 8.3-16.3 17.7-16.3c2.1 0 4.1.3 5.8 1c3.7 1.3 6.9 3.8 9.1 7.2c4 .7 7.7 2.6 10.3 5.5c3.2 3.4 4.9 7.8 4.9 12.4c.2 10-8.2 18.1-18.4 18.1M16 49.6h27.7c7.8 0 14.1-6.1 14.1-13.7c0-3.4-1.3-6.7-3.7-9.3c-2.2-2.4-5.4-3.9-8.7-4.3c-.7-.1-1.4-.5-1.7-1.1c-1.6-2.9-4.2-5.1-7.3-6.1c-1.3-.5-2.7-.7-4.3-.7c-7.3 0-13.3 5.8-13.3 13v1c0 1.2-1 2.3-2.3 2.3H16c-5.5 0-9.7 4.2-9.7 9.5s4.2 9.4 9.7 9.4"
+									/></svg
+								> Conectar
+							</button>
+						{/if}
+						<button
+							on:click={() => (editingAccount = true)}
 							class="bg-blue-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
 						>
 							Editar
 						</button>
 					</div>
-					{/if}
-				</div>
-
-				{#if $currentUser === null}
-					<!-- Usuario no logueado - Solo para la sección de cuenta -->
-					<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 lg:p-6 text-center">
-						<span class="text-3xl lg:text-4xl mb-3 lg:mb-4 block">👤</span>
-						<h3 class="text-lg lg:text-xl font-semibold text-blue-800 mb-2">Gestiona tu cuenta</h3>
-						<p class="text-blue-700 mb-4 text-sm lg:text-base">Inicia sesión para personalizar tu perfil académico y sincronizar tus datos.</p>
-						<div class="flex flex-col gap-2 lg:flex-row lg:gap-3 lg:justify-center">
-							<a href="/#usercard" class="bg-blue-600 text-white px-4 lg:px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm lg:text-base">
-								Crear cuenta
-							</a>
-							<a href="/#usercard" class="bg-white text-blue-600 border border-blue-300 px-4 lg:px-6 py-2 rounded-lg hover:bg-blue-50 transition-colors text-sm lg:text-base">
-								Iniciar sesión
-							</a>
-						</div>
-						<p class="text-xs lg:text-sm text-blue-600 mt-3 lg:mt-4">
-							💡 <strong>Tip:</strong> Puedes usar la aplicación sin cuenta, pero registrarte te permitirá sincronizar tus datos.
-						</p>
-					</div>
-				{:else}
-					<!-- Usuario logueado - Mostrar información de cuenta -->
-					{#if $currentUser !== null}
-						<div class="grid md:grid-cols-2 gap-6">
-							<!-- Información básica -->
-							<div class="space-y-4">
-								<div>
-									<label for="user-name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-									{#if editingAccount}
-										<input 
-											id="user-name"
-											type="text" 
-											bind:value={tempUserData.name}
-											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-											placeholder="Tu nombre completo"
-										/>
-									{:else}
-										<p class="text-gray-900 py-2">{$currentUser.name}</p>
-									{/if}
-								</div>
-
-								<div>
-									<label for="user-email" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-									{#if editingAccount}
-										<input 
-											id="user-email"
-											type="email" 
-											bind:value={tempUserData.email}
-											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-											placeholder="tu@email.com"
-										/>
-									{:else}
-										<p class="text-gray-900 py-2">{$currentUser.email}</p>
-									{/if}
-								</div>
-
-								<div>
-									<label for="user-university" class="block text-sm font-medium text-gray-700 mb-1">Universidad</label>
-									{#if editingAccount}
-										<input 
-											id="user-university"
-											type="text" 
-											bind:value={tempUserData.university}
-											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-											placeholder="Universidad (opcional)"
-										/>
-									{:else}
-										<p class="text-gray-900 py-2">{$currentUser.university || 'No especificada'}</p>
-									{/if}
-								</div>
-							</div>
-
-							<!-- Información académica -->
-							<div class="space-y-4">
-								<div>
-									<label for="user-career" class="block text-sm font-medium text-gray-700 mb-1">Carrera</label>
-									{#if editingAccount}
-										<input 
-											id="user-career"
-											type="text" 
-											bind:value={tempUserData.career}
-											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-											placeholder="Tu carrera (opcional)"
-										/>
-									{:else}
-										<p class="text-gray-900 py-2">{$currentUser.career || 'No especificada'}</p>
-									{/if}
-								</div>
-
-								<div>
-									<label for="user-semester" class="block text-sm font-medium text-gray-700 mb-1">Semestre</label>
-									{#if editingAccount}
-										<input 
-											id="user-semester"
-											type="number" 
-											bind:value={tempUserData.semester}
-											min="1" 
-											max="12"
-											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-											placeholder="Semestre actual"
-										/>
-									{:else}
-										<p class="text-gray-900 py-2">{$currentUser.semester || 'No especificado'}</p>
-									{/if}
-								</div>
-
-								<div>
-									<span class="block text-sm font-medium text-gray-700 mb-1">Miembro desde</span>
-									<p class="text-gray-600 py-2">
-										{new Date($currentUser.createdAt).toLocaleDateString('es-ES', { 
-											year: 'numeric', 
-											month: 'long', 
-											day: 'numeric' 
-										})}
-									</p>
-								</div>
-							</div>
-						</div>
-
-						{#if editingAccount}
-							<div class="flex space-x-3 mt-6 pt-4 border-t border-gray-200">
-								<button 
-									on:click={saveAccountChanges}
-									class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-								>
-									Guardar cambios
-								</button>
-								<button 
-									on:click={cancelEdit}
-									class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors"
-								>
-									Cancelar
-								</button>
-							</div>
-						{/if}
-					{/if}
 				{/if}
-			</section>
+			</div>
 
-				<!-- === HORARIO === -->
-				<section class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6">
-					<h2 class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2">
-						<span>📅</span>
-						<span>Horario</span>
-					</h2>
+			{#if $currentUser === null}
+				<!-- Usuario no logueado - Solo para la sección de cuenta -->
+				<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 lg:p-6 text-center">
+					<span class="text-3xl lg:text-4xl mb-3 lg:mb-4 block">👤</span>
+					<h3 class="text-lg lg:text-xl font-semibold text-blue-800 mb-2">
+						Gestiona tu cuenta
+					</h3>
+					<p class="text-blue-700 mb-4 text-sm lg:text-base">
+						Inicia sesión para personalizar tu perfil académico y sincronizar tus datos.
+					</p>
+					<div class="flex flex-col gap-2 lg:flex-row lg:gap-3 lg:justify-center">
+						<a
+							href="/#usercard"
+							class="bg-blue-600 text-white px-4 lg:px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm lg:text-base"
+						>
+							Crear cuenta
+						</a>
+						<a
+							href="/#usercard"
+							class="bg-white text-blue-600 border border-blue-300 px-4 lg:px-6 py-2 rounded-lg hover:bg-blue-50 transition-colors text-sm lg:text-base"
+						>
+							Iniciar sesión
+						</a>
+					</div>
+					<p class="text-xs lg:text-sm text-blue-600 mt-3 lg:mt-4">
+						💡 <strong>Tip:</strong> Puedes usar la aplicación sin cuenta, pero registrarte
+						te permitirá sincronizar tus datos.
+					</p>
+				</div>
+			{:else}
+				<!-- Usuario logueado - Mostrar información de cuenta -->
+				{#if $currentUser !== null}
+					<div class="grid md:grid-cols-2 gap-6">
+						<!-- Información básica -->
+						<div class="space-y-4">
+							<div>
+								<label
+									for="user-name"
+									class="block text-sm font-medium text-gray-700 mb-1"
+									>Nombre</label
+								>
+								{#if editingAccount}
+									<input
+										id="user-name"
+										type="text"
+										bind:value={tempUserData.name}
+										class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+										placeholder="Tu nombre completo"
+									/>
+								{:else}
+									<p class="text-gray-900 py-2">{$currentUser.name}</p>
+								{/if}
+							</div>
 
-					<div class="space-y-4">
-						<div>
-							<fieldset>
-								<legend class="block text-sm font-medium text-gray-700 mb-3">Vista preferida del horario</legend>
-								<div class="space-y-3 lg:grid lg:grid-cols-3 lg:gap-4 lg:space-y-0">
-									<!-- Vista Lista -->
-									<label for="schedule-view-list" class="relative cursor-pointer">
-										<input 
-											id="schedule-view-list"
-											type="radio" 
-											name="scheduleView"
-											value="list"
-											checked={$userPreferences.scheduleView === 'list'}
-											on:change={() => updatePreference('scheduleView', 'list')}
-											class="sr-only peer"
-										/>
-										<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-											<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-												<span class="text-xl lg:text-2xl">📋</span>
-												<h3 class="font-semibold text-gray-800">Lista</h3>
-											</div>
-											<p class="text-xs lg:text-sm text-gray-600">Vista detallada por día con información completa de cada clase.</p>
-										</div>
-									</label>
+							<div>
+								<label
+									for="user-email"
+									class="block text-sm font-medium text-gray-700 mb-1"
+									>Correo electrónico</label
+								>
+								{#if editingAccount}
+									<input
+										id="user-email"
+										type="email"
+										bind:value={tempUserData.email}
+										class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+										placeholder="tu@email.com"
+									/>
+								{:else}
+									<p class="text-gray-900 py-2">{$currentUser.email}</p>
+								{/if}
+							</div>
 
-									<!-- Vista Tabla/Grid -->
-									<label for="schedule-view-grid" class="relative cursor-pointer">
-										<input 
-											id="schedule-view-grid"
-											type="radio" 
-											name="scheduleView"
-											value="grid"
-											checked={$userPreferences.scheduleView === 'grid'}
-											on:change={() => updatePreference('scheduleView', 'grid')}
-											class="sr-only peer"
-										/>
-										<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-											<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-												<span class="text-xl lg:text-2xl">📊</span>
-												<h3 class="font-semibold text-gray-800">Tabla</h3>
-											</div>
-											<p class="text-xs lg:text-sm text-gray-600">Vista semanal tipo calendario con horarios en tabla.</p>
-										</div>
-									</label>
-
-									<!-- Vista Tarjetas -->
-									<label for="schedule-view-cards" class="relative cursor-pointer">
-										<input 
-											id="schedule-view-cards"
-											type="radio" 
-											name="scheduleView"
-											value="cards"
-											checked={$userPreferences.scheduleView === 'cards'}
-											on:change={() => updatePreference('scheduleView', 'cards')}
-											class="sr-only peer"
-										/>
-										<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-											<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-												<span class="text-xl lg:text-2xl">🗃️</span>
-												<h3 class="font-semibold text-gray-800">Tarjetas</h3>
-											</div>
-											<p class="text-xs lg:text-sm text-gray-600">Vista compacta con tarjetas organizadas por día.</p>
-										</div>
-									</label>
-								</div>
-							</fieldset>
+							<div>
+								<label
+									for="user-university"
+									class="block text-sm font-medium text-gray-700 mb-1"
+									>Universidad</label
+								>
+								{#if editingAccount}
+									<input
+										id="user-university"
+										type="text"
+										bind:value={tempUserData.university}
+										class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+										placeholder="Universidad (opcional)"
+									/>
+								{:else}
+									<p class="text-gray-900 py-2">
+										{$currentUser.university || 'No especificada'}
+									</p>
+								{/if}
+							</div>
 						</div>
 
-						<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-							<p class="text-xs lg:text-sm text-blue-700">
-								💡 <strong>Tip:</strong> La vista seleccionada se aplicará automáticamente en la página de horarios.
-							</p>
+						<!-- Información académica -->
+						<div class="space-y-4">
+							<div>
+								<label
+									for="user-career"
+									class="block text-sm font-medium text-gray-700 mb-1"
+									>Carrera</label
+								>
+								{#if editingAccount}
+									<input
+										id="user-career"
+										type="text"
+										bind:value={tempUserData.career}
+										class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+										placeholder="Tu carrera (opcional)"
+									/>
+								{:else}
+									<p class="text-gray-900 py-2">
+										{$currentUser.career || 'No especificada'}
+									</p>
+								{/if}
+							</div>
+
+							<div>
+								<label
+									for="user-semester"
+									class="block text-sm font-medium text-gray-700 mb-1"
+									>Semestre</label
+								>
+								{#if editingAccount}
+									<input
+										id="user-semester"
+										type="number"
+										bind:value={tempUserData.semester}
+										min="1"
+										max="12"
+										class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+										placeholder="Semestre actual"
+									/>
+								{:else}
+									<p class="text-gray-900 py-2">
+										{$currentUser.semester || 'No especificado'}
+									</p>
+								{/if}
+							</div>
+
+							<div>
+								<span class="block text-sm font-medium text-gray-700 mb-1"
+									>Miembro desde</span
+								>
+								<p class="text-gray-600 py-2">
+									{new Date($currentUser.createdAt).toLocaleDateString('es-ES', {
+										year: 'numeric',
+										month: 'long',
+										day: 'numeric',
+									})}
+								</p>
+							</div>
 						</div>
 					</div>
-				</section>
 
-				<!-- === EVENTOS === -->
-				<section class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6">
-					<h2 class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2">
-						<span>🎯</span>
-						<span>Eventos</span>
-					</h2>
-
-					<div class="space-y-4 lg:space-y-6">
-						<!-- Selección de vista -->
-						<fieldset>
-							<legend class="block text-sm font-medium text-gray-700 mb-3">Vista preferida de eventos</legend>
-							<div class="space-y-3 lg:grid lg:grid-cols-1 lg:md:grid-cols-4 lg:gap-4 lg:space-y-0">
-								<!-- Vista Calendario -->
-								<label for="events-view-calendar" class="relative cursor-pointer">
-									<input 
-										id="events-view-calendar"
-										type="radio" 
-										name="eventsView"
-										value="calendar"
-										checked={$userPreferences.eventsView === 'calendar'}
-										on:change={() => updatePreference('eventsView', 'calendar')}
-										class="sr-only peer"
-									/>
-									<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-										<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-											<span class="text-xl lg:text-2xl">📅</span>
-											<h3 class="font-semibold text-gray-800">Calendario</h3>
-										</div>
-										<p class="text-xs lg:text-sm text-gray-600">Vista mensual tipo calendario con eventos en cuadrícula.</p>
-									</div>
-								</label>
-
-								<!-- Vista Lista -->
-								<label for="events-view-list" class="relative cursor-pointer">
-									<input 
-										id="events-view-list"
-										type="radio" 
-										name="eventsView"
-										value="list"
-										checked={$userPreferences.eventsView === 'list'}
-										on:change={() => updatePreference('eventsView', 'list')}
-										class="sr-only peer"
-									/>
-									<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-										<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-											<span class="text-xl lg:text-2xl">📋</span>
-											<h3 class="font-semibold text-gray-800">Lista</h3>
-										</div>
-										<p class="text-xs lg:text-sm text-gray-600">Vista lista ordenada por fecha con información detallada.</p>
-									</div>
-								</label>
-
-								<!-- Vista Kanban -->
-								<label for="events-view-kanban" class="relative cursor-pointer">
-									<input 
-										id="events-view-kanban"
-										type="radio" 
-										name="eventsView"
-										value="kanban"
-										checked={$userPreferences.eventsView === 'kanban'}
-										on:change={() => updatePreference('eventsView', 'kanban')}
-										class="sr-only peer"
-									/>
-									<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-										<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-											<span class="text-xl lg:text-2xl">🗂️</span>
-											<h3 class="font-semibold text-gray-800">Kanban</h3>
-										</div>
-										<p class="text-xs lg:text-sm text-gray-600">Vista tablero con eventos organizados por columnas.</p>
-									</div>
-								</label>
-
-								<!-- Vista Timeline -->
-								<label for="events-view-timeline" class="relative cursor-pointer">
-									<input 
-										id="events-view-timeline"
-										type="radio" 
-										name="eventsView"
-										value="timeline"
-										checked={$userPreferences.eventsView === 'timeline'}
-										on:change={() => updatePreference('eventsView', 'timeline')}
-										class="sr-only peer"
-									/>
-									<div class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-										<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-											<span class="text-xl lg:text-2xl">📈</span>
-											<h3 class="font-semibold text-gray-800">Timeline</h3>
-										</div>
-										<p class="text-xs lg:text-sm text-gray-600">Vista cronológica tipo línea de tiempo con eventos.</p>
-									</div>
-								</label>
-							</div>
-						</fieldset>
-
-						<!-- Gestión de eventos -->
-						<div class="bg-red-50 border border-red-200 rounded-lg p-3 lg:p-4">
-							<h3 class="text-base lg:text-lg font-semibold text-red-800 mb-3 flex items-center gap-2">
-								<span>🗑️</span>
-								Gestión de eventos
-							</h3>
-							<p class="text-red-700 mb-3 text-xs lg:text-sm">
-								Elimina todos tus eventos guardados. Esta acción no se puede deshacer.
-							</p>
-							<button 
-								on:click={() => showDeleteEventsConfirm = true}
-								class="bg-red-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 text-xs lg:text-sm"
+					{#if editingAccount}
+						<div class="flex space-x-3 mt-6 pt-4 border-t border-gray-200">
+							<button
+								on:click={saveAccountChanges}
+								class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
 							>
-								Eliminar todos los eventos
+								Guardar cambios
+							</button>
+							<button
+								on:click={cancelEdit}
+								class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+							>
+								Cancelar
 							</button>
 						</div>
+					{/if}
+				{/if}
+			{/if}
+		</section>
 
-						<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-							<p class="text-xs lg:text-sm text-blue-700">
-								💡 <strong>Tip:</strong> La vista seleccionada se aplicará automáticamente al abrir la sección de eventos.
-							</p>
+		<!-- === HORARIO === -->
+		<section
+			class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6"
+		>
+			<h2
+				class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2"
+			>
+				<span>📅</span>
+				<span>Horario</span>
+			</h2>
+
+			<div class="space-y-4">
+				<div>
+					<fieldset>
+						<legend class="block text-sm font-medium text-gray-700 mb-3"
+							>Vista preferida del horario</legend
+						>
+						<div class="space-y-3 lg:grid lg:grid-cols-3 lg:gap-4 lg:space-y-0">
+							<!-- Vista Lista -->
+							<label for="schedule-view-list" class="relative cursor-pointer">
+								<input
+									id="schedule-view-list"
+									type="radio"
+									name="scheduleView"
+									value="list"
+									checked={$userPreferences.scheduleView === 'list'}
+									on:change={() => updatePreference('scheduleView', 'list')}
+									class="sr-only peer"
+								/>
+								<div
+									class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
+								>
+									<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+										<span class="text-xl lg:text-2xl">📋</span>
+										<h3 class="font-semibold text-gray-800">Lista</h3>
+									</div>
+									<p class="text-xs lg:text-sm text-gray-600">
+										Vista detallada por día con información completa de cada
+										clase.
+									</p>
+								</div>
+							</label>
+
+							<!-- Vista Tabla/Grid -->
+							<label for="schedule-view-grid" class="relative cursor-pointer">
+								<input
+									id="schedule-view-grid"
+									type="radio"
+									name="scheduleView"
+									value="grid"
+									checked={$userPreferences.scheduleView === 'grid'}
+									on:change={() => updatePreference('scheduleView', 'grid')}
+									class="sr-only peer"
+								/>
+								<div
+									class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
+								>
+									<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+										<span class="text-xl lg:text-2xl">📊</span>
+										<h3 class="font-semibold text-gray-800">Tabla</h3>
+									</div>
+									<p class="text-xs lg:text-sm text-gray-600">
+										Vista semanal tipo calendario con horarios en tabla.
+									</p>
+								</div>
+							</label>
+
+							<!-- Vista Tarjetas -->
+							<label for="schedule-view-cards" class="relative cursor-pointer">
+								<input
+									id="schedule-view-cards"
+									type="radio"
+									name="scheduleView"
+									value="cards"
+									checked={$userPreferences.scheduleView === 'cards'}
+									on:change={() => updatePreference('scheduleView', 'cards')}
+									class="sr-only peer"
+								/>
+								<div
+									class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
+								>
+									<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+										<span class="text-xl lg:text-2xl">🗃️</span>
+										<h3 class="font-semibold text-gray-800">Tarjetas</h3>
+									</div>
+									<p class="text-xs lg:text-sm text-gray-600">
+										Vista compacta con tarjetas organizadas por día.
+									</p>
+								</div>
+							</label>
+						</div>
+					</fieldset>
+				</div>
+
+				<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+					<p class="text-xs lg:text-sm text-blue-700">
+						💡 <strong>Tip:</strong> La vista seleccionada se aplicará automáticamente en
+						la página de horarios.
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- === NOTAS === -->
+		<section
+			class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6"
+		>
+			<h2
+				class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2"
+			>
+				<span>📊</span>
+				<span>Notas</span>
+			</h2>
+
+			<div class="space-y-4 lg:space-y-6">
+				<!-- Selección de método de cálculo -->
+				<fieldset>
+					<legend class="block text-sm font-medium text-gray-700 mb-3"
+						>Método de cálculo de notas preferido</legend
+					>
+					<div class="space-y-3 lg:grid lg:grid-cols-1 lg:gap-4 lg:space-y-0">
+						{#each GradeCalculator.availableMethods as method}
+							<label for="grade-method-{method}" class="relative cursor-pointer">
+								<input
+									id="grade-method-{method}"
+									type="radio"
+									name="gradeMethod"
+									value={method}
+									checked={$userPreferences.gradeCalculationMethod === method}
+									on:change={() =>
+										updatePreference('gradeCalculationMethod', method)}
+									class="sr-only peer"
+								/>
+								<div
+									class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
+								>
+									<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+										<span class="text-xl lg:text-2xl"
+											>{getMethodEmoji(method)}</span
+										>
+										<div class="flex items-center gap-2 flex-wrap">
+											<h3 class="font-semibold text-gray-800">
+												{getMethodTitle(method)}
+											</h3>
+											<span
+												class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg font-mono"
+											>
+												{method}
+											</span>
+										</div>
+									</div>
+									<p class="text-xs lg:text-sm text-gray-600">
+										{getMethodDescription(method)}
+									</p>
+								</div>
+							</label>
+						{/each}
+					</div>
+				</fieldset>
+
+				<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+					<p class="text-xs lg:text-sm text-blue-700">
+						💡 <strong>Tip:</strong> El método seleccionado se usará automáticamente para
+						calcular tus notas en todas las materias.
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- === EVENTOS === -->
+		<section
+			class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6"
+		>
+			<h2
+				class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2"
+			>
+				<span>🎯</span>
+				<span>Eventos</span>
+			</h2>
+
+			<div class="space-y-4 lg:space-y-6">
+				<!-- Selección de vista -->
+				<fieldset>
+					<legend class="block text-sm font-medium text-gray-700 mb-3"
+						>Vista preferida de eventos</legend
+					>
+					<div
+						class="space-y-3 lg:grid lg:grid-cols-1 lg:md:grid-cols-4 lg:gap-4 lg:space-y-0"
+					>
+						<!-- Vista Calendario -->
+						<label for="events-view-calendar" class="relative cursor-pointer">
+							<input
+								id="events-view-calendar"
+								type="radio"
+								name="eventsView"
+								value="calendar"
+								checked={$userPreferences.eventsView === 'calendar'}
+								on:change={() => updatePreference('eventsView', 'calendar')}
+								class="sr-only peer"
+							/>
+							<div
+								class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
+							>
+								<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+									<span class="text-xl lg:text-2xl">📅</span>
+									<h3 class="font-semibold text-gray-800">Calendario</h3>
+								</div>
+								<p class="text-xs lg:text-sm text-gray-600">
+									Vista mensual tipo calendario con eventos en cuadrícula.
+								</p>
+							</div>
+						</label>
+
+						<!-- Vista Lista -->
+						<label for="events-view-list" class="relative cursor-pointer">
+							<input
+								id="events-view-list"
+								type="radio"
+								name="eventsView"
+								value="list"
+								checked={$userPreferences.eventsView === 'list'}
+								on:change={() => updatePreference('eventsView', 'list')}
+								class="sr-only peer"
+							/>
+							<div
+								class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
+							>
+								<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+									<span class="text-xl lg:text-2xl">📋</span>
+									<h3 class="font-semibold text-gray-800">Lista</h3>
+								</div>
+								<p class="text-xs lg:text-sm text-gray-600">
+									Vista lista ordenada por fecha con información detallada.
+								</p>
+							</div>
+						</label>
+
+						<!-- Vista Kanban -->
+						<label for="events-view-kanban" class="relative cursor-pointer">
+							<input
+								id="events-view-kanban"
+								type="radio"
+								name="eventsView"
+								value="kanban"
+								checked={$userPreferences.eventsView === 'kanban'}
+								on:change={() => updatePreference('eventsView', 'kanban')}
+								class="sr-only peer"
+							/>
+							<div
+								class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
+							>
+								<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+									<span class="text-xl lg:text-2xl">🗂️</span>
+									<h3 class="font-semibold text-gray-800">Kanban</h3>
+								</div>
+								<p class="text-xs lg:text-sm text-gray-600">
+									Vista tablero con eventos organizados por columnas.
+								</p>
+							</div>
+						</label>
+
+						<!-- Vista Timeline -->
+						<label for="events-view-timeline" class="relative cursor-pointer">
+							<input
+								id="events-view-timeline"
+								type="radio"
+								name="eventsView"
+								value="timeline"
+								checked={$userPreferences.eventsView === 'timeline'}
+								on:change={() => updatePreference('eventsView', 'timeline')}
+								class="sr-only peer"
+							/>
+							<div
+								class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
+							>
+								<div class="flex items-center space-x-3 mb-1 lg:mb-2">
+									<span class="text-xl lg:text-2xl">📈</span>
+									<h3 class="font-semibold text-gray-800">Timeline</h3>
+								</div>
+								<p class="text-xs lg:text-sm text-gray-600">
+									Vista cronológica tipo línea de tiempo con eventos.
+								</p>
+							</div>
+						</label>
+					</div>
+				</fieldset>
+
+				<!-- Gestión de eventos -->
+				<div class="bg-red-50 border border-red-200 rounded-lg p-3 lg:p-4">
+					<h3
+						class="text-base lg:text-lg font-semibold text-red-800 mb-3 flex items-center gap-2"
+					>
+						<span>🗑️</span>
+						Gestión de eventos
+					</h3>
+					<p class="text-red-700 mb-3 text-xs lg:text-sm">
+						Elimina todos tus eventos guardados. Esta acción no se puede deshacer.
+					</p>
+					<button
+						on:click={() => (showDeleteEventsConfirm = true)}
+						class="bg-red-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 text-xs lg:text-sm"
+					>
+						Eliminar todos los eventos
+					</button>
+				</div>
+
+				<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+					<p class="text-xs lg:text-sm text-blue-700">
+						💡 <strong>Tip:</strong> La vista seleccionada se aplicará automáticamente al
+						abrir la sección de eventos.
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- === EXTRA === -->
+		<section
+			class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6"
+		>
+			<h2
+				class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2"
+			>
+				<span>⚡</span>
+				<span>Extra</span>
+			</h2>
+
+			<div class="space-y-4 lg:space-y-6">
+				<!-- Acciones de cuenta - Solo si está logueado -->
+				{#if $currentUser !== null}
+					<div>
+						<h3 class="text-lg font-semibold text-gray-800 mb-4">Acciones de cuenta</h3>
+						<div class="flex flex-wrap gap-3">
+							<button
+								on:click={handleLogout}
+								class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
+							>
+								<span
+									><svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										class="lucide lucide-log-out-icon lucide-log-out"
+										><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path
+											d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+										/></svg
+									></span
+								> Cerrar sesión
+							</button>
+
+							<button
+								disabled
+								class="bg-red-300 text-white px-4 py-2 rounded-lg cursor-not-allowed opacity-60 flex items-center gap-2"
+							>
+								Eliminar cuenta
+							</button>
 						</div>
 					</div>
-				</section>
+				{/if}
 
-				<!-- === EXTRA === -->
-				<section class="bg-white lg:bg-gray-50 lg:rounded-xl border-b lg:border-none border-gray-200 p-4 lg:p-6">
-					<h2 class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2">
-						<span>⚡</span>
-						<span>Extra</span>
-					</h2>
-					
-					<div class="space-y-4 lg:space-y-6">
-						<!-- Acciones de cuenta - Solo si está logueado -->
-						{#if $currentUser !== null}
+				<!-- Gestión de datos - Disponible para todos -->
+				<div>
+					<h3 class="text-lg font-semibold text-gray-800 mb-4">Gestión de datos</h3>
+					<div class="bg-red-50 border border-red-200 rounded-lg p-4">
+						<p class="text-red-700 mb-3 text-sm">
+							Elimina todos tus datos guardados localmente. Esto incluye cuenta,
+							horarios, notas, eventos y configuraciones.
+						</p>
+						<button
+							on:click={() => (showDeleteDataConfirm = true)}
+							class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+						>
+							<span>🗑️</span> Limpiar todos los datos
+						</button>
+					</div>
+				</div>
+
+				<!-- Información de la app -->
+				<div>
+					<h3 class="text-lg font-semibold text-gray-800 mb-4">
+						Acerca de la aplicación
+					</h3>
+					<div class="bg-white rounded-lg p-4 border border-gray-200">
+						<div class="flex items-center gap-3 mb-3">
+							<span class="text-3xl">🎓</span>
 							<div>
-								<h3 class="text-lg font-semibold text-gray-800 mb-4">Acciones de cuenta</h3>
-								<div class="flex flex-wrap gap-3">
-									<button 
-										on:click={handleLogout}
-										class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
-									>
-										<span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span> Cerrar sesión
-									</button>
-									
-									<button 
-										disabled
-										class="bg-red-300 text-white px-4 py-2 rounded-lg cursor-not-allowed opacity-60 flex items-center gap-2"
-									>
-										Eliminar cuenta
-									</button>
-								</div>
-							</div>
-						{/if}
-
-						<!-- Gestión de datos - Disponible para todos -->
-						<div>
-							<h3 class="text-lg font-semibold text-gray-800 mb-4">Gestión de datos</h3>
-							<div class="bg-red-50 border border-red-200 rounded-lg p-4">
-								<p class="text-red-700 mb-3 text-sm">
-									Elimina todos tus datos guardados localmente. Esto incluye cuenta, horarios, notas, eventos y configuraciones.
+								<p class="text-gray-700 font-semibold">
+									<strong>{APP_NAME}</strong>
+									v{VERSION}
 								</p>
-								<button 
-									on:click={() => showDeleteDataConfirm = true}
-									class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
-								>
-									<span>🗑️</span> Limpiar todos los datos
-								</button>
+								<p class="text-gray-600 text-sm">Gestor académico universitario</p>
 							</div>
 						</div>
-
-						<!-- Información de la app -->
-						<div>
-							<h3 class="text-lg font-semibold text-gray-800 mb-4">Acerca de la aplicación</h3>
-							<div class="bg-white rounded-lg p-4 border border-gray-200">
-								<div class="flex items-center gap-3 mb-3">
-									<span class="text-3xl">🎓</span>
-									<div>
-										<p class="text-gray-700 font-semibold"><strong>Ramo Libre</strong> v1.0.0</p>
-										<p class="text-gray-600 text-sm">Gestor académico universitario</p>
-									</div>
-								</div>
-								<p class="text-gray-600 text-sm">
-									Aplicación diseñada para ayudar a estudiantes universitarios a gestionar su información académica de manera eficiente.
-								</p>
-							</div>
-						</div>
-		</div>
+						<p class="text-gray-600 text-sm">
+							Aplicación diseñada para ayudar a estudiantes universitarios a gestionar
+							su información académica de manera eficiente.
+						</p>
+					</div>
+				</div>
+			</div>
+		</section>
 	</div>
 </div>
 
@@ -535,14 +774,14 @@
 				Esta acción <strong>no se puede deshacer</strong>.
 			</p>
 			<div class="flex space-x-3">
-				<button 
+				<button
 					on:click={deleteAllData}
 					class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1 flex items-center justify-center gap-2"
 				>
 					<span>🗑️</span> Sí, limpiar todo
 				</button>
-				<button 
-					on:click={() => showDeleteDataConfirm = false}
+				<button
+					on:click={() => (showDeleteDataConfirm = false)}
 					class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex-1"
 				>
 					Cancelar
@@ -561,17 +800,18 @@
 				<h3 class="text-xl font-bold text-red-600 mt-2">Eliminar todos los eventos</h3>
 			</div>
 			<p class="text-gray-700 mb-6 text-center">
-				¿Estás seguro de que quieres eliminar todos tus eventos? Esta acción eliminará todos los eventos guardados de forma permanente y <strong>no se puede deshacer</strong>.
+				¿Estás seguro de que quieres eliminar todos tus eventos? Esta acción eliminará todos
+				los eventos guardados de forma permanente y <strong>no se puede deshacer</strong>.
 			</p>
 			<div class="flex space-x-3">
-				<button 
+				<button
 					on:click={deleteAllEvents}
 					class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1 flex items-center justify-center gap-2"
 				>
 					<span>🗑️</span> Sí, eliminar todos
 				</button>
-				<button 
-					on:click={() => showDeleteEventsConfirm = false}
+				<button
+					on:click={() => (showDeleteEventsConfirm = false)}
 					class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex-1"
 				>
 					Cancelar
@@ -582,6 +822,4 @@
 {/if}
 
 <!-- Modal de Sync -->
-<SyncModal
-	bind:isOpen={showSyncModal}
-/>
+<SyncModal bind:isOpen={showSyncModal} />

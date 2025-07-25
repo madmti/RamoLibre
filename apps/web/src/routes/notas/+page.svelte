@@ -1,29 +1,42 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { userPreferences } from '$lib/stores/preferences';
 	import { currentSubjects } from '$lib/stores/subject';
 	import { currentGrades } from '$lib/stores/grades';
 	import { currentSubjectGradeConfigs } from '$lib/stores/config';
-	import { gradeCalculator } from '$lib/utils/gradeCalculator';
-	import { type GradeCalculationResult } from "@ramo-libre/shared";
-
+	import { type GradeCalculationResult } from '@ramo-libre/shared';
+	import type { AvailableMethods } from '$lib/utils/gradeCalculator';
 
 	let gradeCalculations: Record<string, GradeCalculationResult> = {};
 	let stats = {
 		totalSubjects: 0,
 		averageGrade: 0,
 		passingSubjects: 0,
-		failingSubjects: 0
+		failingSubjects: 0,
 	};
 	let isCalculating = true;
 
-	onMount(() => {
-		gradeCalculations = currentGrades.getGradesCalculations($currentSubjects, 'LP_MIN_PASSING_DISTANCE');
+	onMount(async () => {
+		gradeCalculations = await currentGrades.getGradesCalculations(
+			$currentSubjects,
+			$userPreferences.gradeCalculationMethod as AvailableMethods
+		);
 		stats = currentGrades.getStats(gradeCalculations);
 		isCalculating = false;
 	});
 
-
-
+	function getStatusName(status: 'pass' | 'in progress' | 'fail'): string {
+		switch (status) {
+			case 'pass':
+				return 'Aprobado';
+			case 'in progress':
+				return 'En curso';
+			case 'fail':
+				return 'Reprobado';
+			default:
+				return 'Desconocido';
+		}
+	}
 </script>
 
 <svelte:head>
@@ -82,8 +95,10 @@
 		<div class="text-center py-12">
 			<div class="text-6xl mb-4">📚</div>
 			<h3 class="text-xl font-semibold text-gray-800 mb-2">No tienes materias registradas</h3>
-			<p class="text-gray-600 mb-6">Crea materias y agrega notas para ver tu resumen académico.</p>
-			<a 
+			<p class="text-gray-600 mb-6">
+				Crea materias y agrega notas para ver tu resumen académico.
+			</p>
+			<a
 				href="/gestion"
 				class="inline-flex items-center space-x-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
 			>
@@ -100,154 +115,202 @@
 					<p class="text-sm text-gray-500">Calculando predicciones...</p>
 				</div>
 			{:else}
-			{#each $currentSubjects as subject}
-				{@const calculation = gradeCalculations[subject.id]}
-				{@const subjectData = currentSubjectGradeConfigs.getConfigBySubject(subject.id)}
-				{@const grades = currentGrades.getGradesBySubject(subject.id)}
-				{#if !subjectData}
-					<!-- Materia sin configuración -->
-					<div class="bg-red-50 border border-red-200 rounded-xl p-6">
-						<p class="text-red-600">⚠️ No hay configuración para la materia {subject.name}. Configura la evaluación en "Gestión".</p>
-					</div>
-				{:else}
-				<div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-					<!-- Header de la materia -->
-					<div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-						<div class="flex items-center justify-between">
-							<div class="flex items-center space-x-3">
-								<div 
-									class="w-4 h-4 rounded"
-									style="background-color: {subject.color}"
-								></div>
-								<div>
-									<h3 class="text-lg font-semibold text-gray-800">{subject.name}</h3>
-									<p class="text-sm text-gray-600">{subject.code}</p>
-								</div>
-							</div>
-							<div class="text-right">
-								<div class="text-2xl font-bold" 
-									class:text-green-600={calculation.currentGrade >= (subjectData.passingGrade || 0.0)}
-									class:text-red-600={calculation.currentGrade < (subjectData.passingGrade || 0.0)}
-								>
-									{calculation.currentGrade.toFixed(1)}
-								</div>
-								<div class="text-xs text-gray-500">
-									Nota actual
-								</div>
-							</div>
+				{#each $currentSubjects as subject}
+					{@const calculation = gradeCalculations[subject.id]}
+					{@const subjectData = currentSubjectGradeConfigs.getConfigBySubject(subject.id)}
+					{@const grades = currentGrades.getGradesBySubject(subject.id)}
+					{#if !subjectData}
+						<!-- Materia sin configuración -->
+						<div class="bg-red-50 border border-red-200 rounded-xl p-6">
+							<p class="text-red-600">
+								⚠️ No hay configuración para la materia {subject.name}. Configura la
+								evaluación en "Gestión".
+							</p>
 						</div>
-					</div>
-
-					<!-- Contenido -->
-					<div class="px-6 py-4">
-						{#if grades.length === 0}
-							<!-- Sin notas -->
-							<div class="text-center py-6">
-								<p class="text-gray-500 mb-3">No hay notas registradas</p>
-								<a 
-									href="/gestion"
-									class="text-sm text-blue-600 hover:text-blue-700 underline"
-								>
-									Agregar notas
-								</a>
-							</div>
-						{:else if !subjectData}
-							<!-- Sin configuración -->
-							<div class="text-center py-6 bg-amber-50 rounded-lg">
-								<p class="text-amber-700 mb-3">⚠️ Configura la evaluación para ver predicciones</p>
-								<a 
-									href="/gestion"
-									class="text-sm text-amber-600 hover:text-amber-700 underline"
-								>
-									Configurar evaluación
-								</a>
-							</div>
-						{:else}
-							<!-- Resumen detallado -->
-							<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-								<!-- Estado actual -->
-								<div>
-									<h4 class="text-md font-semibold text-gray-800 mb-3">Estado Actual</h4>
-									<div class="space-y-2">
-										{#if calculation.requiredGrades.length > 0}
-											{@const status = gradeCalculator.getSubjectStatus(calculation.currentGrade, subjectData.passingGrade, calculation.canPass)}
-											<div class="flex justify-between text-sm">
-												<span class="text-gray-600">Estado:</span>
-												<span class="font-medium" 
-													class:text-green-600={status === 'Aprobado'}
-													class:text-blue-600={status === 'En curso'}
-													class:text-red-600={status === 'Reprobado'}
-												>
-													{status}
-												</span>
-											</div>
-										{/if}
-										<div class="flex justify-between text-sm">
-											<span class="text-gray-600">Notas registradas:</span>
-											<span class="font-medium">{grades.length}</span>
+					{:else}
+						<div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+							<!-- Header de la materia -->
+							<div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+								<div class="flex items-center justify-between">
+									<div class="flex items-center space-x-3">
+										<div
+											class="w-4 h-4 rounded"
+											style="background-color: {subject.color}"
+										></div>
+										<div>
+											<h3 class="text-lg font-semibold text-gray-800">
+												{subject.name}
+											</h3>
+											<p class="text-sm text-gray-600">{subject.code}</p>
 										</div>
-										<div class="flex justify-between text-sm">
-											<span class="text-gray-600">Nota para aprobar:</span>
-											<span class="font-medium">{subjectData.passingGrade}</span>
+									</div>
+									<div class="text-right">
+										<div
+											class="text-2xl font-bold"
+											class:text-green-600={calculation.currentGrade >=
+												(subjectData.passingGrade || 0.0)}
+											class:text-red-600={calculation.currentGrade <
+												(subjectData.passingGrade || 0.0)}
+										>
+											{calculation.currentGrade.toFixed(1)}
 										</div>
-										<div class="flex justify-between text-sm">
-											<span class="text-gray-600">Nota máxima:</span>
-											<span class="font-medium">{subjectData.maxGrade}</span>
-										</div>
-										{#if calculation}
-											<div class="flex justify-between text-sm">
-												<span class="text-gray-600">¿Puede aprobar?</span>
-												<span class="font-medium" class:text-green-600={calculation.canPass} class:text-red-600={!calculation.canPass}>
-													{calculation.canPass ? '✅ Sí' : '❌ No'}
-												</span>
-											</div>
-										{/if}
+										<div class="text-xs text-gray-500">Nota actual</div>
 									</div>
 								</div>
+							</div>
 
-								<!-- Predicciones -->
-								{#if calculation}
-									<div>
-										<h4 class="text-md font-semibold text-gray-800 mb-3">Predicciones</h4>
-										
-										{#if calculation.requiredGrades.length > 0}
+							<!-- Contenido -->
+							<div class="px-6 py-4">
+								{#if grades.length === 0}
+									<!-- Sin notas -->
+									<div class="text-center py-6">
+										<p class="text-gray-500 mb-3">No hay notas registradas</p>
+										<a
+											href="/gestion"
+											class="text-sm text-blue-600 hover:text-blue-700 underline"
+										>
+											Agregar notas
+										</a>
+									</div>
+								{:else if !subjectData}
+									<!-- Sin configuración -->
+									<div class="text-center py-6 bg-amber-50 rounded-lg">
+										<p class="text-amber-700 mb-3">
+											⚠️ Configura la evaluación para ver predicciones
+										</p>
+										<a
+											href="/gestion"
+											class="text-sm text-amber-600 hover:text-amber-700 underline"
+										>
+											Configurar evaluación
+										</a>
+									</div>
+								{:else}
+									<!-- Resumen detallado -->
+									<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+										<!-- Estado actual -->
+										<div>
+											<h4 class="text-md font-semibold text-gray-800 mb-3">
+												Estado Actual
+											</h4>
 											<div class="space-y-2">
-												<p class="text-sm text-gray-600 mb-2">Notas requeridas:</p>
-												{#each calculation.requiredGrades as required}
+												{#if calculation.requiredGrades.length > 0}
 													<div class="flex justify-between text-sm">
-														<span class="text-gray-600">{required.categoryName}:</span>
-														<span class="font-medium" 
-															class:text-green-600={required.achievable}
-															class:text-red-600={!required.achievable}
+														<span class="text-gray-600">Estado:</span>
+														<span
+															class="font-medium"
+															class:text-green-600={calculation.status ===
+																'pass'}
+															class:text-blue-600={calculation.status ===
+																'in progress'}
+															class:text-red-600={calculation.status ===
+																'fail'}
 														>
-															{required.requiredValue.toFixed(1)}
-															{required.achievable ? '' : ' (Muy alto)'}
+															{getStatusName(calculation.status)}
 														</span>
 													</div>
-												{/each}
-											</div>
-										{/if}
-
-										{#if calculation.recommendations.length > 0}
-											<div class="mt-4">
-												<p class="text-sm text-gray-600 mb-2">Recomendaciones:</p>
-												<div class="space-y-1">
-													{#each calculation.recommendations as recommendation}
-														<p class="text-xs text-gray-700 bg-gray-100 rounded px-2 py-1">
-															{recommendation}
-														</p>
-													{/each}
+												{/if}
+												<div class="flex justify-between text-sm">
+													<span class="text-gray-600"
+														>Notas registradas:</span
+													>
+													<span class="font-medium">{grades.length}</span>
 												</div>
+												<div class="flex justify-between text-sm">
+													<span class="text-gray-600"
+														>Nota para aprobar:</span
+													>
+													<span class="font-medium"
+														>{subjectData.passingGrade}</span
+													>
+												</div>
+												<div class="flex justify-between text-sm">
+													<span class="text-gray-600">Nota máxima:</span>
+													<span class="font-medium"
+														>{subjectData.maxGrade}</span
+													>
+												</div>
+												{#if calculation}
+													<div class="flex justify-between text-sm">
+														<span class="text-gray-600"
+															>¿Puede aprobar?</span
+														>
+														<span
+															class="font-medium"
+															class:text-green-600={calculation.canPass}
+															class:text-red-600={!calculation.canPass}
+														>
+															{calculation.canPass
+																? '✅ Sí'
+																: '❌ No'}
+														</span>
+													</div>
+												{/if}
+											</div>
+										</div>
+
+										<!-- Predicciones -->
+										{#if calculation}
+											<div>
+												<h4
+													class="text-md font-semibold text-gray-800 mb-3"
+												>
+													Predicciones
+												</h4>
+
+												{#if calculation.requiredGrades.length > 0}
+													<div class="space-y-2">
+														<p class="text-sm text-gray-600 mb-2">
+															Notas requeridas:
+														</p>
+														{#each calculation.requiredGrades as required}
+															<div
+																class="flex justify-between text-sm"
+															>
+																<span class="text-gray-600"
+																	>{required.categoryName}:</span
+																>
+																<span
+																	class="font-medium"
+																	class:text-green-600={required.achievable}
+																	class:text-red-600={!required.achievable}
+																>
+																	{required.requiredValue.toFixed(
+																		1
+																	)}
+																	{required.achievable
+																		? ''
+																		: ' (Muy alto)'}
+																</span>
+															</div>
+														{/each}
+													</div>
+												{/if}
+
+												{#if calculation.recommendations.length > 0}
+													<div class="mt-4">
+														<p class="text-sm text-gray-600 mb-2">
+															Recomendaciones:
+														</p>
+														<div class="space-y-1">
+															{#each calculation.recommendations as recommendation}
+																<p
+																	class="text-xs text-gray-700 bg-gray-100 rounded px-2 py-1"
+																>
+																	{recommendation}
+																</p>
+															{/each}
+														</div>
+													</div>
+												{/if}
 											</div>
 										{/if}
 									</div>
 								{/if}
 							</div>
-						{/if}
-					</div>
-				</div>
-				{/if}
-			{/each}
+						</div>
+					{/if}
+				{/each}
 			{/if}
 		</div>
 	{/if}
