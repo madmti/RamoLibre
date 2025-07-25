@@ -153,7 +153,7 @@
 											class:text-red-600={calculation.currentGrade <
 												(subjectData.passingGrade || 0.0)}
 										>
-											{calculation.currentGrade.toFixed(1)}
+											{calculation.currentGrade.toFixed(2)}
 										</div>
 										<div class="text-xs text-gray-500">Nota actual</div>
 									</div>
@@ -269,7 +269,7 @@
 																class="flex justify-between text-sm"
 															>
 																<span class="text-gray-600"
-																	>{required.categoryName}:</span
+																	>{`${required.categoryName} - ${required.description}`}:</span
 																>
 																<span
 																	class="font-medium"
@@ -277,11 +277,11 @@
 																	class:text-red-600={!required.achievable}
 																>
 																	{required.requiredValue.toFixed(
-																		1
+																		2
 																	)}
 																	{required.achievable
 																		? ''
-																		: ' (Muy alto)'}
+																		: ' (Imposible)'}
 																</span>
 															</div>
 														{/each}
