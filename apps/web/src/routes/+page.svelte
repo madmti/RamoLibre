@@ -3,7 +3,7 @@
 	import UserCard from '$components/UserCard.svelte';
 
 	// ICONS
-	import CheckMarkIcon from '$embedded-icons/checkmark.svg?component';
+	import CheckMarkIcon from '$embedded-icons/check-mark.svg?component';
 	import MobileIcon from '$embedded-icons/mobile.svg?component';
 	import SecureIcon from '$embedded-icons/secure.svg?component';
 	import RocketIcon from '$embedded-icons/rocket.svg?component';

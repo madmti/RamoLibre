@@ -213,21 +213,112 @@
 
 			<!-- Navegación compacta (tablet) -->
 			<div class="hidden md:flex lg:hidden items-center space-x-1" role="menubar">
-				{#each navItems as item}
-					<a
-						href={item.href}
-						class="flex items-center justify-center p-2 rounded-lg text-sm font-medium transition-all hover:bg-gray-100 {$page
-							.url.pathname === item.href
+				<!-- Inicio -->
+				<a
+					href="/"
+					class="flex items-center justify-center p-2 rounded-lg text-sm font-medium transition-all hover:bg-gray-100 {$page
+						.url.pathname === '/'
+						? 'bg-blue-50 text-blue-700 border border-blue-200'
+						: 'text-gray-600 hover:text-gray-900'}"
+					role="menuitem"
+					aria-label="Inicio"
+					aria-current={$page.url.pathname === '/' ? 'page' : undefined}
+					title="Inicio"
+				>
+					<span class="text-lg" role="img" aria-hidden="true">
+						<HomeIcon class="h-6 w-6" />
+					</span>
+				</a>
+
+				<!-- Horario -->
+				<a
+					href="/horario"
+					class={`flex items-center justify-center p-2 rounded-lg text-sm font-medium transition-all hover:bg-gray-100 ${
+						$page.url.pathname === '/horario'
 							? 'bg-blue-50 text-blue-700 border border-blue-200'
-							: 'text-gray-600 hover:text-gray-900'}"
-						role="menuitem"
-						aria-label={item.description}
-						aria-current={$page.url.pathname === item.href ? 'page' : undefined}
-						title={item.label}
-					>
-						<span class="text-lg" role="img" aria-hidden="true">{item.icon}</span>
-					</a>
-				{/each}
+							: 'text-gray-600 hover:text-gray-900'
+					}`}
+					role="menuitem"
+					aria-label="Horario"
+					aria-current={$page.url.pathname === '/horario' ? 'page' : undefined}
+					title="Horario"
+				>
+					<span class="text-lg" role="img" aria-hidden="true">
+						<CalendarCheckIcon class="h-6 w-6" />
+					</span>
+				</a>
+
+				<!-- Notas -->
+				<a
+					href="/notas"
+					class={`flex items-center justify-center p-2 rounded-lg text-sm font-medium transition-all hover:bg-gray-100 ${
+						$page.url.pathname === '/notas'
+							? 'bg-green-50 text-green-700 border border-green-200'
+							: 'text-gray-600 hover:text-gray-900'
+					}`}
+					role="menuitem"
+					aria-label="Notas"
+					aria-current={$page.url.pathname === '/notas' ? 'page' : undefined}
+					title="Notas"
+				>
+					<span class="text-lg" role="img" aria-hidden="true">
+						<UpTrendIcon class="h-6 w-6" />
+					</span>
+				</a>
+
+				<!-- Eventos -->
+				<a
+					href="/eventos"
+					class={`flex items-center justify-center p-2 rounded-lg text-sm font-medium transition-all hover:bg-gray-100 ${
+						$page.url.pathname === '/eventos'
+							? 'bg-purple-50 text-purple-700 border border-purple-200'
+							: 'text-gray-600 hover:text-gray-900'
+					}`}
+					role="menuitem"
+					aria-label="Eventos"
+					aria-current={$page.url.pathname === '/eventos' ? 'page' : undefined}
+					title="Eventos"
+				>
+					<span class="text-lg" role="img" aria-hidden="true">
+						<CalendarIcon class="h-6 w-6" />
+					</span>
+				</a>
+
+				<!-- Gestión -->
+				<a
+					href="/gestion"
+					class={`flex items-center justify-center p-2 rounded-lg text-sm font-medium transition-all hover:bg-gray-100 ${
+						$page.url.pathname === '/gestion'
+							? 'bg-orange-50 text-orange-700 border border-orange-200'
+							: 'text-gray-600 hover:text-gray-900'
+					}`}
+					role="menuitem"
+					aria-label="Gestión"
+					aria-current={$page.url.pathname === '/gestion' ? 'page' : undefined}
+					title="Gestión"
+				>
+					<span class="text-lg" role="img" aria-hidden="true">
+						<GestionIcon class="h-6 w-6" />
+					</span>
+				</a>
+
+				<!-- Configuración -->
+				<a
+					href="/configuracion"
+					class={`flex items-center justify-center p-2 rounded-lg text-sm font-medium transition-all hover:bg-gray-100 ${
+						$page.url.pathname === '/configuracion'
+							? 'bg-gray-100 text-gray-800 border border-gray-300'
+							: 'text-gray-600 hover:text-gray-900'
+					}`}
+					role="menuitem"
+					aria-label="Configuración"
+					aria-current={$page.url.pathname === '/configuracion' ? 'page' : undefined}
+					title="Configuración"
+				>
+					<span class="text-lg" role="img" aria-hidden="true">
+						<ConfigIcon class="h-6 w-6" />
+					</span>
+				</a>
 			</div>
 
 			<!-- Hora, fecha e indicador de conexión -->
@@ -243,7 +334,7 @@
 						<span
 							class={`text-xs ${$cloudSession ? 'text-green-500' : 'text-gray-500'} font-medium`}
 						>
-							{$cloudSession ? 'Online' : 'Offline'}
+							{$cloudSession ? 'Conectado' : 'Desconectado'}
 						</span>
 					</div>
 
@@ -268,10 +359,10 @@
 				<!-- Horarios -->
 				<a
 					href="/horario"
-					class="flex flex-col items-center min-w-[70px] p-2 rounded-lg text-xs font-medium transition-all hover:bg-gray-100 {$page
+					class="flex flex-col items-center min-w-[70px] p-2 rounded-lg text-xs font-medium transition-all text-blue-700 hover:bg-gray-100 {$page
 						.url.pathname === '/horario'
-						? 'bg-blue-50 text-blue-700 border border-blue-200'
-						: 'text-gray-600'}"
+						? 'bg-blue-50 border border-blue-200'
+						: ''}"
 					role="tab"
 					aria-label="Ver horarios"
 					aria-selected={$page.url.pathname === '/horario'}
@@ -285,10 +376,10 @@
 				<!-- Notas -->
 				<a
 					href="/notas"
-					class="flex flex-col items-center min-w-[70px] p-2 rounded-lg text-xs font-medium transition-all hover:bg-gray-100 {$page
+					class="flex flex-col items-center min-w-[70px] p-2 rounded-lg text-xs font-medium transition-all text-green-700 hover:bg-gray-100 {$page
 						.url.pathname === '/notas'
-						? 'bg-green-50 text-green-700 border border-green-200'
-						: 'text-gray-600'}"
+						? 'bg-green-50 border border-green-200'
+						: ''}"
 					role="tab"
 					aria-label="Ver notas"
 					aria-selected={$page.url.pathname === '/notas'}
@@ -302,10 +393,10 @@
 				<!-- Eventos -->
 				<a
 					href="/eventos"
-					class="flex flex-col items-center min-w-[70px] p-2 rounded-lg text-xs font-medium transition-all hover:bg-gray-100 {$page
+					class="flex flex-col items-center min-w-[70px] p-2 rounded-lg text-xs font-medium transition-all text-purple-700 hover:bg-gray-100 {$page
 						.url.pathname === '/eventos'
-						? 'bg-purple-50 text-purple-700 border border-purple-200'
-						: 'text-gray-600'}"
+						? 'bg-purple-50 border border-purple-200'
+						: ''}"
 					role="tab"
 					aria-label="Ver eventos"
 					aria-selected={$page.url.pathname === '/eventos'}
@@ -319,10 +410,10 @@
 				<!-- Gestión -->
 				<a
 					href="/gestion"
-					class="flex flex-col items-center min-w-[70px] p-2 rounded-lg text-xs font-medium transition-all hover:bg-gray-100 {$page
+					class="flex flex-col items-center min-w-[70px] p-2 rounded-lg text-xs font-medium transition-all text-orange-700 hover:bg-gray-100 {$page
 						.url.pathname === '/gestion'
-						? 'bg-orange-50 text-orange-700 border border-orange-200'
-						: 'text-gray-600'}"
+						? 'bg-orange-50 border border-orange-200'
+						: ''}"
 					role="tab"
 					aria-label="Ver gestión"
 					aria-selected={$page.url.pathname === '/gestion'}
@@ -336,10 +427,10 @@
 				<!-- Configuración -->
 				<a
 					href="/configuracion"
-					class="flex flex-col items-center min-w-[70px] p-2 rounded-lg text-xs font-medium transition-all hover:bg-gray-100 {$page
+					class="flex flex-col items-center min-w-[70px] p-2 rounded-lg text-xs font-medium transition-all text-gray-800 hover:bg-gray-100 {$page
 						.url.pathname === '/configuracion'
-						? 'bg-gray-100 text-gray-800 border border-gray-300'
-						: 'text-gray-600'}"
+						? 'bg-gray-100 border border-gray-300'
+						: ''}"
 					role="tab"
 					aria-label="Ver configuración"
 					aria-selected={$page.url.pathname === '/configuracion'}
