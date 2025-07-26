@@ -1,10 +1,24 @@
 <script lang="ts">
 	import type { Event } from '@ramo-libre/shared';
 
+	// ICONS
+	import GradeIcon from '$embedded-icons/grade.svg?component';
+	import BookIcon from '$embedded-icons/book.svg?component';
+	import ClockIcon from '$embedded-icons/clock.svg?component';
+	import HandshakeIcon from '$embedded-icons/handshake.svg?component';
+	import ColChartIcon from '$embedded-icons/col-chart.svg?component';
+	import CalendarCheckIcon from '$embedded-icons/calendar-check.svg?component';
+	import IdeaIcon from '$embedded-icons/idea.svg?component';
+	import CheckMarkIcon from '$embedded-icons/check-mark.svg?component';
+    import AlarmIcon from '$embedded-icons/alarm.svg?component';
+    import PinIcon from '$embedded-icons/pin.svg?component';
+    import EditIcon from '$embedded-icons/edit.svg?component';
+    import UndoIcon from '$embedded-icons/undo.svg?component';
+    import TrashIcon from '$embedded-icons/trash.svg?component';
+
 	export let events: Event[] = [];
 	export let selectedDate: string;
 	export let getSubjectName: (id: string) => string;
-	export let getEventTypeIcon: (type: Event['type']) => string;
 	export let getPriorityColor: (priority: string) => string;
 	export let onToggleComplete: ((eventId: string) => void) | undefined = undefined;
 	export let onEditEvent: ((event: Event) => void) | undefined = undefined;
@@ -29,16 +43,15 @@
 		const year = date.getFullYear();
 		const month = date.getMonth();
 		const firstDay = new Date(year, month, 1);
-		const lastDay = new Date(year, month + 1, 0);
-		const daysInMonth = lastDay.getDate();
-		
+
 		// Obtener el primer día de la semana (0 = domingo, 1 = lunes, etc.)
 		const firstDayOfWeek = firstDay.getDay();
 		const startDate = new Date(firstDay);
 		startDate.setDate(firstDay.getDate() - firstDayOfWeek);
 
 		const days: Date[] = [];
-		for (let i = 0; i < 42; i++) { // 6 semanas * 7 días
+		for (let i = 0; i < 42; i++) {
+			// 6 semanas * 7 días
 			const day = new Date(startDate);
 			day.setDate(startDate.getDate() + i);
 			days.push(day);
@@ -49,18 +62,21 @@
 
 	// Declaraciones reactivas para asegurar actualización automática
 	$: calendarDays = getDaysInMonth(currentMonth);
-	$: selectedDateEvents = events.filter(event => event.date === selectedDate);
-	
+	$: selectedDateEvents = events.filter((event) => event.date === selectedDate);
+
 	// Función reactiva para obtener eventos de cualquier fecha
-	$: getEventsForDateReactive = (date: string) => events.filter(event => event.date === date);
-	
+	$: getEventsForDateReactive = (date: string) => events.filter((event) => event.date === date);
+
 	function isToday(date: Date): boolean {
 		const today = new Date();
 		return formatDate(date) === formatDate(today);
 	}
 
 	function isCurrentMonth(date: Date): boolean {
-		return date.getMonth() === currentMonth.getMonth() && date.getFullYear() === currentMonth.getFullYear();
+		return (
+			date.getMonth() === currentMonth.getMonth() &&
+			date.getFullYear() === currentMonth.getFullYear()
+		);
 	}
 
 	function previousMonth() {
@@ -93,7 +109,7 @@
 	<div class="flex items-center justify-between mb-6">
 		<div class="flex items-center space-x-4">
 			<h2 class="text-xl font-bold text-gray-800 capitalize">{getMonthName(currentMonth)}</h2>
-			<button 
+			<button
 				on:click={goToToday}
 				class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
 			>
@@ -101,13 +117,13 @@
 			</button>
 		</div>
 		<div class="flex items-center space-x-2">
-			<button 
+			<button
 				on:click={previousMonth}
 				class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
 			>
 				◀
 			</button>
-			<button 
+			<button
 				on:click={nextMonth}
 				class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
 			>
@@ -151,8 +167,30 @@
 							{#if dayEvents.length > 0}
 								<div class="mt-1 space-y-1">
 									{#each dayEvents.slice(0, 2) as event}
-										<div class="text-xs px-1 py-0.5 rounded {getPriorityColor(event.priority)} truncate">
-											{getEventTypeIcon(event.type)} {event.title}
+										<div
+											class="text-xs px-1 py-0.5 rounded {getPriorityColor(
+												event.priority
+											)} truncate"
+										>
+											{#if event.type === 'exam'}
+												<GradeIcon class="inline-block w-4 h-4 mr-1" />
+											{:else if event.type === 'assignment'}
+												<IdeaIcon class="inline-block w-4 h-4 mr-1" />
+											{:else if event.type === 'deadline'}
+												<AlarmIcon class="inline-block w-4 h-4 mr-1" />
+											{:else if event.type === 'meeting'}
+												<HandshakeIcon class="inline-block w-4 h-4 mr-1" />
+											{:else if event.type === 'project'}
+												<ColChartIcon class="inline-block w-4 h-4 mr-1" />
+											{:else if event.type === 'class'}
+												<BookIcon class="inline-block w-4 h-4 mr-1" />
+											{:else}
+												<CalendarCheckIcon
+													class="inline-block w-4 h-4 mr-1"
+												/>
+											{/if}
+
+											{event.title}
 										</div>
 									{/each}
 									{#if dayEvents.length > 2}
@@ -176,18 +214,20 @@
 						// Crear fecha local sin interpretación UTC
 						const [year, month, day] = selectedDate.split('-').map(Number);
 						const localDate = new Date(year, month - 1, day);
-						return localDate.toLocaleDateString('es-ES', { 
-							weekday: 'long', 
-							year: 'numeric', 
-							month: 'long', 
-							day: 'numeric' 
+						return localDate.toLocaleDateString('es-ES', {
+							weekday: 'long',
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric',
 						});
 					})()}
 				</h3>
 
 				{#if selectedDateEvents.length === 0}
 					<div class="text-center py-8">
-						<div class="text-4xl mb-2">📅</div>
+						<div class="text-4xl mb-2">
+							<CalendarCheckIcon class="inline-block w-8 h-8 mx-auto" />
+						</div>
 						<p class="text-gray-500 text-sm">No hay eventos para este día</p>
 					</div>
 				{:else}
@@ -197,71 +237,115 @@
 								<div class="flex items-start justify-between">
 									<div class="flex-1">
 										<div class="flex items-center space-x-2 mb-1">
-											<span class="text-lg">{getEventTypeIcon(event.type)}</span>
-											<h4 class="font-medium text-gray-800 text-sm">{event.title}</h4>
+											{#if event.type === 'exam'}
+												<GradeIcon class="inline-block w-4 h-4 mr-1" />
+											{:else if event.type === 'assignment'}
+												<IdeaIcon class="inline-block w-4 h-4 mr-1" />
+											{:else if event.type === 'deadline'}
+												<AlarmIcon class="inline-block w-4 h-4 mr-1" />
+											{:else if event.type === 'meeting'}
+												<HandshakeIcon class="inline-block w-4 h-4 mr-1" />
+											{:else if event.type === 'project'}
+												<ColChartIcon class="inline-block w-4 h-4 mr-1" />
+											{:else if event.type === 'class'}
+												<BookIcon class="inline-block w-4 h-4 mr-1" />
+											{:else}
+												<CalendarCheckIcon
+													class="inline-block w-4 h-4 mr-1"
+												/>
+											{/if}
+											<h4 class="font-medium text-gray-800 text-sm">
+												{event.title}
+											</h4>
 										</div>
 										{#if event.time}
-											<p class="text-xs text-gray-600 mb-1">
-												🕐 {event.time}
+											<p class="text-xs text-gray-600 mb-1 flex items-center">
+												<ClockIcon class="inline-block w-4 h-4 mr-1" />
+												{event.time}
 												{#if event.endTime}
 													- {event.endTime}
 												{/if}
 											</p>
 										{/if}
 										{#if event.subjectId}
-											<p class="text-xs text-gray-600 mb-1">
-												📚 {getSubjectName(event.subjectId)}
+											<p class="text-xs text-gray-600 mb-1 flex items-center">
+												<BookIcon class="inline-block w-4 h-4 mr-1" />
+												{getSubjectName(event.subjectId)}
 											</p>
 										{/if}
 										{#if event.location}
-											<p class="text-xs text-gray-600 mb-1">
-												📍 {event.location}
+											<p class="text-xs text-gray-600 mb-1 flex items-center">
+												<PinIcon class="inline-block w-4 h-4 mr-1" />
+												{event.location}
 											</p>
 										{/if}
 										{#if event.description}
-											<p class="text-xs text-gray-500 mt-2">{event.description}</p>
+											<p class="text-xs text-gray-500 mt-2">
+												{event.description}
+											</p>
 										{/if}
 									</div>
 									<div class="ml-2">
-										<span class="text-xs px-2 py-1 rounded {getPriorityColor(event.priority)}">
-											{event.priority === 'high' ? 'Alta' : event.priority === 'medium' ? 'Media' : 'Baja'}
+										<span
+											class="text-xs px-2 py-1 rounded {getPriorityColor(
+												event.priority
+											)}"
+										>
+											{event.priority === 'high'
+												? 'Alta'
+												: event.priority === 'medium'
+													? 'Media'
+													: 'Baja'}
 										</span>
 									</div>
 								</div>
-								
+
 								<!-- Botones de acción y estado -->
 								<div class="mt-2 flex items-center justify-between">
 									{#if event.completed}
 										<div class="flex items-center space-x-1">
-											<span class="text-green-600">✅</span>
-											<span class="text-xs text-green-600 font-medium">Completado</span>
+											<CheckMarkIcon class="inline-block w-4 h-4 mr-1 text-green-600" />
+											<span class="text-xs text-green-600 font-medium"
+												>Completado</span
+											>
 										</div>
 									{:else}
 										<div></div>
 									{/if}
-									
+
 									<!-- Botones de acción -->
 									<div class="flex items-center space-x-1">
-										<button 
+										<button
 											class="p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
 											title="Editar evento"
-											on:click={() => onEditEvent ? onEditEvent(event) : null}
+											on:click={() =>
+												onEditEvent ? onEditEvent(event) : null}
 										>
-											✏️
+											<EditIcon class="inline-block w-4 h-4" />
 										</button>
-										<button 
+										<button
 											class="p-1 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
-											title="{event.completed ? 'Marcar como pendiente' : 'Marcar como completado'}"
-											on:click={() => onToggleComplete ? onToggleComplete(event.id) : null}
+											title={event.completed
+												? 'Marcar como pendiente'
+												: 'Marcar como completado'}
+											on:click={() =>
+												onToggleComplete
+													? onToggleComplete(event.id)
+													: null}
 										>
-											{event.completed ? '↩️' : '✅'}
+                                            {#if event.completed}
+                                                <UndoIcon class="inline-block w-4 h-4 mr-1" />
+                                            {:else}
+                                                <CheckMarkIcon class="inline-block w-4 h-4 mr-1" />
+                                            {/if}
 										</button>
-										<button 
+										<button
 											class="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
 											title="Eliminar evento"
-											on:click={() => onDeleteEvent ? onDeleteEvent(event.id) : null}
+											on:click={() =>
+												onDeleteEvent ? onDeleteEvent(event.id) : null}
 										>
-											🗑️
+											<TrashIcon class="inline-block w-4 h-4" />
 										</button>
 									</div>
 								</div>

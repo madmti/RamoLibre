@@ -7,9 +7,29 @@
 	import { GradeCalculator, type AvailableMethods } from '$lib/utils/gradeCalculator';
 	import { APP_NAME, VERSION } from '$lib';
 
+	// ICONS
+	import ConfigIcon from '$embedded-icons/config.svg?component';
+	import UserIcon from '$embedded-icons/user.svg?component';
+	import UserCircleIcon from '$embedded-icons/user-circle.svg?component';
+	import IdeaIcon from '$embedded-icons/idea.svg?component';
+	import CloudIcon from '$embedded-icons/cloud.svg?component';
+	import SyncIcon from '$embedded-icons/sync.svg?component';
+	import CalendarCheckIcon from '$embedded-icons/calendar-check.svg?component';
+	import ListIcon from '$embedded-icons/list.svg?component';
+	import TableIcon from '$embedded-icons/table.svg?component';
+	import WalletCardsIcon from '$embedded-icons/wallet-cards.svg?component';
+	import UpTrendIcon from '$embedded-icons/up-trend.svg?component';
+	import CalendarIcon from '$embedded-icons/calendar.svg?component';
+	import KanBanIcon from '$embedded-icons/kanban.svg?component';
+	import TimeLineIcon from '$embedded-icons/time-line.svg?component';
+	import ZapIcon from '$embedded-icons/zap.svg?component';
+	import TrashIcon from '$embedded-icons/trash.svg?component';
+	import HatIcon from '$embedded-icons/hat.svg?component';
+	import LogoutIcon from '$embedded-icons/logout.svg?component';
+	import EditIcon from '$embedded-icons/edit.svg?component';
+
 	let editingAccount = false;
 	let showDeleteDataConfirm = false;
-	let showDeleteEventsConfirm = false;
 	let showSyncModal = false;
 	let tempUserData: any = $currentUser;
 
@@ -45,11 +65,6 @@
 		localStorage.clear();
 		showDeleteDataConfirm = false;
 		window.location.reload();
-	};
-
-	const deleteAllEvents = () => {
-		currentEvents.reset();
-		showDeleteEventsConfirm = false;
 	};
 
 	export function getMethodEmoji(method: AvailableMethods) {
@@ -96,13 +111,19 @@
 	>
 		<!-- Header móvil -->
 		<div class="lg:hidden px-4 py-6 bg-white border-b border-gray-200">
-			<h1 class="text-2xl font-bold text-gray-800 mb-1">⚙️ Configuración</h1>
+			<h1 class="text-2xl font-bold text-gray-800 mb-1 flex items-center">
+				<ConfigIcon class="inline-block h-8 w-8 mr-2" />
+				Configuración
+			</h1>
 			<p class="text-gray-600 text-sm">Personaliza tu experiencia con Ramo Libre.</p>
 		</div>
 
 		<!-- Header desktop -->
 		<div class="hidden lg:block">
-			<h1 class="text-3xl font-bold text-gray-800 mb-2">⚙️ Configuración</h1>
+			<h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center">
+				<ConfigIcon class="inline-block h-8 w-8 mr-2" />
+				Configuración
+			</h1>
 			<p class="text-gray-600 mb-8">Personaliza tu experiencia con Ramo Libre.</p>
 		</div>
 
@@ -112,7 +133,7 @@
 		>
 			<div class="flex items-center justify-between mb-4 lg:mb-6">
 				<h2 class="text-lg lg:text-2xl font-bold text-gray-800 flex items-center space-x-2">
-					<span>👤</span>
+					<UserIcon class="inline-block h-6 w-6" />
 					<span>Cuenta</span>
 				</h2>
 				{#if $currentUser !== null && !editingAccount}
@@ -122,46 +143,35 @@
 								on:click={() => {
 									showSyncModal = true;
 								}}
-								class="bg-emerald-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm flex items-center gap-2 justify-center lg:justify-start"
+								class="px-2 py-2 rounded-lg hover:text-emerald-600 transition-colors flex items-center gap-2 justify-center lg:justify-start font-medium"
 							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="16"
-									height="16"
-									viewBox="0 0 64 64"
-									><path
-										fill="currentColor"
-										d="M39.7 46c-.9-.6-2.2-.4-2.8.6c-1.1 1.7-3 2.7-5.1 2.7c-1 0-2-.3-2.9-.7h1.9c1.1 0 2-.9 2-2s-.9-2-2-2h-6.3c-1.3 0-2.5 1.1-2.5 2.5V52c0 1.1.9 2 2 2s2-.9 2-2v-.6c1.7 1.1 3.6 1.8 5.7 1.8c3.4 0 6.5-1.7 8.4-4.5c.8-.8.5-2.1-.4-2.7m3-14.5c0-1.1-.9-2-2-2s-2 .9-2 2v1c-2-1.5-4.4-2.7-6.6-2.7c-3.8 0-7.2 2.1-9 5.5c-.5 1-.1 2.2.8 2.7c1 .5 2.2.1 2.7-.8c1.1-2.1 3.2-3.4 5.5-3.4c1.4 0 3.5 1.2 4.9 2.5h-1.8c-1.1 0-2 .9-2 2s.9 2 2 2h5c1.3 0 2.5-1.1 2.5-2.5z"
-									/><path
-										fill="currentColor"
-										d="M58 23.4c-2.7-3-6.6-5.1-10.7-5.8c-2.2-3.6-5.5-6.3-9.4-7.6c-1.8-.7-3.7-1-5.9-1c-9.7 0-17.7 7.7-18.1 17.3C6.7 27 1 33.2 1 40.6C1 48.5 7.5 55 15.4 55c1.1 0 2-.9 2-2s-.9-2-2-2C9.6 51 5 46.4 5 40.6s4.6-10.4 10.4-10.4h.5c1.1 0 2-.9 2-2v-1.1C17.9 19.3 24.2 13 32 13c1.7 0 3.2.3 4.5.8c3.3 1.1 6 3.5 7.8 6.7c.3.6.9 1 1.5 1c3.5.4 6.8 2.1 9.2 4.6c2.6 2.8 4 6.4 4 10.1C59 44.4 52.3 51 44.1 51c-1.1 0-2 .9-2 2s.9 2 2 2C54.5 55 63 46.6 63 36.2c0-4.8-1.8-9.3-5-12.8"
-									/></svg
-								> Sincronizar
+								<SyncIcon class="h-5 w-5 inline-block" />
+								Sincronizar
 							</button>
 						{:else}
 							<button
 								on:click={() => {
 									showSyncModal = true;
 								}}
-								class="bg-indigo-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm flex items-center gap-2 justify-center lg:justify-start"
+								class="px-2 py-2 rounded-lg hover:text-indigo-600 transition-colors flex items-center gap-2 justify-center lg:justify-start font-medium"
 							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="16"
-									height="16"
-									viewBox="0 0 64 64"
-									><path
-										fill="currentColor"
-										d="M43.7 54.1H15.9c-7.8 0-14.1-6.3-14.1-14c0-7.1 5.5-13 12.5-13.9c.5-9.1 8.3-16.3 17.7-16.3c2.1 0 4.1.3 5.8 1c3.7 1.3 6.9 3.8 9.1 7.2c4 .7 7.7 2.6 10.3 5.5c3.2 3.4 4.9 7.8 4.9 12.4c.2 10-8.2 18.1-18.4 18.1M16 49.6h27.7c7.8 0 14.1-6.1 14.1-13.7c0-3.4-1.3-6.7-3.7-9.3c-2.2-2.4-5.4-3.9-8.7-4.3c-.7-.1-1.4-.5-1.7-1.1c-1.6-2.9-4.2-5.1-7.3-6.1c-1.3-.5-2.7-.7-4.3-.7c-7.3 0-13.3 5.8-13.3 13v1c0 1.2-1 2.3-2.3 2.3H16c-5.5 0-9.7 4.2-9.7 9.5s4.2 9.4 9.7 9.4"
-									/></svg
-								> Conectar
+								<CloudIcon class="h-5 w-5 inline-block" />
+								Conectar
 							</button>
 						{/if}
 						<button
 							on:click={() => (editingAccount = true)}
-							class="bg-blue-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+							class="px-2 py-2 rounded-lg hover:text-blue-600 transition-colors font-medium flex items-center gap-2"
 						>
+							<EditIcon class="h-5 w-5 inline-block" />
 							Editar
+						</button>
+						<button
+							on:click={handleLogout}
+							class="px-2 py-2 rounded-lg hover:text-red-600 transition-colors font-medium flex items-center gap-2"
+						>
+							<LogoutIcon class="h-5 w-5 inline-block" />
+							Cerrar sesión
 						</button>
 					</div>
 				{/if}
@@ -170,7 +180,11 @@
 			{#if $currentUser === null}
 				<!-- Usuario no logueado - Solo para la sección de cuenta -->
 				<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 lg:p-6 text-center">
-					<span class="text-3xl lg:text-4xl mb-3 lg:mb-4 block">👤</span>
+					<span class="text-3xl lg:text-4xl mb-3 lg:mb-4 block">
+						<UserCircleIcon
+							class="inline-block h-8 w-8 lg:h-10 lg:w-10 text-blue-700"
+						/>
+					</span>
 					<h3 class="text-lg lg:text-xl font-semibold text-blue-800 mb-2">
 						Gestiona tu cuenta
 					</h3>
@@ -191,9 +205,12 @@
 							Iniciar sesión
 						</a>
 					</div>
-					<p class="text-xs lg:text-sm text-blue-600 mt-3 lg:mt-4">
-						💡 <strong>Tip:</strong> Puedes usar la aplicación sin cuenta, pero registrarte
-						te permitirá sincronizar tus datos.
+					<p
+						class="text-xs lg:text-sm text-blue-600 mt-3 lg:mt-4 flex items-center justify-center"
+					>
+						<IdeaIcon class="h-4 w-4 inline-block mr-1 text-yellow-500" />
+						<strong class="mr-1">Tip:</strong> Puedes usar la aplicación sin cuenta, pero
+						registrarte te permitirá sincronizar tus datos.
 					</p>
 				</div>
 			{:else}
@@ -350,7 +367,7 @@
 			<h2
 				class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2"
 			>
-				<span>📅</span>
+				<CalendarCheckIcon class="inline-block h-6 w-6" />
 				<span>Horario</span>
 			</h2>
 
@@ -376,7 +393,9 @@
 									class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
 								>
 									<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-										<span class="text-xl lg:text-2xl">📋</span>
+										<span class="text-xl lg:text-2xl">
+											<ListIcon class="inline-block h-6 w-6" />
+										</span>
 										<h3 class="font-semibold text-gray-800">Lista</h3>
 									</div>
 									<p class="text-xs lg:text-sm text-gray-600">
@@ -401,7 +420,9 @@
 									class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
 								>
 									<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-										<span class="text-xl lg:text-2xl">📊</span>
+										<span class="text-xl lg:text-2xl">
+											<TableIcon class="inline-block h-6 w-6" />
+										</span>
 										<h3 class="font-semibold text-gray-800">Tabla</h3>
 									</div>
 									<p class="text-xs lg:text-sm text-gray-600">
@@ -425,7 +446,9 @@
 									class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
 								>
 									<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-										<span class="text-xl lg:text-2xl">🗃️</span>
+										<span class="text-xl lg:text-2xl">
+											<WalletCardsIcon class="inline-block h-6 w-6" />
+										</span>
 										<h3 class="font-semibold text-gray-800">Tarjetas</h3>
 									</div>
 									<p class="text-xs lg:text-sm text-gray-600">
@@ -438,9 +461,10 @@
 				</div>
 
 				<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-					<p class="text-xs lg:text-sm text-blue-700">
-						💡 <strong>Tip:</strong> La vista seleccionada se aplicará automáticamente en
-						la página de horarios.
+					<p class="text-xs lg:text-sm text-blue-700 flex items-center gap-1">
+						<IdeaIcon class="h-4 w-4 inline-block text-yellow-500" />
+						<strong>Tip:</strong> La vista seleccionada se aplicará automáticamente en la
+						página de horarios.
 					</p>
 				</div>
 			</div>
@@ -453,7 +477,7 @@
 			<h2
 				class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2"
 			>
-				<span>📊</span>
+				<UpTrendIcon class="h-6 w-6 inline-block text-gray-500" />
 				<span>Notas</span>
 			</h2>
 
@@ -504,9 +528,10 @@
 				</fieldset>
 
 				<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-					<p class="text-xs lg:text-sm text-blue-700">
-						💡 <strong>Tip:</strong> El método seleccionado se usará automáticamente para
-						calcular tus notas en todas las materias.
+					<p class="text-xs lg:text-sm text-blue-700 flex items-center gap-1">
+						<IdeaIcon class="h-4 w-4 inline-block text-yellow-500" />
+						<strong>Tip:</strong> El método seleccionado se usará automáticamente para calcular
+						tus notas en todas las materias.
 					</p>
 				</div>
 			</div>
@@ -519,7 +544,7 @@
 			<h2
 				class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2"
 			>
-				<span>🎯</span>
+				<CalendarIcon class="inline-block h-6 w-6" />
 				<span>Eventos</span>
 			</h2>
 
@@ -547,7 +572,7 @@
 								class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
 							>
 								<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-									<span class="text-xl lg:text-2xl">📅</span>
+									<CalendarIcon class="inline-block h-6 w-6" />
 									<h3 class="font-semibold text-gray-800">Calendario</h3>
 								</div>
 								<p class="text-xs lg:text-sm text-gray-600">
@@ -571,7 +596,7 @@
 								class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
 							>
 								<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-									<span class="text-xl lg:text-2xl">📋</span>
+									<ListIcon class="inline-block h-6 w-6" />
 									<h3 class="font-semibold text-gray-800">Lista</h3>
 								</div>
 								<p class="text-xs lg:text-sm text-gray-600">
@@ -595,7 +620,7 @@
 								class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
 							>
 								<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-									<span class="text-xl lg:text-2xl">🗂️</span>
+									<KanBanIcon class="inline-block h-6 w-6" />
 									<h3 class="font-semibold text-gray-800">Kanban</h3>
 								</div>
 								<p class="text-xs lg:text-sm text-gray-600">
@@ -619,7 +644,7 @@
 								class="border-2 border-gray-200 rounded-lg p-3 lg:p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
 							>
 								<div class="flex items-center space-x-3 mb-1 lg:mb-2">
-									<span class="text-xl lg:text-2xl">📈</span>
+									<TimeLineIcon class="inline-block h-6 w-6" />
 									<h3 class="font-semibold text-gray-800">Timeline</h3>
 								</div>
 								<p class="text-xs lg:text-sm text-gray-600">
@@ -630,29 +655,11 @@
 					</div>
 				</fieldset>
 
-				<!-- Gestión de eventos -->
-				<div class="bg-red-50 border border-red-200 rounded-lg p-3 lg:p-4">
-					<h3
-						class="text-base lg:text-lg font-semibold text-red-800 mb-3 flex items-center gap-2"
-					>
-						<span>🗑️</span>
-						Gestión de eventos
-					</h3>
-					<p class="text-red-700 mb-3 text-xs lg:text-sm">
-						Elimina todos tus eventos guardados. Esta acción no se puede deshacer.
-					</p>
-					<button
-						on:click={() => (showDeleteEventsConfirm = true)}
-						class="bg-red-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 text-xs lg:text-sm"
-					>
-						Eliminar todos los eventos
-					</button>
-				</div>
-
 				<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-					<p class="text-xs lg:text-sm text-blue-700">
-						💡 <strong>Tip:</strong> La vista seleccionada se aplicará automáticamente al
-						abrir la sección de eventos.
+					<p class="text-xs lg:text-sm text-blue-700 flex items-center gap-1">
+						<IdeaIcon class="h-4 w-4 inline-block text-yellow-500" />
+						<strong>Tip:</strong> La vista seleccionada se aplicará automáticamente al abrir
+						la sección de eventos.
 					</p>
 				</div>
 			</div>
@@ -665,49 +672,11 @@
 			<h2
 				class="text-lg lg:text-2xl font-bold text-gray-800 mb-4 lg:mb-6 flex items-center space-x-2"
 			>
-				<span>⚡</span>
+				<ZapIcon class="w-6 h-6 text-yellow-300" />
 				<span>Extra</span>
 			</h2>
 
 			<div class="space-y-4 lg:space-y-6">
-				<!-- Acciones de cuenta - Solo si está logueado -->
-				{#if $currentUser !== null}
-					<div>
-						<h3 class="text-lg font-semibold text-gray-800 mb-4">Acciones de cuenta</h3>
-						<div class="flex flex-wrap gap-3">
-							<button
-								on:click={handleLogout}
-								class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
-							>
-								<span
-									><svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										viewBox="0 0 24 24"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										class="lucide lucide-log-out-icon lucide-log-out"
-										><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path
-											d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
-										/></svg
-									></span
-								> Cerrar sesión
-							</button>
-
-							<button
-								disabled
-								class="bg-red-300 text-white px-4 py-2 rounded-lg cursor-not-allowed opacity-60 flex items-center gap-2"
-							>
-								Eliminar cuenta
-							</button>
-						</div>
-					</div>
-				{/if}
-
 				<!-- Gestión de datos - Disponible para todos -->
 				<div>
 					<h3 class="text-lg font-semibold text-gray-800 mb-4">Gestión de datos</h3>
@@ -720,7 +689,7 @@
 							on:click={() => (showDeleteDataConfirm = true)}
 							class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
 						>
-							<span>🗑️</span> Limpiar todos los datos
+							<TrashIcon class="h-4 w-4 inline-block" /> Limpiar todos los datos
 						</button>
 					</div>
 				</div>
@@ -732,7 +701,7 @@
 					</h3>
 					<div class="bg-white rounded-lg p-4 border border-gray-200">
 						<div class="flex items-center gap-3 mb-3">
-							<span class="text-3xl">🎓</span>
+							<HatIcon class="h-8 w-8 text-blue-600" />
 							<div>
 								<p class="text-gray-700 font-semibold">
 									<strong>{APP_NAME}</strong>
@@ -757,7 +726,7 @@
 	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
 		<div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
 			<div class="text-center mb-4">
-				<span class="text-4xl">🗑️</span>
+				<TrashIcon class="h-12 w-12 text-red-600 inline-block" />
 				<h3 class="text-xl font-bold text-red-600 mt-2">Limpiar todos los datos</h3>
 			</div>
 			<p class="text-gray-700 mb-6 text-center">
@@ -778,40 +747,11 @@
 					on:click={deleteAllData}
 					class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1 flex items-center justify-center gap-2"
 				>
-					<span>🗑️</span> Sí, limpiar todo
+					<TrashIcon class="h-4 w-4 inline-block" />
+					Sí, limpiar todo
 				</button>
 				<button
 					on:click={() => (showDeleteDataConfirm = false)}
-					class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex-1"
-				>
-					Cancelar
-				</button>
-			</div>
-		</div>
-	</div>
-{/if}
-
-<!-- Modal de confirmación para eliminar todos los eventos -->
-{#if showDeleteEventsConfirm}
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-		<div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
-			<div class="text-center mb-4">
-				<span class="text-4xl">🗑️</span>
-				<h3 class="text-xl font-bold text-red-600 mt-2">Eliminar todos los eventos</h3>
-			</div>
-			<p class="text-gray-700 mb-6 text-center">
-				¿Estás seguro de que quieres eliminar todos tus eventos? Esta acción eliminará todos
-				los eventos guardados de forma permanente y <strong>no se puede deshacer</strong>.
-			</p>
-			<div class="flex space-x-3">
-				<button
-					on:click={deleteAllEvents}
-					class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1 flex items-center justify-center gap-2"
-				>
-					<span>🗑️</span> Sí, eliminar todos
-				</button>
-				<button
-					on:click={() => (showDeleteEventsConfirm = false)}
 					class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex-1"
 				>
 					Cancelar

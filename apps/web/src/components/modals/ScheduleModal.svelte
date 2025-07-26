@@ -2,6 +2,15 @@
 	import { createEventDispatcher } from 'svelte';
 	import type { Schedule, Subject } from '@ramo-libre/shared';
 
+	// ICONS
+	import CalendarPlusIcon from '$embedded-icons/calendar-plus.svg?component';
+	import EditIcon from '$embedded-icons/edit.svg?component';
+	import WarningIcon from '$embedded-icons/warning.svg?component';
+	import BookIcon from '$embedded-icons/book.svg?component';
+	import LabIcon from '$embedded-icons/lab.svg?component';
+	import TutorialIcon from '$embedded-icons/tutorial.svg?component';
+	import IdeaIcon from '$embedded-icons/idea.svg?component';
+
 	export let schedule: Schedule | null = null; // null = crear, objeto = editar
 	export let subjects: Subject[] = [];
 	export let currentModal: string | null = null;
@@ -21,7 +30,7 @@
 		startTime: '08:00',
 		endTime: '10:00',
 		classroom: '',
-		type: 'class' as 'class' | 'lab' | 'tutorial'
+		type: 'class' as 'class' | 'lab' | 'tutorial',
 	};
 
 	// Días de la semana
@@ -31,14 +40,14 @@
 		{ value: 3, name: 'Miércoles' },
 		{ value: 4, name: 'Jueves' },
 		{ value: 5, name: 'Viernes' },
-		{ value: 6, name: 'Sábado' }
+		{ value: 6, name: 'Sábado' },
 	];
 
 	// Tipos de clase
 	const classTypes = [
-		{ value: 'class', name: 'Clase teórica', icon: '📚' },
-		{ value: 'lab', name: 'Laboratorio', icon: '🧪' },
-		{ value: 'tutorial', name: 'Ayudantía', icon: '💡' }
+		{ value: 'class', name: 'Clase teórica' },
+		{ value: 'lab', name: 'Laboratorio' },
+		{ value: 'tutorial', name: 'Ayudantía' },
 	];
 
 	let initialized = false;
@@ -64,7 +73,7 @@
 				startTime: schedule.startTime,
 				endTime: schedule.endTime,
 				classroom: schedule.classroom || '',
-				type: schedule.type
+				type: schedule.type,
 			};
 		} else if (subjects.length > 0) {
 			// Modo creación - valores por defecto
@@ -75,7 +84,7 @@
 				startTime: '08:00',
 				endTime: '10:00',
 				classroom: '',
-				type: 'class'
+				type: 'class',
 			};
 		}
 	}
@@ -87,7 +96,11 @@
 
 		// Validar que la hora de inicio sea menor que la de fin
 		if (formData.startTime >= formData.endTime) {
-            console.log('La hora de inicio debe ser menor que la hora de fin', formData.startTime, formData.endTime);
+			console.log(
+				'La hora de inicio debe ser menor que la hora de fin',
+				formData.startTime,
+				formData.endTime
+			);
 			alert('La hora de inicio debe ser menor que la hora de fin');
 			return;
 		}
@@ -114,12 +127,12 @@
 	}
 
 	// Obtener el nombre de la materia seleccionada
-	$: selectedSubject = subjects.find(s => s.id === formData.subjectId);
+	$: selectedSubject = subjects.find((s) => s.id === formData.subjectId);
 </script>
 
 {#if isOpen}
 	<!-- Modal backdrop -->
-	<div 
+	<div
 		class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
 		role="button"
 		tabindex="0"
@@ -130,15 +143,15 @@
 		<div class="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
 			<!-- Header -->
 			<div class="px-6 py-4 border-b border-gray-200">
-				<h2 
-					id="schedule-modal-title" 
+				<h2
+					id="schedule-modal-title"
 					class="text-xl font-bold text-gray-800 flex items-center text-center"
 				>
 					{#if schedule?.id}
-						<span class="mr-2">✏️</span> Editar horario
+						<span class="mr-2"><EditIcon class="inline w-6 h-6" /> </span> Editar horario
 					{:else}
 						<span class="mr-2">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-plus-icon lucide-calendar-plus"><path d="M16 19h6"/><path d="M16 2v4"/><path d="M19 16v6"/><path d="M21 12.598V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8.5"/><path d="M3 10h18"/><path d="M8 2v4"/></svg>
+							<CalendarPlusIcon class="inline w-6 h-6" />
 						</span>
 						Nuevo horario
 					{/if}
@@ -149,11 +162,14 @@
 			<form on:submit|preventDefault={handleSave} class="px-6 py-4 space-y-4">
 				<!-- Materia -->
 				<div>
-					<label for="schedule-subject" class="block text-sm font-medium text-gray-700 mb-1">
+					<label
+						for="schedule-subject"
+						class="block text-sm font-medium text-gray-700 mb-1"
+					>
 						Materia *
 					</label>
 					{#if subjects.length > 0}
-						<select 
+						<select
 							id="schedule-subject"
 							bind:value={formData.subjectId}
 							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -164,8 +180,12 @@
 							{/each}
 						</select>
 					{:else}
-						<div class="text-sm text-gray-600 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-							⚠️ Primero debes crear al menos una materia para poder agregar horarios.
+						<div
+							class="text-sm text-gray-600 bg-yellow-50 border border-yellow-200 rounded-lg p-3"
+						>
+							<WarningIcon class="inline w-4 h-4 text-yellow-500 mr-2" />
+							<strong>Advertencia:</strong> Primero debes crear al menos una materia para
+							poder agregar horarios.
 						</div>
 					{/if}
 				</div>
@@ -175,7 +195,7 @@
 					<label for="schedule-day" class="block text-sm font-medium text-gray-700 mb-1">
 						Día de la semana *
 					</label>
-					<select 
+					<select
 						id="schedule-day"
 						bind:value={formData.dayOfWeek}
 						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -190,12 +210,15 @@
 				<div class="grid grid-cols-2 gap-4">
 					<!-- Hora de inicio -->
 					<div>
-						<label for="schedule-start" class="block text-sm font-medium text-gray-700 mb-1">
+						<label
+							for="schedule-start"
+							class="block text-sm font-medium text-gray-700 mb-1"
+						>
 							Hora inicio *
 						</label>
-						<input 
+						<input
 							id="schedule-start"
-							type="time" 
+							type="time"
 							bind:value={formData.startTime}
 							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 							required
@@ -204,12 +227,15 @@
 
 					<!-- Hora de fin -->
 					<div>
-						<label for="schedule-end" class="block text-sm font-medium text-gray-700 mb-1">
+						<label
+							for="schedule-end"
+							class="block text-sm font-medium text-gray-700 mb-1"
+						>
 							Hora fin *
 						</label>
-						<input 
+						<input
 							id="schedule-end"
-							type="time" 
+							type="time"
 							bind:value={formData.endTime}
 							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 							required
@@ -219,12 +245,15 @@
 
 				<!-- Aula -->
 				<div>
-					<label for="schedule-classroom" class="block text-sm font-medium text-gray-700 mb-1">
+					<label
+						for="schedule-classroom"
+						class="block text-sm font-medium text-gray-700 mb-1"
+					>
 						Aula/Lugar (opcional)
 					</label>
-					<input 
+					<input
 						id="schedule-classroom"
-						type="text" 
+						type="text"
 						bind:value={formData.classroom}
 						placeholder="Ej: Aula 201, Lab B"
 						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -233,19 +262,31 @@
 
 				<!-- Tipo de clase -->
 				<fieldset>
-					<legend class="block text-sm font-medium text-gray-700 mb-3">Tipo de clase</legend>
+					<legend class="block text-sm font-medium text-gray-700 mb-3"
+						>Tipo de clase</legend
+					>
 					<div class="grid grid-cols-1 gap-2">
 						{#each classTypes as type}
 							<label class="relative cursor-pointer">
-								<input 
-									type="radio" 
+								<input
+									type="radio"
 									name="type"
 									value={type.value}
 									bind:group={formData.type}
 									class="sr-only peer"
 								/>
-								<div class="flex items-center space-x-3 p-3 border-2 border-gray-200 rounded-lg peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors">
-									<span class="text-lg">{type.icon}</span>
+								<div
+									class="flex items-center space-x-3 p-3 border-2 border-gray-200 rounded-lg peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-300 transition-colors"
+								>
+									{#if type.value === 'class'}
+										<BookIcon class="w-5 h-5 text-gray-500" />
+									{:else if type.value === 'lab'}
+										<LabIcon class="w-5 h-5 text-gray-500" />
+									{:else if type.value === 'tutorial'}
+										<IdeaIcon class="w-5 h-5 text-gray-500" />
+									{:else}
+										<TutorialIcon class="w-5 h-5 text-gray-500" />
+									{/if}
 									<span class="font-medium text-gray-700">{type.name}</span>
 								</div>
 							</label>
@@ -258,13 +299,13 @@
 					<div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
 						<h4 class="text-sm font-medium text-gray-700 mb-2">Vista previa:</h4>
 						<div class="flex items-center space-x-2">
-							<div 
+							<div
 								class="w-3 h-3 rounded"
 								style="background-color: {selectedSubject.color}"
 							></div>
 							<span class="text-sm font-medium">{selectedSubject.name}</span>
 							<span class="text-xs text-gray-500">
-								• {daysOfWeek.find(d => d.value === formData.dayOfWeek)?.name} 
+								• {daysOfWeek.find((d) => d.value === formData.dayOfWeek)?.name}
 								{formData.startTime}-{formData.endTime}
 								{#if formData.classroom}• {formData.classroom}{/if}
 							</span>
@@ -275,14 +316,14 @@
 
 			<!-- Actions -->
 			<div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-				<button 
+				<button
 					type="button"
 					on:click={handleClose}
 					class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
 				>
 					Cancelar
 				</button>
-				<button 
+				<button
 					type="button"
 					on:click={handleSave}
 					disabled={!formData.subjectId || subjects.length === 0}
