@@ -2,6 +2,12 @@
 	import { createEventDispatcher } from 'svelte';
 	import type { Event, Subject } from '@ramo-libre/shared';
 
+	// ICONS
+	import PlusIcon from '$embedded-icons/plus.svg?component';
+	import EditIcon from '$embedded-icons/edit.svg?component';
+	import XIcon from '$embedded-icons/x.svg?component';
+	import TrashIcon from '$embedded-icons/trash.svg?component';
+
 	export let event: Event | null = null;
 	export let subjectList: Subject[] = [];
 	export let mode: 'create' | 'edit' | null = 'create';
@@ -21,7 +27,7 @@
 		priority: 'medium' as Event['priority'],
 		location: '',
 		reminder: 30,
-		isAllDay: false
+		isAllDay: false,
 	};
 
 	let errors: Record<string, string> = {};
@@ -44,13 +50,13 @@
 				priority: event.priority,
 				location: event.location || '',
 				reminder: event.reminder || 30,
-				isAllDay: event.isAllDay || false
+				isAllDay: event.isAllDay || false,
 			};
 		} else {
 			// Usar fecha local para evitar desfases por zona horaria
 			const today = new Date();
 			const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-			
+
 			formData = {
 				title: '',
 				description: '',
@@ -62,7 +68,7 @@
 				priority: 'medium',
 				location: '',
 				reminder: 30,
-				isAllDay: false
+				isAllDay: false,
 			};
 		}
 		errors = {};
@@ -95,7 +101,7 @@
 			...formData,
 			time: formData.isAllDay ? undefined : formData.time || undefined,
 			endTime: formData.isAllDay ? undefined : formData.endTime || undefined,
-			subjectId: formData.subjectId || undefined
+			subjectId: formData.subjectId || undefined,
 		};
 
 		if (mode === 'edit' && event) {
@@ -109,7 +115,7 @@
 
 	function handleDelete() {
 		if (!event) return;
-		
+
 		if (confirm('¿Estás seguro de que quieres eliminar este evento?')) {
 			dispatch('delete', event.id);
 			closeModal();
@@ -129,13 +135,13 @@
 
 	function getEventTypeOptions() {
 		return [
-			{ value: 'exam', label: '📝 Examen' },
-			{ value: 'assignment', label: '📋 Tarea' },
-			{ value: 'project', label: '💼 Proyecto' },
-			{ value: 'deadline', label: '⏰ Fecha límite' },
-			{ value: 'class', label: '👨‍🏫 Clase' },
-			{ value: 'meeting', label: '🤝 Reunión' },
-			{ value: 'other', label: '📅 Otro' }
+			{ value: 'exam', label: 'Examen' },
+			{ value: 'assignment', label: 'Tarea' },
+			{ value: 'project', label: 'Proyecto' },
+			{ value: 'deadline', label: 'Fecha límite' },
+			{ value: 'class', label: 'Clase' },
+			{ value: 'meeting', label: 'Reunión' },
+			{ value: 'other', label: 'Otro' },
 		];
 	}
 
@@ -143,7 +149,7 @@
 		return [
 			{ value: 'low', label: 'Baja' },
 			{ value: 'medium', label: 'Media' },
-			{ value: 'high', label: 'Alta' }
+			{ value: 'high', label: 'Alta' },
 		];
 	}
 
@@ -154,13 +160,13 @@
 			{ value: 30, label: '30 minutos antes' },
 			{ value: 60, label: '1 hora antes' },
 			{ value: 120, label: '2 horas antes' },
-			{ value: 1440, label: '1 día antes' }
+			{ value: 1440, label: '1 día antes' },
 		];
 	}
 </script>
 
 {#if isOpen}
-	<div 
+	<div
 		class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
 		role="button"
 		tabindex="0"
@@ -173,17 +179,18 @@
 			<div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
 				<h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
 					{#if mode === 'edit'}
-						✏️ Editar Evento
+						<EditIcon class="w-6 h-6" />
+						Editar Evento
 					{:else}
-						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+						<PlusIcon class="w-6 h-6" />
 						Nuevo Evento
 					{/if}
 				</h2>
-				<button 
+				<button
 					on:click={closeModal}
 					class="text-gray-400 hover:text-gray-600 transition-colors"
 				>
-					✕
+					<XIcon class="w-6 h-6" />
 				</button>
 			</div>
 
@@ -198,7 +205,9 @@
 						id="title"
 						type="text"
 						bind:value={formData.title}
-						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {errors.title ? 'border-red-500' : ''}"
+						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {errors.title
+							? 'border-red-500'
+							: ''}"
 						placeholder="Ej: Examen de Matemáticas"
 					/>
 					{#if errors.title}
@@ -230,7 +239,9 @@
 							id="date"
 							type="date"
 							bind:value={formData.date}
-							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {errors.date ? 'border-red-500' : ''}"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {errors.date
+								? 'border-red-500'
+								: ''}"
 						/>
 						{#if errors.date}
 							<p class="text-red-600 text-sm mt-1">{errors.date}</p>
@@ -238,7 +249,9 @@
 					</div>
 
 					<div>
-						<label class="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-1">
+						<label
+							class="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-1"
+						>
 							<input
 								type="checkbox"
 								bind:checked={formData.isAllDay}
@@ -264,14 +277,19 @@
 						</div>
 
 						<div>
-							<label for="endTime" class="block text-sm font-medium text-gray-700 mb-1">
+							<label
+								for="endTime"
+								class="block text-sm font-medium text-gray-700 mb-1"
+							>
 								Hora de fin
 							</label>
 							<input
 								id="endTime"
 								type="time"
 								bind:value={formData.endTime}
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {errors.endTime ? 'border-red-500' : ''}"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {errors.endTime
+									? 'border-red-500'
+									: ''}"
 							/>
 							{#if errors.endTime}
 								<p class="text-red-600 text-sm mt-1">{errors.endTime}</p>
@@ -359,13 +377,17 @@
 						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 					>
 						{#each getReminderOptions() as option}
-							<option value={option.value} selected={!option.value}>{option.label}</option>
+							<option value={option.value} selected={!option.value}
+								>{option.label}</option
+							>
 						{/each}
 					</select>
 				</div>
 
 				<!-- Botones -->
-				<div class="flex flex-col sm:flex-row justify-between gap-4 pt-4 border-t border-gray-200">
+				<div
+					class="flex flex-col sm:flex-row justify-between gap-4 pt-4 border-t border-gray-200"
+				>
 					<div>
 						{#if mode === 'edit'}
 							<button
@@ -373,11 +395,12 @@
 								on:click={handleDelete}
 								class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
 							>
-								🗑️ Eliminar
+								<TrashIcon class="inline w-4 h-4 mr-1" />
+								Eliminar
 							</button>
 						{/if}
 					</div>
-					
+
 					<div class="flex space-x-3">
 						<button
 							type="button"

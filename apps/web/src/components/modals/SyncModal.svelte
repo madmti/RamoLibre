@@ -11,6 +11,12 @@
 	import CloudUserCard from '$components/CloudUserCard.svelte';
 	import type { Session, Provider } from '@supabase/supabase-js';
 
+	// ICONS
+	import LogoutIcon from '$embedded-icons/logout.svg?component';
+	import UploadIcon from '$embedded-icons/upload.svg?component';
+	import DownloadIcon from '$embedded-icons/download.svg?component';
+	import TrashIcon from '$embedded-icons/trash.svg?component';
+
 	export let isOpen = false;
 
 	let currentSession: Session | null = null;
@@ -235,33 +241,27 @@
 								class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg"
 								on:click={pushData}
 							>
-								<span class="font-medium">↑ Subir datos a la nube</span>
+								<span class="font-medium flex items-center">
+									<UploadIcon class="inline w-5 h-5 mr-2" />
+									Subir datos a la nube</span
+								>
 							</button>
 
 							<button
 								class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-lg hover:from-emerald-700 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg"
 								on:click={pullData}
 							>
-								<span class="font-medium">↓ Descargar datos de la nube</span>
+								<span class="font-medium flex items-center">
+									<DownloadIcon class="inline w-5 h-5 mr-2" />
+									Descargar datos de la nube</span
+								>
 							</button>
 
 							<button
 								class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-md hover:shadow-lg"
 								on:click={forgetData}
 							>
-								<svg
-									class="w-5 h-5"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-									></path>
-								</svg>
+								<TrashIcon class="inline w-5 h-5" />
 								<span class="font-medium">Eliminar datos de la nube</span>
 							</button>
 
@@ -271,19 +271,7 @@
 								class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200"
 								on:click={signOut}
 							>
-								<svg
-									class="w-5 h-5"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-									></path>
-								</svg>
+								<LogoutIcon class="inline w-5 h-5" />
 								<span class="font-medium">Desconectar cuenta</span>
 							</button>
 						</div>

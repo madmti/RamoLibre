@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { type Event } from '@ramo-libre/shared';
 	import { userPreferences } from '$lib/stores/preferences';
 	import { currentEvents } from '$lib/stores/events';
 	import { currentSubjects } from '$lib/stores/subject';
@@ -398,7 +397,6 @@
 				events={categorized[filter]}
 				bind:selectedDate
 				{getSubjectName}
-				getEventTypeIcon={currentEvents.getTypeIcon}
 				{getPriorityColor}
 				onToggleComplete={handleToggleComplete}
 				onEditEvent={(event) => openModal('edit', event)}
@@ -408,7 +406,6 @@
 			<ListView
 				events={categorized[filter]}
 				{getSubjectName}
-				getEventTypeIcon={currentEvents.getTypeIcon}
 				getEventTypeName={currentEvents.getTypeName}
 				{getPriorityColor}
 				{getPriorityName}
@@ -420,7 +417,6 @@
 			<KanbanView
 				events={categorized[filter]}
 				{getSubjectName}
-				getEventTypeIcon={currentEvents.getTypeIcon}
 				{getPriorityColor}
 				onToggleComplete={handleToggleComplete}
 				onEditEvent={(event) => openModal('edit', event)}
@@ -430,7 +426,6 @@
 			<TimelineView
 				events={categorized[filter]}
 				{getSubjectName}
-				getEventTypeIcon={currentEvents.getTypeIcon}
 				getEventTypeName={currentEvents.getTypeName}
 				{getPriorityColor}
 				onToggleComplete={handleToggleComplete}

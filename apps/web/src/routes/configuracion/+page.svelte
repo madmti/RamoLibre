@@ -30,7 +30,6 @@
 
 	let editingAccount = false;
 	let showDeleteDataConfirm = false;
-	let showDeleteEventsConfirm = false;
 	let showSyncModal = false;
 	let tempUserData: any = $currentUser;
 
@@ -66,11 +65,6 @@
 		localStorage.clear();
 		showDeleteDataConfirm = false;
 		window.location.reload();
-	};
-
-	const deleteAllEvents = () => {
-		currentEvents.reset();
-		showDeleteEventsConfirm = false;
 	};
 
 	export function getMethodEmoji(method: AvailableMethods) {
@@ -732,7 +726,7 @@
 	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
 		<div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
 			<div class="text-center mb-4">
-				<span class="text-4xl">🗑️</span>
+				<TrashIcon class="h-12 w-12 text-red-600 inline-block" />
 				<h3 class="text-xl font-bold text-red-600 mt-2">Limpiar todos los datos</h3>
 			</div>
 			<p class="text-gray-700 mb-6 text-center">
@@ -753,40 +747,11 @@
 					on:click={deleteAllData}
 					class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1 flex items-center justify-center gap-2"
 				>
-					<span>🗑️</span> Sí, limpiar todo
+					<TrashIcon class="h-4 w-4 inline-block" />
+					Sí, limpiar todo
 				</button>
 				<button
 					on:click={() => (showDeleteDataConfirm = false)}
-					class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex-1"
-				>
-					Cancelar
-				</button>
-			</div>
-		</div>
-	</div>
-{/if}
-
-<!-- Modal de confirmación para eliminar todos los eventos -->
-{#if showDeleteEventsConfirm}
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-		<div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
-			<div class="text-center mb-4">
-				<span class="text-4xl">🗑️</span>
-				<h3 class="text-xl font-bold text-red-600 mt-2">Eliminar todos los eventos</h3>
-			</div>
-			<p class="text-gray-700 mb-6 text-center">
-				¿Estás seguro de que quieres eliminar todos tus eventos? Esta acción eliminará todos
-				los eventos guardados de forma permanente y <strong>no se puede deshacer</strong>.
-			</p>
-			<div class="flex space-x-3">
-				<button
-					on:click={deleteAllEvents}
-					class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex-1 flex items-center justify-center gap-2"
-				>
-					<span>🗑️</span> Sí, eliminar todos
-				</button>
-				<button
-					on:click={() => (showDeleteEventsConfirm = false)}
 					class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex-1"
 				>
 					Cancelar
