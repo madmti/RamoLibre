@@ -7,6 +7,17 @@
 	import { type GradeCalculationResult } from '@ramo-libre/shared';
 	import type { AvailableMethods } from '$lib/utils/gradeCalculator';
 
+	// ICONS
+	import BooksIcon from '$embedded-icons/books.svg?component';
+	import GestionIcon from '$embedded-icons/gestion.svg?component';
+	import UpTrendIcon from '$embedded-icons/up-trend.svg?component';
+	import CheckIcon from '$embedded-icons/check.svg?component';
+	import WarningIcon from '$embedded-icons/warning.svg?component';
+	import FaceIcon from '$embedded-icons/face.svg?component';
+	import FaceSmileIcon from '$embedded-icons/face-smile.svg?component';
+	import FaceSadIcon from '$embedded-icons/face-sad.svg?component';
+	import XIcon from '$embedded-icons/x.svg?component';
+
 	let gradeCalculations: Record<string, GradeCalculationResult> = {};
 	let stats = {
 		totalSubjects: 0,
@@ -47,7 +58,10 @@
 <div class="container mx-auto px-4 py-8">
 	<!-- Encabezado -->
 	<div class="mb-8">
-		<h1 class="text-3xl font-bold text-gray-800 mb-2">📊 Resumen de Notas</h1>
+		<h1 class="text-3xl font-bold text-gray-800 mb-2">
+			<UpTrendIcon class="inline w-8 h-8 mr-2" />
+			Resumen de Notas
+		</h1>
 		<p class="text-gray-600">Vista general de tu rendimiento académico y predicciones</p>
 	</div>
 
@@ -59,16 +73,20 @@
 					<p class="text-blue-600 text-sm font-medium">Materias</p>
 					<p class="text-2xl font-bold text-blue-800">{stats.totalSubjects}</p>
 				</div>
-				<div class="text-2xl">📚</div>
+				<div class="text-2xl">
+					<BooksIcon class="w-8 h-8 text-blue-600" />
+				</div>
 			</div>
 		</div>
 		<div class="bg-green-50 border border-green-200 rounded-xl p-4">
 			<div class="flex items-center justify-between">
 				<div>
 					<p class="text-green-600 text-sm font-medium">Promedio General</p>
-					<p class="text-2xl font-bold text-green-800">{stats.averageGrade.toFixed(1)}</p>
+					<p class="text-2xl font-bold text-green-800">{stats.averageGrade.toFixed(2)}</p>
 				</div>
-				<div class="text-2xl">📈</div>
+				<div class="text-2xl">
+					<UpTrendIcon class="w-8 h-8 text-green-600" />
+				</div>
 			</div>
 		</div>
 		<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
@@ -77,7 +95,9 @@
 					<p class="text-emerald-600 text-sm font-medium">Aprobando</p>
 					<p class="text-2xl font-bold text-emerald-800">{stats.passingSubjects}</p>
 				</div>
-				<div class="text-2xl">✅</div>
+				<div class="text-2xl">
+					<CheckIcon class="w-8 h-8 text-emerald-600" />
+				</div>
 			</div>
 		</div>
 		<div class="bg-red-50 border border-red-200 rounded-xl p-4">
@@ -86,7 +106,9 @@
 					<p class="text-red-600 text-sm font-medium">En Riesgo</p>
 					<p class="text-2xl font-bold text-red-800">{stats.failingSubjects}</p>
 				</div>
-				<div class="text-2xl">⚠️</div>
+				<div class="text-2xl">
+					<WarningIcon class="w-8 h-8 text-red-600" />
+				</div>
 			</div>
 		</div>
 	</div>
@@ -94,7 +116,9 @@
 	{#if $currentSubjects.length === 0}
 		<!-- Estado vacío -->
 		<div class="text-center py-12">
-			<div class="text-6xl mb-4">📚</div>
+			<div class="text-6xl mb-4">
+				<BooksIcon class="w-16 h-16 mx-auto" />
+			</div>
 			<h3 class="text-xl font-semibold text-gray-800 mb-2">No tienes materias registradas</h3>
 			<p class="text-gray-600 mb-6">
 				Crea materias y agrega notas para ver tu resumen académico.
@@ -103,7 +127,9 @@
 				href="/gestion"
 				class="inline-flex items-center space-x-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
 			>
-				<span>📚</span>
+				<span>
+					<GestionIcon class="w-5 h-5" />
+				</span>
 				<span>Gestionar Materias</span>
 			</a>
 		</div>
@@ -124,12 +150,24 @@
 						<!-- Materia sin configuración -->
 						<div class="bg-red-50 border border-red-200 rounded-xl p-6">
 							<p class="text-red-600">
-								⚠️ No hay configuración para la materia {subject.name}. Configura la
+								<WarningIcon class="inline w-5 h-5 mr-2" />
+								No hay configuración para la materia {subject.name}. Configura la
 								evaluación en "Gestión".
 							</p>
 						</div>
 					{:else}
-						<div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+						<div class="bg-white rounded-xl border border-gray-200 relative">
+							<!-- Badge/Notification icon -->
+							<div class="absolute -top-2 -right-2 z-10">
+								{#if calculation.status === 'fail'}
+									<FaceSadIcon class="w-6 h-6 text-red-600" />
+								{:else if calculation.status === 'in progress'}
+									<FaceIcon class="w-6 h-6 text-yellow-600" />
+								{:else}
+									<FaceSmileIcon class="w-6 h-6 text-green-600" />
+								{/if}
+							</div>
+
 							<!-- Header de la materia -->
 							<div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
 								<div class="flex items-center justify-between">
@@ -147,7 +185,11 @@
 									</div>
 									<div class="text-right">
 										<div
-											class="text-2xl font-bold"
+											class="text-2xl font-bold
+                                                {calculation.currentGrade >=
+											(subjectData.passingGrade || 0.0)
+												? 'text-green-600'
+												: 'text-red-600'}"
 											class:text-green-600={calculation.currentGrade >=
 												(subjectData.passingGrade || 0.0)}
 											class:text-red-600={calculation.currentGrade <
@@ -177,7 +219,8 @@
 									<!-- Sin configuración -->
 									<div class="text-center py-6 bg-amber-50 rounded-lg">
 										<p class="text-amber-700 mb-3">
-											⚠️ Configura la evaluación para ver predicciones
+											<WarningIcon class="inline w-5 h-5 mr-2" />
+											Configura la evaluación para ver predicciones
 										</p>
 										<a
 											href="/gestion"
@@ -237,13 +280,21 @@
 															>¿Puede aprobar?</span
 														>
 														<span
-															class="font-medium"
+															class="font-medium flex items-center"
 															class:text-green-600={calculation.canPass}
 															class:text-red-600={!calculation.canPass}
 														>
-															{calculation.canPass
-																? '✅ Sí'
-																: '❌ No'}
+															{#if calculation.canPass}
+																<CheckIcon
+																	class="inline w-4 h-4 mr-1"
+																/>
+																Si
+															{:else}
+																<XIcon
+																	class="inline w-4 h-4 mr-1"
+																/>
+																No
+															{/if}
 														</span>
 													</div>
 												{/if}

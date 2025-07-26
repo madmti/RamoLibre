@@ -18,8 +18,10 @@ const config = {
         alias: {
             $lib: 'src/lib',
             '$lib/*': 'src/lib/*',
-	    $components: 'src/components',
-	    '$components/*': 'src/components/*'
+            $components: 'src/components',
+            '$components/*': 'src/components/*',
+            '$embedded-icons': 'src/embedded-icons',
+            '$embedded-icons/*': 'src/embedded-icons/*'
         },
         // Configuración de prerenderizado corregida
         prerender: {

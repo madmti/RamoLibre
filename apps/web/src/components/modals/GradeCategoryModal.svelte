@@ -2,6 +2,9 @@
 	import { createEventDispatcher } from 'svelte';
 	import type { GradeCategory } from '@ramo-libre/shared';
 
+	// ICONS
+	import IdeaIcon from '$embedded-icons/idea.svg?component';
+
 	export let currentModal: string | null = null;
 	export let modalId: string | null = null;
 	$: isOpen = currentModal === modalId && modalId !== null;
@@ -9,35 +12,35 @@
 
 	const dispatch = createEventDispatcher();
 
-	let formData:Omit<GradeCategory, 'userId' | 'createdAt'> = {
-        id: '',
-        subjectId: '',
+	let formData: Omit<GradeCategory, 'userId' | 'createdAt'> = {
+		id: '',
+		subjectId: '',
 		name: '',
 		description: '',
-		weight: 0
+		weight: 0,
 	};
 
 	// Solo actualizar formData cuando el modal se abre o cambia la categoría inicial
 	let initialCategory: GradeCategory | null = null;
-	
+
 	$: if (isOpen && category !== initialCategory) {
 		initialCategory = category;
 		if (category.id) {
 			formData = {
-                id: category.id,
-                subjectId: category.subjectId,
+				id: category.id,
+				subjectId: category.subjectId,
 				name: category.name,
 				description: category.description || '',
-				weight: category.weight
+				weight: category.weight,
 			};
 		} else {
 			// Reset form when opening for new category
 			formData = {
-                id: crypto.randomUUID(), // Generate a unique ID for new categories
-                subjectId: category?.subjectId,
+				id: crypto.randomUUID(), // Generate a unique ID for new categories
+				subjectId: category?.subjectId,
 				name: '',
 				description: '',
-				weight: 0
+				weight: 0,
 			};
 		}
 	}
@@ -48,13 +51,13 @@
 		}
 
 		const categoryData = {
-            id: formData.id,
-            subjectId: formData.subjectId || '',
+			id: formData.id,
+			subjectId: formData.subjectId || '',
 			name: formData.name.trim(),
 			description: formData.description.trim() || undefined,
-			weight: formData.weight
+			weight: formData.weight,
 		};
-		
+
 		dispatch('save', { category: categoryData });
 		closeModal();
 	}
@@ -134,8 +137,9 @@
 				<!-- Información adicional -->
 				<div class="bg-blue-50 rounded-lg p-3">
 					<p class="text-xs text-blue-700">
-						💡 <strong>Tip:</strong> Las categorías te permiten organizar tus notas (pruebas, tareas, proyectos, etc.) 
-						y manejar diferentes pesos para cada tipo de evaluación.
+						<IdeaIcon class="inline w-4 h-4 text-yellow-500" /> <strong>Tip:</strong> Las categorías te permiten
+						organizar tus notas (pruebas, tareas, proyectos, etc.) y manejar diferentes pesos
+						para cada tipo de evaluación.
 					</p>
 				</div>
 

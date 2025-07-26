@@ -1,9 +1,10 @@
 import { sveltekit } from '@sveltejs/kit/vite';
+import svelteSVG from "vite-plugin-svelte-svg";
 import { defineConfig } from 'vite';
 import path from 'path';
 
 export default defineConfig({
-	plugins: [sveltekit()],
+	plugins: [svelteSVG(), sveltekit()],
 	server: {
 		port: 5173
 	},

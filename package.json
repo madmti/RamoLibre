@@ -1,12 +1,15 @@
 {
   "name": "ramo-libre",
   "version": "1.0.0",
-  "private": true,
+  "devDependencies": {
+    "@turbo/gen": "^1.11.1",
+    "turbo": "^1.11.1",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.3"
+  },
   "description": "Monorepo para RamoLibre con SvelteKit, React Native + Expo y Hono",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "packageManager": "bun@1.0.0",
+  "private": true,
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
@@ -18,14 +21,11 @@
     "mobile:dev": "turbo dev --filter=mobile",
     "api:dev": "turbo dev --filter=api",
     "web:build": "turbo build --filter=web",
-    "mobile:build": "turbo build --filter=mobile", 
+    "mobile:build": "turbo build --filter=mobile",
     "api:build": "turbo build --filter=api"
   },
-  "devDependencies": {
-    "@turbo/gen": "^1.11.1",
-    "turbo": "^1.11.1",
-    "prettier": "^3.1.0",
-    "typescript": "^5.3.3"
-  },
-  "packageManager": "bun@1.0.0"
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }
