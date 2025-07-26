@@ -10,7 +10,7 @@
             "main": true,
             "dev": false,
             "*-preview": true,
-            "exp-*": true
+            "exp-*": false
         }
     }
 }
