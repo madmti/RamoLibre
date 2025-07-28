@@ -49,17 +49,18 @@
 	};
 
 	// Obtener el día actual (0 = domingo, 1 = lunes, etc.)
-	$: today = currentTime.getDay();
+	$: today = currentTime?.getDay() ?? new Date().getDay();
 
 	// Convertir día de JS (0=domingo) a nuestro formato (1=lunes)
 	$: currentDayIndex = today === 0 ? 7 : today;
+
 
 	// Función para verificar si es el día actual
 	const isToday = (dayIndex: number) => dayIndex === currentDayIndex;
 
 	// Función para verificar si una clase está en progreso
-	const isClassInProgress = (schedule: Schedule, dayIndex: number) => {
-		if (!isToday(dayIndex)) return false;
+	const isClassInProgress = (schedule: Schedule) => {
+		if (!isToday(schedule.dayOfWeek)) return false;
 
 		const now = currentTime.getHours() * 60 + currentTime.getMinutes();
 		const [startHour, startMin] = schedule.startTime.split(':').map(Number);
@@ -71,7 +72,8 @@
 	};
 
 	// Función para verificar si una clase ya pasó
-	const isClassPast = (schedule: any, dayIndex: number) => {
+	const isClassPast = (schedule: any) => {
+		const dayIndex = schedule.dayOfWeek;
 		if (!isToday(dayIndex)) return false;
 
 		const now = currentTime.getHours() * 60 + currentTime.getMinutes();
@@ -82,7 +84,8 @@
 	};
 
 	// Función para verificar si una clase es próxima (dentro de 30 minutos)
-	const isClassUpcoming = (schedule: any, dayIndex: number) => {
+	const isClassUpcoming = (schedule: any) => {
+		const dayIndex = schedule.dayOfWeek;
 		if (!isToday(dayIndex)) return false;
 
 		const now = currentTime.getHours() * 60 + currentTime.getMinutes();
@@ -112,7 +115,8 @@
 		</div>
 	{/if}
 
-	{#each scheduleByDay as day, dayIndex}
+	{#each scheduleByDay as day, _}
+    {@const dayIndex = day.id}
 		{#if day.schedules.length > 0}
 			<div
 				class="bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/50 overflow-hidden {isToday(
