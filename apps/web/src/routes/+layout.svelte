@@ -7,6 +7,11 @@
 	import { DefaultStore } from '$lib/stores/default';
 	import { writable } from 'svelte/store';
 
+    // Speed Insights Metrics
+    // Esto NO recopila datos personales de los usuarios, son solo metricas de velocidad de carga
+    import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
+    injectSpeedInsights();
+
 	let isInitialized = writable(false);
 
 	onMount(() => {
