@@ -50,8 +50,8 @@
 		return $currentSubjects.find((subject) => subject.id === subjectId);
 	};
 
-	// Obtener el día actual (0 = domingo, 1 = lunes, etc.)
-	$: today = currentTime.getDay();
+	// Obtener el día actual (0 = domingo, 1 = lunes, etc.) - reactivo
+	$: today = currentTime?.getDay() ?? new Date().getDay();
 
 	// Convertir día de JS (0=domingo) a nuestro formato (1=lunes)
 	$: currentDayIndex = today === 0 ? 7 : today;
@@ -74,7 +74,7 @@
 
 	// Función para verificar si una clase ya pasó
 	const isClassPast = (schedule: any) => {
-		const dayIndex = schedule.dayOfWeek - 1; // Convertir a índice 0-based
+		const dayIndex = schedule.dayOfWeek;
 		if (!isToday(dayIndex)) return false;
 
 		const now = currentTime.getHours() * 60 + currentTime.getMinutes();
@@ -86,7 +86,7 @@
 
 	// Función para verificar si una clase es próxima (dentro de 30 minutos)
 	const isClassUpcoming = (schedule: any) => {
-		const dayIndex = schedule.dayOfWeek - 1; // Convertir a índice 0-based
+		const dayIndex = schedule.dayOfWeek;
 		if (!isToday(dayIndex)) return false;
 
 		const now = currentTime.getHours() * 60 + currentTime.getMinutes();
@@ -106,7 +106,7 @@
 		const currentTime_ = now.toTimeString().slice(0, 5);
 
 		// Buscar en el día actual
-		let daySchedules = $currentSchedules.filter((s) => s.dayOfWeek === currentDay);
+		let daySchedules = $currentSchedules.filter((s) => s.dayOfWeek === currentDay).sort((a, b) => a.startTime.localeCompare(b.startTime));
 		let upcoming = daySchedules.find((s) => s.startTime > currentTime_);
 
 		if (upcoming) {
@@ -116,7 +116,7 @@
 		// Buscar en días siguientes
 		for (let i = 1; i <= 7; i++) {
 			const nextDay = (currentDay + i) % 7;
-			if (nextDay === 0 || nextDay === 6) continue; // Skip weekend
+			if (nextDay === 0 || nextDay === 7) continue; // Skip weekend
 
 			daySchedules = $currentSchedules.filter((s) => s.dayOfWeek === nextDay);
 			if (daySchedules.length > 0) {
@@ -134,13 +134,13 @@
 
 <div class="space-y-6">
 	<!-- Indicador de tiempo actual -->
-	{#if currentDayIndex >= 0 && currentDayIndex < 5}
+	{#if currentDayIndex >= 0 && currentDayIndex < 7}
 		<div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center space-x-2">
 					<div class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
 					<span class="text-sm font-medium text-blue-800">
-						Hoy es {weekDays[currentDayIndex]?.name} -
+						Hoy es {weekDays[currentDayIndex - 1]?.name} -
 						{currentTime.toLocaleTimeString('es-ES', {
 							hour: '2-digit',
 							minute: '2-digit',
@@ -202,7 +202,8 @@
 
 	<!-- Grid de días -->
 	<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-		{#each scheduleByDay as day, dayIndex}
+		{#each scheduleByDay as day, _}
+        {@const dayIndex = day.id}
 			<div
 				class="bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/50 p-4 {isToday(
 					dayIndex
