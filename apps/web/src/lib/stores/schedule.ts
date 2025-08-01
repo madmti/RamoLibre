@@ -39,15 +39,6 @@ export class ScheduleManager extends DefaultStore<Schedule[]> {
         const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
         return days[day] || '';
     }
-
-    getTypeIcon(type: Schedule['type']): string {
-        const icons: Record<Schedule['type'], string> = {
-            'class': '📚',
-            'lab': '🧪',
-            'tutorial': '💡',
-        };
-        return icons[type] || '❓';
-    }
 }
 
 export const currentSchedules = new ScheduleManager();

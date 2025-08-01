@@ -25,6 +25,10 @@
 	import XIcon from '$embedded-icons/x.svg?component';
 	import GradeIcon from '$embedded-icons/grade.svg?component';
 	import WarningIcon from '$embedded-icons/warning.svg?component';
+    import BookIcon from '$embedded-icons/book.svg?component';
+	import LabIcon from '$embedded-icons/lab.svg?component';
+	import IdeaIcon from '$embedded-icons/idea.svg?component';
+	import TutorialIcon from '$embedded-icons/tutorial.svg?component';
 
 	type Modals = null | 'subject' | 'schedule' | 'deleteConfirm' | 'grade' | 'category' | 'config';
 	type DeleteTargetType = 'subject' | 'schedule' | 'grade' | 'category' | null;
@@ -323,11 +327,17 @@
 												<div
 													class="flex items-start space-x-3 flex-1 min-w-0"
 												>
-													<span class="text-lg shrink-0 mt-0.5"
-														>{currentSchedules.getTypeIcon(
-															schedule.type
-														)}</span
-													>
+													{#if schedule.type === 'class'}
+														<BookIcon class="inline-block w-6 h-6" />
+													{:else if schedule.type === 'lab'}
+														<LabIcon class="inline-block w-6 h-6" />
+													{:else if schedule.type === 'tutorial'}
+														<IdeaIcon class="inline-block w-6 h-6" />
+													{:else}
+														<TutorialIcon
+															class="inline-block w-6 h-6"
+														/>
+													{/if}
 													<div class="min-w-0 flex-1">
 														<div
 															class="flex flex-col items-start gap-1 mb-1"
@@ -385,11 +395,15 @@
 										<!-- Layout desktop (>= md): diseño original horizontal completo -->
 										<div class="hidden md:flex items-center justify-between">
 											<div class="flex items-center space-x-3">
-												<span class="text-lg"
-													>{currentSchedules.getTypeIcon(
-														schedule.type
-													)}</span
-												>
+												{#if schedule.type === 'class'}
+													<BookIcon class="inline-block w-6 h-6" />
+												{:else if schedule.type === 'lab'}
+													<LabIcon class="inline-block w-6 h-6" />
+												{:else if schedule.type === 'tutorial'}
+													<IdeaIcon class="inline-block w-6 h-6" />
+												{:else}
+													<TutorialIcon class="inline-block w-6 h-6" />
+												{/if}
 												<div>
 													<div class="flex items-center space-x-2">
 														<span class="font-medium text-gray-800"
