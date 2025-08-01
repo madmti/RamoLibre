@@ -1,7 +1,7 @@
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async () => {
-	const baseUrl = 'https://ramo-libre.com'; // Cambia por tu dominio real
+	const baseUrl = 'https://ramolibre.vercel.app';
 	
 	const robotsTxt = `User-agent: *
 Allow: /
@@ -9,19 +9,12 @@ Allow: /
 # Sitemap
 Sitemap: ${baseUrl}/sitemap.xml
 
-# Crawl delay (opcional, ajusta según necesites)
-Crawl-delay: 1
-
-# Disallow files/directories that shouldn't be indexed
+# Disallow internal/API directories
 Disallow: /api/
 Disallow: /_app/
-Disallow: /admin/
 
-# Allow important directories
-Allow: /horario
-Allow: /notas
-Allow: /eventos
-Allow: /configuracion`;
+# Optional crawl delay for better server performance
+Crawl-delay: 1`;
 
 	return new Response(robotsTxt, {
 		headers: {

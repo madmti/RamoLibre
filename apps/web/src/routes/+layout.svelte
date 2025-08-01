@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import '../app.css';
 	import 'katex/dist/katex.min.css';
 	import Navigation from '$components/Navigation.svelte';
@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { DefaultStore } from '$lib/stores/default';
 	import { writable } from 'svelte/store';
+	import { page } from '$app/stores';
 
     // Speed Insights Metrics
     // Esto NO recopila datos personales de los usuarios, son solo metricas de velocidad de carga
@@ -15,7 +16,7 @@
 	let isInitialized = writable(false);
 
 	onMount(() => {
-		let interval;
+		let interval: NodeJS.Timeout;
 		interval = setInterval(() => {
 			if (DefaultStore.allInitialized()) {
 				isInitialized.set(true);
@@ -25,7 +26,14 @@
 		
 	});
 
+	// Función para construir la URL canónica
+	$: canonicalUrl = `https://ramolibre.vercel.app${$page.url.pathname}`;
+
 </script>
+
+<svelte:head>
+	<link rel="canonical" href={canonicalUrl} />
+</svelte:head>
 
 <Navigation/>
 <Breadcrumbs />
