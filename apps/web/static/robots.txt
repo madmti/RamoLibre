@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://ramolibre.vercel.app/sitemap.xml
+
+# Disallow internal/API directories
+Disallow: /api/
+Disallow: /_app/
+
+# Optional crawl delay for better server performance
+Crawl-delay: 1
