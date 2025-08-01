@@ -1,6 +1,12 @@
 <script>
 	import { APP_NAME } from '$lib';
 	
+    // ICONS
+    import HomeIcon from '$embedded-icons/home.svg?component';
+    import CalendarCheck from '$embedded-icons/calendar-check.svg?component';
+    import UpTrendIcon from '$embedded-icons/up-trend.svg?component';
+    import CalendarIcon from '$embedded-icons/calendar.svg?component';
+
 	const pageTitle = `Página no encontrada - ${APP_NAME}`;
 	const pageDescription = 'La página que buscas no existe. Explora las funcionalidades de Ramo Libre para gestionar tu vida académica universitaria.';
 </script>
@@ -35,32 +41,40 @@
 			<h3 class="text-xl font-semibold text-gray-800 mb-6">¿Qué puedes hacer?</h3>
 			
 			<div class="grid md:grid-cols-2 gap-4">
-				<a href="/" class="flex items-center p-4 border border-blue-200/50 rounded-lg hover:shadow-lg hover:border-blue-300/50 transition-all group">
-					<span class="text-2xl mr-3" role="img" aria-label="Inicio">🏠</span>
+				<a href="/" class="flex items-center p-4 border border-gray-200/50 rounded-lg hover:shadow-lg hover:border-gray-300/50 transition-all group">
+					<span class="text-2xl mr-3" role="img" aria-label="Inicio">
+                        <HomeIcon class="w-8 h-8" />
+                    </span>
 					<div class="text-left">
 						<div class="font-medium text-gray-800">Ir al Inicio</div>
 						<div class="text-sm text-gray-600">Página principal de {APP_NAME}</div>
 					</div>
 				</a>
 
-				<a href="/horario" class="flex items-center p-4 border border-green-200/50 rounded-lg hover:shadow-lg hover:border-green-300/50 transition-all group">
-					<span class="text-2xl mr-3" role="img" aria-label="Horarios">📅</span>
+				<a href="/horario" class="flex items-center p-4 border border-blue-200/50 rounded-lg hover:shadow-lg hover:border-blue-300/50 transition-all group">
+					<span class="text-2xl mr-3" role="img" aria-label="Horarios">
+                        <CalendarCheck class="w-8 h-8" />
+                    </span>
 					<div class="text-left">
 						<div class="font-medium text-gray-800">Ver Horarios</div>
 						<div class="text-sm text-gray-600">Gestiona tus clases</div>
 					</div>
 				</a>
 
-				<a href="/notas" class="flex items-center p-4 border border-purple-200/50 rounded-lg hover:shadow-lg hover:border-purple-300/50 transition-all group">
-					<span class="text-2xl mr-3" role="img" aria-label="Notas">📊</span>
+				<a href="/notas" class="flex items-center p-4 border border-green-200/50 rounded-lg hover:shadow-lg hover:border-green-300/50 transition-all group">
+					<span class="text-2xl mr-3" role="img" aria-label="Notas">
+                        <UpTrendIcon class="w-8 h-8" />
+                    </span>
 					<div class="text-left">
 						<div class="font-medium text-gray-800">Ver Notas</div>
 						<div class="text-sm text-gray-600">Revisa tus calificaciones</div>
 					</div>
 				</a>
 
-				<a href="/eventos" class="flex items-center p-4 border border-orange-200/50 rounded-lg hover:shadow-lg hover:border-orange-300/50 transition-all group">
-					<span class="text-2xl mr-3" role="img" aria-label="Eventos">🎯</span>
+				<a href="/eventos" class="flex items-center p-4 border border-purple-200/50 rounded-lg hover:shadow-lg hover:border-purple-300/50 transition-all group">
+					<span class="text-2xl mr-3" role="img" aria-label="Eventos">
+                        <CalendarIcon class="w-8 h-8" />
+                    </span>
 					<div class="text-left">
 						<div class="font-medium text-gray-800">Ver Eventos</div>
 						<div class="text-sm text-gray-600">Fechas importantes</div>
@@ -79,7 +93,7 @@
 					on:click={() => history.back()}
 					class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
 				>
-					← Volver atrás
+					Volver atrás
 				</button>
 				<a 
 					href="/" 
