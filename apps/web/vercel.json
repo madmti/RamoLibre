@@ -1,7 +1,15 @@
 {
     "rewrites": [
         {
-            "source": "/((?!api|robots\\.txt|sitemap\\.xml|_app|favicon\\.|manifest\\.).*)",
+            "source": "/robots.txt",
+            "destination": "/robots.txt"
+        },
+        {
+            "source": "/sitemap.xml",
+            "destination": "/sitemap.xml"
+        },
+        {
+            "source": "/((?!api/).*)",
             "destination": "/"
         }
     ],
