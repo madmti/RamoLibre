@@ -268,7 +268,7 @@
 
 							{#if event.location}
 								<div class="flex items-center space-x-1">
-									<LocationIcon class="inline-block w-4 h-4" />
+									<PinIcon class="inline-block w-4 h-4" />
 									<span>{event.location}</span>
 								</div>
 							{/if}
