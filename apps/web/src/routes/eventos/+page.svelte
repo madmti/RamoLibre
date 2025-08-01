@@ -395,7 +395,7 @@
 		{#if currentView === 'calendar'}
 			<CalendarView
 				events={categorized[filter]}
-				bind:selectedDate
+				{selectedDate}
 				{getSubjectName}
 				{getPriorityColor}
 				onToggleComplete={handleToggleComplete}
