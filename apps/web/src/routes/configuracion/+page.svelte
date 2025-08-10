@@ -512,11 +512,6 @@
 											<h3 class="font-semibold text-gray-800">
 												{getMethodTitle(method)}
 											</h3>
-											<span
-												class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg font-mono"
-											>
-												{method}
-											</span>
 										</div>
 									</div>
 									<p class="text-xs lg:text-sm text-gray-600">
