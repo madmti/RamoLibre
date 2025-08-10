@@ -169,7 +169,7 @@
 							</div>
 
 							<!-- Header de la materia -->
-							<div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+							<div class="px-6 py-4 bg-gray-50 border-b border-gray-200 rounded-t-xl">
 								<div class="flex items-center justify-between">
 									<div class="flex items-center space-x-3">
 										<div
