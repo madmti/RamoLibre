@@ -15,6 +15,7 @@
     import EditIcon from '$embedded-icons/edit.svg?component';
     import UndoIcon from '$embedded-icons/undo.svg?component';
     import TrashIcon from '$embedded-icons/trash.svg?component';
+    import WarningIcon from '$embedded-icons/warning.svg?component';
 
 	export let events: Event[] = [];
 	export let selectedDate: string;
@@ -167,8 +168,9 @@
 							{#if dayEvents.length > 0}
 								<div class="mt-1 space-y-1">
 									{#each dayEvents.slice(0, 2) as event}
+                                    {@const isEventExpired = new Date(event.date) < new Date()}
 										<div
-											class="text-xs px-1 py-0.5 rounded {getPriorityColor(
+											class="text-xs px-1 py-0.5 rounded {isEventExpired && event.completed ? 'line-through' : ''} {getPriorityColor(
 												event.priority
 											)} truncate"
 										>
@@ -309,8 +311,13 @@
 												>Completado</span
 											>
 										</div>
-									{:else}
-										<div></div>
+									{:else if new Date(event.date) < new Date()}
+										<div class="flex items-center space-x-1">
+											<WarningIcon class="inline-block w-4 h-4 mr-1 text-red-400" />
+											<span class="text-xs text-red-400 font-medium"
+												>Vencido</span
+											>
+										</div>
 									{/if}
 
 									<!-- Botones de acción -->

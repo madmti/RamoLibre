@@ -296,12 +296,11 @@
 
 		<!-- Información adicional -->
 		<div class="text-xs text-blue-700">
-			<p><strong>Método:</strong> LP Smooth Solution</p>
 			{#if config}
 				<p><strong>Meta:</strong> Nota Final ≥ {config.passingGrade}</p>
 				<p>
 					<strong>Escala:</strong>
-					{config.gradeScale === 'chilena'
+					{config.gradeScale === 'chilean'
 						? 'Chilena (1.0 - 7.0)'
 						: config.gradeScale === 'utfsm'
 							? 'UTFSM (0 - 100)'

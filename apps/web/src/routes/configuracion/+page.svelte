@@ -46,6 +46,7 @@
 	};
 
 	const handleLogout = () => {
+        cloudSession.forget();
 		currentUser.reset();
 		window.location.href = '/';
 	};
@@ -137,7 +138,7 @@
 					<span>Cuenta</span>
 				</h2>
 				{#if $currentUser !== null && !editingAccount}
-					<div class="flex flex-col lg:flex-row gap-2">
+					<div class="flex flex-wrap justify-end gap-2">
 						{#if $cloudSession}
 							<button
 								on:click={() => {
@@ -146,7 +147,7 @@
 								class="px-2 py-2 rounded-lg hover:text-emerald-600 transition-colors flex items-center gap-2 justify-center lg:justify-start font-medium"
 							>
 								<SyncIcon class="h-5 w-5 inline-block" />
-								Sincronizar
+								<p class="max-sm:hidden">Sincronizar</p>
 							</button>
 						{:else}
 							<button
@@ -156,7 +157,7 @@
 								class="px-2 py-2 rounded-lg hover:text-indigo-600 transition-colors flex items-center gap-2 justify-center lg:justify-start font-medium"
 							>
 								<CloudIcon class="h-5 w-5 inline-block" />
-								Conectar
+								<p class="max-sm:hidden">Conectar</p>
 							</button>
 						{/if}
 						<button
@@ -164,14 +165,14 @@
 							class="px-2 py-2 rounded-lg hover:text-blue-600 transition-colors font-medium flex items-center gap-2"
 						>
 							<EditIcon class="h-5 w-5 inline-block" />
-							Editar
+							<p class="max-sm:hidden">Editar</p>
 						</button>
 						<button
 							on:click={handleLogout}
 							class="px-2 py-2 rounded-lg hover:text-red-600 transition-colors font-medium flex items-center gap-2"
 						>
 							<LogoutIcon class="h-5 w-5 inline-block" />
-							Cerrar sesión
+							<p class="max-sm:hidden">Cerrar sesión</p>
 						</button>
 					</div>
 				{/if}
@@ -216,7 +217,7 @@
 			{:else}
 				<!-- Usuario logueado - Mostrar información de cuenta -->
 				{#if $currentUser !== null}
-					<div class="grid md:grid-cols-2 gap-6">
+					<div class="flex flex-wrap sm:grid sm:grid-cols-2 gap-6">
 						<!-- Información básica -->
 						<div class="space-y-4">
 							<div>
@@ -511,11 +512,6 @@
 											<h3 class="font-semibold text-gray-800">
 												{getMethodTitle(method)}
 											</h3>
-											<span
-												class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg font-mono"
-											>
-												{method}
-											</span>
 										</div>
 									</div>
 									<p class="text-xs lg:text-sm text-gray-600">
