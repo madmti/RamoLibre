@@ -62,7 +62,7 @@ bun clean
 
 ## Apps
 
-### Web (SvelteKit)
+### Web (SvelteKit) (vite-plugin-pwa)
 
 - Puerto de desarrollo: 5173
 - Framework: SvelteKit
