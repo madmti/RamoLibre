@@ -52,10 +52,16 @@ export class GradeCalculator {
 		let total = new Bigjs(0);
 		if (!grades.length) return total;
 		for (const grade of grades) {
+			// Skip grades without value
+			if (grade.value === null || grade.value === undefined) {
+				continue;
+			}
 			const category = categories.find((cat) => cat.id === grade.categoryId);
-			const weight = category ? new Bigjs(category.weight || 100) : new Bigjs(100);
+			// Grades without category contribute directly with 100% weight
+			const categoryWeight = category ? new Bigjs(category.weight || 100) : new Bigjs(100);
+			const gradeWeight = new Bigjs(grade.weight || 100);
 			const value = new Bigjs(grade.value || 0);
-			total = total.plus(value.times(weight.div(100)));
+			total = total.plus(value.times(gradeWeight.div(100)).times(categoryWeight.div(100)));
 		}
 		return total;
 	}
@@ -70,9 +76,16 @@ export class GradeCalculator {
 		for (const required of requiredGrades) {
 			const category = categories.find((cat) => cat.id === required.categoryId);
 			const grade = grades.find((g) => g.id === required.id);
-			const weight = category ? new Bigjs(category.weight || 100) : new Bigjs(100);
+			if (!grade) {
+				continue; // Skip if grade not found
+			}
+			// Grades without category contribute directly with 100% weight
+			const categoryWeight = category ? new Bigjs(category.weight || 100) : new Bigjs(100);
+			const gradeWeight = new Bigjs(grade.weight || 100);
 			const requiredValue = new Bigjs(required.requiredValue || 0);
-			total = total.plus(requiredValue.times(weight.div(100)));
+			total = total.plus(
+				requiredValue.times(gradeWeight.div(100)).times(categoryWeight.div(100))
+			);
 		}
 		return total;
 	}
@@ -191,10 +204,21 @@ export class GradeCalculator {
 			categories
 		);
 		const totalContribution = currentContribution.plus(projectedContribution);
-		const canPass = totalContribution.gte(config?.passingGrade || 0);
+		// Use small tolerance for floating point precision issues
+		const passingThreshold = new Big(config?.passingGrade || 0).minus(0.001);
+		const canPass = totalContribution.gte(passingThreshold);
 		const alreadyPassed = currentContribution.gte(config?.passingGrade || 0);
 
+		console.log('Calculate method debug:');
+		console.log('- Current contribution:', currentContribution.toNumber());
+		console.log('- Projected contribution:', projectedContribution.toNumber());
+		console.log('- Total contribution:', totalContribution.toNumber());
+		console.log('- Passing grade:', config?.passingGrade || 0);
+		console.log('- Can pass:', canPass);
+		console.log('- Already passed:', alreadyPassed);
+
 		if (!canPass) {
+			console.log('- Executing LP_LOSS_DISTANCE because canPass is false');
 			result = await GradeCalculator.LP_LOSS_DISTANCE(grades, categories, config, true);
 		}
 		return {
@@ -224,9 +248,10 @@ export class GradeCalculator {
 		const weights: Record<string, Big> = {};
 		grades.forEach((grade) => {
 			const category = categories.find((cat) => cat.id === grade.categoryId);
-			weights[grade.id] = category
-				? new Big(category.weight).div(100).times(grade.weight).div(100)
-				: new Big(grade.weight).div(100);
+			// Grades without category contribute directly with 100% weight
+			const categoryWeight = category ? new Big(category.weight || 100) : new Big(100);
+			const gradeWeight = new Big(grade.weight || 100);
+			weights[grade.id] = categoryWeight.div(100).times(gradeWeight).div(100);
 		});
 		return weights;
 	}
@@ -250,21 +275,34 @@ export class GradeCalculator {
 		minGrade: number,
 		maxGrade: number
 	): RequiredGrade[] {
+		console.log('LP_MIN_format_result Debug:');
+		console.log('- Raw LP vars:', result.result.vars);
+		console.log('- Min grade:', minGrade, 'Max grade:', maxGrade);
+
 		let requiredGrades: RequiredGrade[] = [];
 		Object.entries(result.result.vars).forEach(([name, varResult]) => {
 			const grade = unsetGrades.find((g) => g.id === name);
+			console.log(`- Processing var ${name}:`, {
+				found: !!grade,
+				description: grade?.description,
+				varResult,
+				achievable: varResult >= minGrade && varResult <= maxGrade,
+			});
 			if (grade) {
 				const category = categoriesByGradeId[name];
-				requiredGrades.push({
+				const formatted = {
 					id: grade.id,
 					categoryId: category?.id ?? '',
 					categoryName: category?.name ?? 'Sin categoría',
 					requiredValue: varResult,
 					description: grade.description,
 					achievable: varResult >= minGrade && varResult <= maxGrade,
-				});
+				};
+				console.log('- Formatted grade:', formatted);
+				requiredGrades.push(formatted);
 			}
 		});
+		console.log('- Final required grades:', requiredGrades);
 		return requiredGrades;
 	}
 
@@ -280,8 +318,14 @@ export class GradeCalculator {
 		const currentContribution = GradeCalculator.currentContribution(grades, categories);
 
 		const minGrade = config.minGrade;
-		const passingGrade = new Big(config.passingGrade).minus(currentContribution).toNumber();
+		const remainingNeeded = new Big(config.passingGrade).minus(currentContribution).toNumber();
 		const maxGrade = config.maxGrade;
+
+		console.log('LP_MIN Debug:');
+		console.log('- Current contribution:', currentContribution.toNumber());
+		console.log('- Passing grade:', config.passingGrade);
+		console.log('- Remaining needed:', remainingNeeded);
+		console.log('- Min grade:', minGrade, 'Max grade:', maxGrade);
 
 		const categoriesByGradeId = GradeCalculator.LP_MIN_categories_by_grade_id(
 			categories,
@@ -292,6 +336,13 @@ export class GradeCalculator {
 		);
 		if (!unsetGrades.length) return [];
 		const weights = GradeCalculator.LP_MIN_weighted_grades_ids(categories, grades);
+
+		console.log('- Unset grades and weights:');
+		unsetGrades.forEach((grade) => {
+			const weight = weights[grade.id || ''] || new Big(0);
+			console.log(`  ${grade.description}: weight=${weight.toNumber()}`);
+		});
+
 		const unsetGradesVars = unsetGrades.map((grade) => ({
 			name: grade.id,
 			coef: weights[grade.id || ''].toNumber() || 1,
@@ -309,18 +360,9 @@ export class GradeCalculator {
 					name: 'passing_grade_constraint',
 					vars: unsetGradesVars,
 					bnds: {
-						type: glpk.GLP_DB,
-						ub: maxGrade,
-						lb: passingGrade,
-					},
-				},
-				{
-					name: 'limit_z',
-					vars: unsetGradesVars,
-					bnds: {
-						type: glpk.GLP_DB,
-						ub: maxGrade,
-						lb: minGrade,
+						type: glpk.GLP_LO,
+						lb: remainingNeeded,
+						ub: Infinity,
 					},
 				},
 				...unsetGrades.map((grade) => ({
@@ -348,6 +390,10 @@ export class GradeCalculator {
 
 		const lpResult: Result = await glpk.solve(lp, options);
 
+		console.log('- LP Result status:', lpResult.result.status);
+		console.log('- LP Expected optimal:', glpk.GLP_OPT);
+		console.log('- LP Variables result:', lpResult.result.vars);
+
 		let requiredGrades: RequiredGrade[] = [];
 
 		if (lpResult.result.status === glpk.GLP_OPT) {
@@ -358,6 +404,8 @@ export class GradeCalculator {
 				minGrade,
 				maxGrade
 			);
+		} else {
+			console.log('- LP failed to find optimal solution');
 		}
 		return requiredGrades;
 	}
@@ -377,7 +425,7 @@ export class GradeCalculator {
 
 		const currentContribution = GradeCalculator.currentContribution(grades, categories);
 		const minGrade = config.minGrade;
-		const passingGrade = new Big(config.passingGrade).minus(currentContribution).toNumber();
+		const remainingNeeded = new Big(config.passingGrade).minus(currentContribution).toNumber();
 		const maxGrade = config.maxGrade;
 
 		const categoriesByGradeId = GradeCalculator.LP_MIN_categories_by_grade_id(
@@ -410,9 +458,9 @@ export class GradeCalculator {
 					name: 'passing_grade_constraint',
 					vars: unsetGradesVars,
 					bnds: {
-						type: glpk.GLP_DB,
-						ub: maxGrade,
-						lb: passingGrade,
+						type: glpk.GLP_LO,
+						lb: remainingNeeded,
+						ub: Infinity,
 					},
 				},
 				...unsetGrades.map((grade) => ({
@@ -443,8 +491,8 @@ export class GradeCalculator {
 					],
 					bnds: {
 						type: glpk.GLP_FX,
-						ub: passingGrade,
-						lb: passingGrade,
+						ub: remainingNeeded,
+						lb: remainingNeeded,
 					},
 				})),
 			],
@@ -488,7 +536,7 @@ export class GradeCalculator {
 
 		const currentContribution = GradeCalculator.currentContribution(grades, categories);
 		const minGrade = config.minGrade;
-		const passingGrade = new Big(config.passingGrade).minus(currentContribution).toNumber();
+		const remainingNeeded = new Big(config.passingGrade).minus(currentContribution).toNumber();
 		const maxGrade = config.maxGrade;
 
 		const categoriesByGradeId = GradeCalculator.LP_MIN_categories_by_grade_id(
@@ -521,9 +569,9 @@ export class GradeCalculator {
 					name: 'passing_grade_constraint',
 					vars: unsetGradesVars,
 					bnds: {
-						type: glpk.GLP_DB,
-						ub: maxGrade,
-						lb: passingGrade,
+						type: glpk.GLP_LO,
+						lb: remainingNeeded,
+						ub: Infinity,
 					},
 				},
 				...unsetGrades.map((grade) => ({
