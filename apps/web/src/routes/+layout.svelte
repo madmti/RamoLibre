@@ -3,6 +3,7 @@
 	import 'katex/dist/katex.min.css';
 	import Navigation from '$components/Navigation.svelte';
 	import Breadcrumbs from '$components/Breadcrumbs.svelte';
+	import PWAInstallPrompt from '$lib/components/PWAInstallPrompt.svelte';
 	import { onMount } from 'svelte';
 	import { DefaultStore } from '$lib/stores/default';
 	import { writable } from 'svelte/store';
@@ -23,7 +24,7 @@
 				clearInterval(interval);
 			}
 		}, 100);
-		
+
 	});
 
 	// Función para construir la URL canónica
@@ -67,3 +68,6 @@
 		</div>
 	{/if}
 </main>
+
+<!-- Componente PWA Install Prompt -->
+<PWAInstallPrompt />
