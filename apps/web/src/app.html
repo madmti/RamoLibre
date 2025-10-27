@@ -4,60 +4,75 @@
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		
+
 		<!-- PWA Manifest -->
 		<link rel="manifest" href="%sveltekit.assets%/manifest.json" />
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 		<meta name="apple-mobile-web-app-title" content="Ramo Libre" />
-		
+
+		<!-- Apple Touch Icons -->
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/ios/180.png" />
+		<link rel="apple-touch-icon" sizes="180x180" href="%sveltekit.assets%/ios/180.png" />
+		<link rel="apple-touch-icon" sizes="152x152" href="%sveltekit.assets%/ios/152.png" />
+		<link rel="apple-touch-icon" sizes="120x120" href="%sveltekit.assets%/ios/120.png" />
+		<link rel="apple-touch-icon" sizes="76x76" href="%sveltekit.assets%/ios/76.png" />
+
+		<!-- PWA Meta Tags -->
+		<meta name="application-name" content="Ramo Libre" />
+		<meta name="msapplication-TileColor" content="#2563eb" />
+		<meta name="msapplication-config" content="%sveltekit.assets%/browserconfig.xml" />
+
 		<!-- SEO Meta Tags -->
 		<meta name="theme-color" content="#2563eb" />
 		<meta name="robots" content="index, follow" />
 		<meta name="author" content="Ramo Libre" />
 		<meta name="generator" content="SvelteKit" />
 		<meta name="format-detection" content="telephone=no" />
-		
+
 		<!-- Open Graph Meta Tags -->
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content="Ramo Libre" />
 		<meta property="og:locale" content="es_ES" />
-		
+
 		<!-- Twitter Card Meta Tags -->
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:creator" content="@RamoLibre" />
-		
+
 		<!-- Performance & Security -->
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-		<link rel="dns-prefetch" href="//fonts.googleapis.com">
-		
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="dns-prefetch" href="//fonts.googleapis.com" />
+
 		<!-- Structured Data -->
 		<script type="application/ld+json">
-		{
-			"@context": "https://schema.org",
-			"@type": "WebApplication",
-			"name": "Ramo Libre",
-			"description": "Aplicación web ligera para organizar tu vida académica universitaria",
-			"url": "%sveltekit.url%",
-			"applicationCategory": "Education",
-			"operatingSystem": "Web Browser",
-			"offers": {
-				"@type": "Offer",
-				"price": "0",
-				"priceCurrency": "EUR"
-			},
-			"featureList": [
-				"Gestión de horarios académicos",
-				"Seguimiento de calificaciones",
-				"Organización de eventos académicos",
-				"Funcionalidad offline"
-			]
-		}
+			{
+				"@context": "https://schema.org",
+				"@type": "WebApplication",
+				"name": "Ramo Libre",
+				"description": "Aplicación web ligera para organizar tu vida académica universitaria",
+				"url": "%sveltekit.url%",
+				"applicationCategory": "Education",
+				"operatingSystem": "Web Browser",
+				"offers": {
+					"@type": "Offer",
+					"price": "0",
+					"priceCurrency": "EUR"
+				},
+				"featureList": [
+					"Gestión de horarios académicos",
+					"Seguimiento de calificaciones",
+					"Organización de eventos académicos",
+					"Funcionalidad offline"
+				]
+			}
 		</script>
-		
+
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
