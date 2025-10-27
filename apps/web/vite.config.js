@@ -17,6 +17,8 @@ export default defineConfig({
 			},
 			workbox: {
 				globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
+				globIgnores: ['screenshots/**'],
+				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
 				// Configuración optimizada para archivos estáticos
 				runtimeCaching: [
 					{
@@ -54,8 +56,15 @@ export default defineConfig({
 				skipWaiting: true,
 			},
 			// El manifest se generará automáticamente, pero podemos sobrescribirlo
-			includeAssets: ['favicon.svg', 'android/*.png', 'ios/*.png', 'windows11/*.png'],
+			includeAssets: [
+				'favicon.svg',
+				'android/*.png',
+				'ios/*.png',
+				'windows11/*.png',
+				'screenshots/*.png',
+			],
 			manifest: {
+				id: 'ramo-libre-pwa',
 				name: 'Ramo Libre - Gestión Académica Universitaria',
 				short_name: 'Ramo Libre',
 				description:
@@ -70,28 +79,58 @@ export default defineConfig({
 				categories: ['education', 'productivity', 'utilities'],
 				icons: [
 					{
-						src: '/favicon.svg',
-						sizes: 'any',
-						type: 'image/svg+xml',
-						purpose: 'any maskable',
-					},
-					{
 						src: '/android/android-launchericon-192-192.png',
 						sizes: '192x192',
 						type: 'image/png',
-						purpose: 'any maskable',
+						purpose: 'any',
 					},
 					{
 						src: '/android/android-launchericon-512-512.png',
 						sizes: '512x512',
 						type: 'image/png',
-						purpose: 'any maskable',
+						purpose: 'any',
 					},
 					{
-						src: '/ios/180.png',
-						sizes: '180x180',
+						src: '/android/android-launchericon-192-192.png',
+						sizes: '192x192',
 						type: 'image/png',
-						purpose: 'any',
+						purpose: 'maskable',
+					},
+					{
+						src: '/android/android-launchericon-512-512.png',
+						sizes: '512x512',
+						type: 'image/png',
+						purpose: 'maskable',
+					},
+				],
+				screenshots: [
+					{
+						src: '/screenshots/desktop-home.png',
+						sizes: '2560x1600',
+						type: 'image/png',
+						form_factor: 'wide',
+						label: 'Pantalla principal de Ramo Libre en desktop',
+					},
+					{
+						src: '/screenshots/mobile-home.png',
+						sizes: '780x1688',
+						type: 'image/png',
+						form_factor: 'narrow',
+						label: 'Pantalla principal de Ramo Libre en móvil',
+					},
+					{
+						src: '/screenshots/desktop-horario.png',
+						sizes: '2560x1600',
+						type: 'image/png',
+						form_factor: 'wide',
+						label: 'Gestión de horarios académicos',
+					},
+					{
+						src: '/screenshots/mobile-horario.png',
+						sizes: '780x1688',
+						type: 'image/png',
+						form_factor: 'narrow',
+						label: 'Vista de horarios en móvil',
 					},
 				],
 				shortcuts: [
@@ -101,7 +140,11 @@ export default defineConfig({
 						description: 'Acceder directamente a la gestión de horarios',
 						url: '/horario',
 						icons: [
-							{ src: '/android/android-launchericon-192-192.png', sizes: '192x192' },
+							{
+								src: '/android/android-launchericon-192-192.png',
+								sizes: '192x192',
+								type: 'image/png',
+							},
 						],
 					},
 					{
@@ -110,7 +153,11 @@ export default defineConfig({
 						description: 'Acceder directamente al seguimiento de calificaciones',
 						url: '/notas',
 						icons: [
-							{ src: '/android/android-launchericon-192-192.png', sizes: '192x192' },
+							{
+								src: '/android/android-launchericon-192-192.png',
+								sizes: '192x192',
+								type: 'image/png',
+							},
 						],
 					},
 					{
@@ -119,7 +166,11 @@ export default defineConfig({
 						description: 'Acceder directamente a eventos académicos',
 						url: '/eventos',
 						icons: [
-							{ src: '/android/android-launchericon-192-192.png', sizes: '192x192' },
+							{
+								src: '/android/android-launchericon-192-192.png',
+								sizes: '192x192',
+								type: 'image/png',
+							},
 						],
 					},
 				],
