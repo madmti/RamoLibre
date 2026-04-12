@@ -2,6 +2,9 @@
 
 Monorepo para el proyecto RamoLibre construido con Turborepo y Bun.
 
+## Continuidad
+Este proyecto no continuara, en su lugar sera reemplazado por [Ramo Libre Web](https://github.com/madmti/Ramo-Libre-Web).
+
 ## Estructura del proyecto
 
 ```
