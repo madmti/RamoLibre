@@ -5,6 +5,11 @@ Monorepo para el proyecto RamoLibre construido con Turborepo y Bun.
 ## Continuidad
 Este proyecto no continuara, en su lugar sera reemplazado por [Ramo Libre Web](https://github.com/madmti/Ramo-Libre-Web).
 
+## Preview
+
+![Home](https://github.com/madmti/RamoLibre/blob/main/apps/web/static/screenshots/desktop-home.png)
+![Horarios](https://github.com/madmti/RamoLibre/blob/main/apps/web/static/screenshots/desktop-horario.png)
+
 ## Estructura del proyecto
 
 ```
